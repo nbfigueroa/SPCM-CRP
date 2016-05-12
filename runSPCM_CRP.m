@@ -16,7 +16,7 @@ M = options.M;   % M-dimension of Spectral Manifold
 N = size(sigmas,1);
 fprintf('Computing SPCM Similarity Function for %dx%d observations...\n',N,N);
 tic;
-spcm = ComputeSPCMfunctionProb(sigmas, tau);  
+spcm = ComputeSPCMfunction(sigmas, tau);  
 toc;
 S = spcm(:,:,2); % Bounded Decay SPCM Similarity Matrix
 fprintf('*************************************************************\n');
