@@ -8,13 +8,7 @@ close all
 % Set Hyper-parameters
 % %%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; 
-
-% For Spectral Manifold Algorithm
-M = 2;   % M-dimension of Spectral Manifold
-
-% For K-means
-k = 3;
+tau = 5; 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Similarity Function for dataset
@@ -22,7 +16,7 @@ k = 3;
 N = length(sigmas);
 fprintf('Computing SPCM Similarity Function for %dx%d observations...\n',N,N);
 tic;
-spcm = ComputeSPCMfunctionProb(sigmas, tau);  
+spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
 toc;
 S = spcm(:,:,2); % Bounded Decay SPCM Similarity Matrix
 fprintf('*************************************************************\n');
@@ -30,6 +24,13 @@ fprintf('*************************************************************\n');
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Clustering Directly from SPCM and Spectral Manifold
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+close all
+
+% Dimensionality of M Manifold
+M = 3;
+
+% For K-means
+k = 3;
 
 % %%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 figure('Color',[1 1 1], 'Position',[1300 100 597 908])
@@ -61,10 +62,16 @@ colormap(pink)
 fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
 tic;
 [Y, d] = spectral_DimRed(S,M);                
+
+s = 1 - softmax(d);
+s_dev = s.*(1-s);
+subplot(5,1,3)
+plot(s,'-*b'); hold on
+% plot(s_dev,'-*r'); hold on
 toc;
 fprintf('*************************************************************\n');
 
-% %%% Compute clusters from Similarity Matrix and Spectral Manifold using sd-CRP %%%%%%  
+%% %%% Compute clusters from Similarity Matrix and Spectral Manifold using sd-CRP %%%%%%  
 fprintf('Clustering via sd-CRP...\n');
 tic;
 [Psi_MAP] = run_sdCRP(Y, S);

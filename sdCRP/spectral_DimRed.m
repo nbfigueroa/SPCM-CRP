@@ -1,4 +1,4 @@
-function [X, D_sort] = spectral_DimRed(S , M)
+function [X, d] = spectral_DimRed(S , M)
 % This algorithm maps the data into M-dimensional spectral space from
 % similarity matrix S using the method from (On Spectral Clustering: Analysis and an algorithm. Andrew Ng.)
 % Implementation of Algorithm 1. from Socher11a paper (Spectral Chinese Restaurant Processes)
@@ -39,12 +39,7 @@ D_sort = diag(sort(diag(D),'ascend')); % make diagonal matrix out of sorted diag
 V_sort=V(:,ind); % arrange the columns in this order
 
 % Evaluate Eigengap
-% figure('Color',[1 1 1])
-d = diag(D_sort);
-plot(d,'*')
-hold on 
-d_gap = abs(d - [0;d(1:end-1)]); 
-plot(d_gap, 'Color', [1 0 0])
+d = diag(D_sort); 
 
 % Choose M eigenvectors
 V_M = V_sort(:,1:M);
