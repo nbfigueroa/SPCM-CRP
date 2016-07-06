@@ -26,9 +26,6 @@ fprintf('*************************************************************\n');
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all
 
-% Dimensionality of M Manifold
-M = 3;
-
 % For K-means
 k = 3;
 
@@ -61,13 +58,24 @@ colormap(pink)
 
 fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
 tic;
+
+% Dimensionality of M Manifold
+M = 3
+
 [Y, d] = spectral_DimRed(S,M);                
 
-s = 1 - softmax(d);
-s_dev = s.*(1-s);
+s = softmax(d);
+s_norm = normalize_soft(s);
+thres = 0;
+M_p = sum(s_norm < thres)
+
 subplot(5,1,3)
-plot(s,'-*b'); hold on
-% plot(s_dev,'-*r'); hold on
+plot(s_norm,'-*r'); hold on
+plot(thres*ones(1,length(s)),'-'); hold on
+xlabel('Eigenvalue Index')
+ylabel('Normalized Softmax')
+tit = strcat('Eigenvalue Analysis for Manifold Dimensionality= ', num2str(M_p))
+title(tit)
 toc;
 fprintf('*************************************************************\n');
 
