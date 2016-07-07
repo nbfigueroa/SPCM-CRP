@@ -1,18 +1,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Test Clustering Algorithm on SPCM Kernel Matrix
+% Test SPCM-CRP
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc
 close all
 
 % %%%%%%%%%%%%%%%%%%%%%
-% Set Hyper-parameters
+% Set Hyper-parameter
 % %%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
 tau = 50; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compute Similarity Function for dataset
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Compute Similarity Matrix from b-SPCM Function for dataset
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Number of datapoints
 N = length(sigmas);
 fprintf('Computing SPCM Similarity Function for %dx%d observations...\n',N,N);
 tic;
