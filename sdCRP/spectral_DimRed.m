@@ -1,11 +1,13 @@
-function [X, d] = spectral_DimRed(S , M)
+function [Y, d, thres] = spectral_DimRed(S , M)
 % This algorithm maps the data into M-dimensional spectral space from
 % similarity matrix S using the method from (On Spectral Clustering: Analysis and an algorithm. Andrew Ng.)
 % Implementation of Algorithm 1. from Socher11a paper (Spectral Chinese Restaurant Processes)
 
-% Input: Similarity Matrix S
+% Input: Similarity Matrix S and M \in R [1,100] correpsonding to manifold
+% dimensionality
 
-% Output: M-dimensional points (x1,...,,xN) where N = dim(S)
+% Output: M-dimensional points (y1,...,,yN) where N = dim(S), M is given or
+% computed
 
 % Example: blah blah
 
@@ -13,7 +15,7 @@ function [X, d] = spectral_DimRed(S , M)
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% February 2016; Last revision: 12-Feb-2016
+% February 2016; Last revision: 07-July-2016
 
 
 % Remove Diagonal Values (self-similarities)
@@ -28,18 +30,44 @@ L = D - S;
 % Compute Symmetric Normalized Laplacian
 L_sym = D^(-1/2)*L*D^(-1/2);
 
-% Compute Random-Walk Normalized Laplacian
-% L_sym = D^(-1)*L;
-
 % Compute Eigen Decomposition of L_sym
 [V,D] = eig(L_sym);
 
 D_sort = diag(sort(diag(D),'ascend')); % make diagonal matrix out of sorted diagonal values of input D
-[c, ind]=sort(diag(D_sort),'ascend'); % store the indices of which columns the sorted eigenvalues come from
+[~, ind]=sort(diag(D_sort),'ascend'); % store the indices of which columns the sorted eigenvalues come from
 V_sort=V(:,ind); % arrange the columns in this order
 
-% Evaluate Eigengap
+% Vectorize eigenvalues
 d = diag(D_sort); 
+
+% If M is not given, find optimal threshold using softmax + attractive
+% adaptation
+thres = 0;
+eps_i = 0.2;
+eps_ii = 0.02;
+
+if isempty(M)   
+    s = softmax(d);
+    s_norm = normalize_soft(s);    
+    M_cut = sum(s_norm < thres);
+
+    % Attractive Threshold adaptation
+    if (abs(s_norm(M_cut)) < eps_i) || (abs(s_norm(M_cut+1)) < eps_i)
+        if M_cut > 2
+            f = [ s_norm(M_cut-2) s_norm(M_cut-1) s_norm(M_cut) s_norm(M_cut+1)];
+        else
+            f = [s_norm(M_cut) s_norm(M_cut+1) s_norm(M_cut+1) s_norm(M_cut+2)];
+        end
+        thres = thres + mean(f);
+        M_cut = sum(s_norm < thres);
+    end
+    
+    if abs(s_norm(M_cut + 1) - thres) < eps_ii
+        M_cut = M_cut + 1;
+        thres = s_norm(M_cut);
+    end
+    M = M_cut;
+end
 
 % Choose M eigenvectors
 V_M = V_sort(:,1:M);
@@ -48,6 +76,6 @@ V_M = V_sort(:,1:M);
 V_M = bsxfun(@rdivide, V_M, sum(V_M,2));
 
 % Define MxN observation vector X = (x1, ..., xN) as rows of V
-X = V_M';
+Y = V_M';
 
 end

@@ -23,10 +23,5 @@ display = 1;
 
 %% Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters (c1:63, c2:21, c3: 21)
 % Path to data folder
-data_path = '/home/nbfigueroa/dev/SPCM-CRP/data';
+data_path = '/home/nadiafigueroa/dev/MATLAB/SPCM-CRP/data';
 [sigmas, true_labels] = load_task_dataset(data_path);
-
-
-
-
-

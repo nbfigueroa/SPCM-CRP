@@ -8,7 +8,7 @@ close all
 % Set Hyper-parameters
 % %%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 5; 
+tau = 50; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Similarity Function for dataset
@@ -27,7 +27,7 @@ fprintf('*************************************************************\n');
 close all
 
 % %%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-figure('Color',[1 1 1], 'Position',[1300 100 597 908])
+figure('Color',[1 1 1], 'Position',[1300 100 397 908])
 
 subplot(6,1,1)
 imagesc(S)
@@ -57,24 +57,16 @@ fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Fu
 tic;
 
 % Dimensionality of M Manifold
-M = 3
-
-[Y, d] = spectral_DimRed(S,M);                
-
-s = softmax(d);
-s_norm = normalize_soft(s);
-thres = 0.02;
-M = sum(s_norm < thres)
-k = M
-
-[Y, d] = spectral_DimRed(S,M);
+[Y, d, thres] = spectral_DimRed(S,[]);
+s_norm = normalize_soft(softmax(d));    
+M = sum(s_norm <= thres);
 
 subplot(6,1,3)
 plot(s_norm,'-*r'); hold on
-plot(thres*ones(1,length(s)),'-'); hold on
+plot(thres*ones(1,length(d)),'--k','LineWidth', 2); hold on
 xlabel('Eigenvalue Index')
-ylabel('Normalized Softmax')
-tit = strcat('Eigenvalue Analysis for Manifold Dimensionality= ', num2str(M))
+ylabel('Normalized Eigenvalue Softmax')
+tit = strcat('Eigenvalue Analysis for Manifold Dimensionality= ', num2str(M));
 title(tit)
 toc;
 fprintf('*************************************************************\n');
@@ -129,6 +121,7 @@ if M==3
 end
 
 % Apply K-means on M-dimensional spectral space (For comparison purposes)
+k = M;
 fprintf('Clustering via k-means with k=%d...\n',k);
 opts = statset('Display','final');
 tic;
