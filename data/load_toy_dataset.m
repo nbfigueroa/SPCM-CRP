@@ -101,6 +101,7 @@ if strcmp(type,'4d')
         imagesc(tmp)
         colormap(pink)
         colorbar
+        axis square
     end
     
     tmp = eye(4);
@@ -113,6 +114,7 @@ if strcmp(type,'4d')
         imagesc(tmp)
         colormap(pink)
         colorbar
+        axis square
     end
     
     % Rotated and Scaled
@@ -126,6 +128,7 @@ if strcmp(type,'4d')
         imagesc(tmp)
         colormap(pink)
         colorbar
+        axis square
     end
     
     [V D]= eig(tmp);
@@ -135,6 +138,7 @@ if strcmp(type,'4d')
         imagesc(behavs_theta4{4})
         colormap(pink)
         colorbar
+        axis square
     end
     
     % Different
@@ -147,6 +151,7 @@ if strcmp(type,'4d')
         imagesc(behavs_theta4{5})
         colormap(pink)
         colorbar
+        axis square
     end
     
     D = diag([10 4 3 1]*3.5);
@@ -154,9 +159,10 @@ if strcmp(type,'4d')
     if display == 1
         subplot(2,3,6)
         imagesc(behavs_theta4{6})
+        suptitle('Toy 4D Covariance Matrices Dataset')
         colormap(pink)
         colorbar
-        suptitle('Toy 4D Covariance Matrices Dataset')
+        axis square        
     end
     
     clear sigmas true_labels
@@ -176,7 +182,7 @@ if strcmp(type,'6d')
     tot = 10;
     rows = floor(sqrt(tot));
     cols = ceil(tot/rows);
-    if display == 1, figure('Color',[1 1 1]); end    
+    if display == 1, figure('Color',[1 1 1]); suptitle('Toy 6D Covariance Matrices Dataset pt.1'); end    
     for i=1:tot
         D = diag(abs(diag(eye(6))*randn));
         [Q R] = qr(randn(6,6));
@@ -186,12 +192,13 @@ if strcmp(type,'6d')
             imagesc(behavs_theta6toy{i})
             colormap(pink)
             colorbar
+            axis square
         end
     end
-    if display == 1, suptitle('Toy 6D Covariance Matrices Dataset pt.1'); end
+ 
     
     lambda = [1 10 10 10 1 1];
-    if display == 1, figure('Color',[1 1 1]); end
+    if display == 1, figure('Color',[1 1 1]);suptitle('Toy 6D Covariance Matrices Dataset pt.2'); end
     iter = 1;
     for i=tot+1:2*tot
         D = diag(abs(lambda*randn)*0.5);
@@ -202,13 +209,14 @@ if strcmp(type,'6d')
             imagesc(behavs_theta6toy{i})
             colormap(pink)
             colorbar
+            axis square
         end
         iter = iter + 1;
     end
-    if display == 1, suptitle('Toy 6D Covariance Matrices Dataset pt.2'); end
+    
     
     lambda = [1 20 30 40 50 60];
-    if display == 1, figure('Color',[1 1 1]); end
+    if display == 1, figure('Color',[1 1 1]); suptitle('Toy 6D Covariance Matrices Dataset pt.3'); end
     iter = 1;
     for i=2*tot+1:3*tot
         D = diag(abs(lambda*randn*0.5));
@@ -219,10 +227,11 @@ if strcmp(type,'6d')
             imagesc(behavs_theta6toy{i})
             colormap(pink)
             colorbar
+            axis square
         end
         iter = iter + 1;
     end
-    if display == 1, suptitle('Toy 6D Covariance Matrices Dataset pt.3'); end
+    
     
     sigmas = behavs_theta6toy;
     true_labels = [ones(1,tot) , ones(1,tot)*2, ones(1,tot)*3];    

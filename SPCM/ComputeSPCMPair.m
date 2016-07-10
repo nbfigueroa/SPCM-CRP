@@ -1,4 +1,4 @@
-function [p_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
+function [f_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
        
         dim = size(Sigma_i,1);
         
@@ -35,14 +35,14 @@ function [p_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
         % Homothetic mean factor 
         mean_fact = mean(hom_fact);
         
-        %Spectral similarity value
+        % Spectral similarity value (Eq.3 from [1])
         spcm = std(hom_fact);
         
-        % Scaling function
+        % Scaling function (Eq.5 from [1])
         alpha = 10^(tau*exp(-dim));
 
-        % B-SPCM p(theta_i~theta_j|Sigma_i,Sigma_j) = 
+        % B-SPCM f(delta_ij,tau) = 
         % 1/( 1 + s(Sigma_i,Sigma_j)*alpha(tau,dim))
-        p_sim = 1/(1+spcm*alpha);
+        f_sim = 1/(1+spcm*alpha);
         
 end
