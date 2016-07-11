@@ -27,9 +27,10 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         Covs2 = V1*(diag(D1m))*V1';
         behavs_theta{1,2} = Covs2;
         [V2,D2] = eig(Covs2);
+        mu = [1 0 0]';
         [x,y,z] = created3DgaussianEllipsoid(mu,V2,D2^1/2);
         if display==1
-            mesh(x,y,z,'EdgeColor','black','Edgealpha',0.2);
+            mesh(x,y,z,'EdgeColor','blue','Edgealpha',0.2);
             hidden off
             hold on;
         end
@@ -40,10 +41,10 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         Covs3 = V2_rot*D2*V2_rot';
         behavs_theta{1,3} = Covs3;
         [V3,D3] = eig(Covs3);
-        mu = [0 0 0]';
+        mu = [2 0 0]';
         [x,y,z] = created3DgaussianEllipsoid(mu,V3,D3^1/2);
         if display==1
-            mesh(x,y,z,'EdgeColor','red','Edgealpha',0.2);
+            mesh(x,y,z,'EdgeColor','blue','Edgealpha',0.2);
             hidden off
             hold on;
         end
@@ -53,10 +54,10 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         D = diag([4 3 0.5]);
         behavs_theta{1,4} = Q*(D)*Q';
         [V4,D4] = eig(behavs_theta{1,4});
-        mu = [0 0 0]';
+        mu = [4 0 0]';
         [x,y,z] = created3DgaussianEllipsoid(mu,V4,D4^1/2);
         if display == 1
-            mesh(x,y,z,'EdgeColor','magenta','Edgealpha',0.2);
+            mesh(x,y,z,'EdgeColor','red','Edgealpha',0.2);
             hidden off
             hold on;
         end
@@ -66,18 +67,21 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         D = diag([4 3 0.5]*0.75);
         behavs_theta{1,5} = (Q2)*(D)*(Q2)';
         [V5,D5] = eig(behavs_theta{1,5});
-        mu = [0 0 0]';
+        mu = [6 0 0]';
         [x,y,z] = created3DgaussianEllipsoid(mu,V5,D5^1/2);
         if display == 1
-            mesh(x,y,z,'EdgeColor','green','Edgealpha',0.2);
+            mesh(x,y,z,'EdgeColor','red','Edgealpha',0.2);
             hidden off
             hold on;
             colormap jet
-            alpha(0.5)
+            alpha(0.75)
             axis equal
-            title('Toy 3D Covariance Matrices Dataset')
+            grid off
+            axis off
+            xlabel('x'); ylabel('y'); zlabel('z'); 
+            title('Toy 3D Covariance Matrices Dataset','FontSize', 20)
         end
-                
+        
         sigmas = behavs_theta;
         true_labels = [ones(1,3) , ones(1,2)*2];
 end
@@ -236,5 +240,4 @@ if strcmp(type,'6d')
     sigmas = behavs_theta6toy;
     true_labels = [ones(1,tot) , ones(1,tot)*2, ones(1,tot)*3];    
 end
-
 end

@@ -5,4 +5,4 @@ In a nutshell **SPCM-CRP** is a similarity-dependent Chinese Restaurant process.
 
 
 
-[1] Transform invariant... my journal paper
+[1] Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods. Nadia Figueroa and Aude Billard. In preparation for Pattern Recognition.

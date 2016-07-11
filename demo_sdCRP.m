@@ -32,7 +32,7 @@ clc;
 % Set Hyper-parameter
 % %%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 5; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % Number of datapoints
 N = length(sigmas);
@@ -43,11 +43,10 @@ toc;
 S = spcm(:,:,2); % Bounded Decay SPCM Similarity Matrix
 fprintf('*************************************************************\n');
 
-
 % %%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 figure('Color',[1 1 1])
 imagesc(S)
-title('Bounded Decaying Similarity Function (B-SPCM) Matrix')
+title('Bounded Similarity Function (B-SPCM) Matrix')
 colormap(pink)
 colorbar 
 axis square

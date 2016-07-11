@@ -34,7 +34,7 @@ clc;
 % Set Hyper-parameter
 % %%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % Number of datapoints
 N = length(sigmas);
@@ -48,8 +48,15 @@ fprintf('*************************************************************\n');
 
 % %%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 figure('Color',[1 1 1])
+imagesc(spcm(:,:,1))
+title('Similarity Function (SPCM) Matrix')
+colormap(pink)
+colorbar 
+axis square
+
+figure('Color',[1 1 1])
 imagesc(S_spcm)
-title('Bounded Decaying Similarity Function (B-SPCM) Matrix')
+title('Bounded Similarity Function (B-SPCM) Matrix')
 colormap(pink)
 colorbar 
 axis square
@@ -65,12 +72,29 @@ S_riem = compute_cov_sim( sigmas, 'RIEM' );
 toc;
 fprintf('*************************************************************\n');
 
+% Plot Results
+figure('Color',[1 1 1])
+imagesc(S_riem)
+title('Affine Invariant Riemannian Metric (RIEM)')
+colormap(pink)
+colorbar 
+axis square
+
 %%%%%%%%%%%%%%% 'LERM': Log-Euclidean Riemannina Metric %%%%%%%%%%%%%%%
 fprintf('Computing LERM Similarity Function for %dx%d observations...\n',N,N);
 tic;
 S_lerm = compute_cov_sim( sigmas, 'LERM' );
 toc;
 fprintf('*************************************************************\n');
+
+
+% Plot Results
+figure('Color',[1 1 1])
+imagesc(S_lerm)
+title(' Log-Euclidean Riemannian Metric (LERM)')
+colormap(pink)
+colorbar 
+axis square
 
 %%%%%%%%%%%%%%% 'KLDM': Kullback-Liebler Divergence Metric %%%%%%%%%%%%%%%
 fprintf('Computing KLDM Similarity Function for %dx%d observations...\n',N,N);
@@ -79,6 +103,14 @@ S_kldm = compute_cov_sim( sigmas, 'KLDM' );
 toc;
 fprintf('*************************************************************\n');
 
+% Plot Results
+figure('Color',[1 1 1])
+imagesc(S_kldm)
+title(' Kullback-Liebler Divergence Metric (KLDM)')
+colormap(pink)
+colorbar 
+axis square
+
 %%%%%%%%%%%%%%% 'JBLD': Jensen-Bregman LogDet Divergence %%%%%%%%%%%%%%%
 fprintf('Computing JBLD Similarity Function for %dx%d observations...\n',N,N);
 tic;
@@ -86,63 +118,67 @@ S_jbld = compute_cov_sim( sigmas, 'JBLD' );
 toc;
 fprintf('*************************************************************\n');
 
-% Plot Results for all metrics
+% Plot Results
 figure('Color',[1 1 1])
-subplot(2,2,1)
-imagesc(S_riem)
-title('Affine Invariant Riemannian Metric (RIEM)')
-colormap(pink)
-colorbar 
-axis square
-
-subplot(2,2,2)
-imagesc(S_lerm)
-title(' Log-Euclidean Riemannian Metric (LERM)')
-colormap(pink)
-colorbar 
-axis square
-
-subplot(2,2,3)
-imagesc(S_kldm)
-title(' Log-Euclidean Riemannian Metric (LERM)')
-colormap(pink)
-colorbar 
-axis square
-
-subplot(2,2,4)
 imagesc(S_jbld)
-title(' Log-Euclidean Riemannian Metric (LERM)')
+title('Jensen-Bregman LogDet Divergence (JBLD)')
 colormap(pink)
 colorbar 
 axis square
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Apply Clustering Algorithms on Similarity Matrices
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Apply Standard Similarity-based Clustering Algorithms on Similarity Matrices
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Option 1: Affinity Propagation on Similarity Matrix
 
 % Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD )
 S_type = {'SPCM', 'RIEM', 'LERM', 'KLDM', 'JBLD'};
 
 % %%% Compute clusters from Similarity Matrix using Affinity Propagation %%%%%%
-
 figure('Color',[1 1 1])
-
-D_aff = S - eye(size(S));
-fprintf('Clustering via Affinity Propagation...\n');
-tic;
-[E K labels_aff idx] = affinitypropagation(D_aff);
-toc;
-NMI = CalcNMI(true_labels, labels_aff');
-fprintf('Number of clusters: %d, NMI Score: %d\n',K, NMI);
-fprintf('*************************************************************\n');
-
-imagesc(labels_aff')
-title('Clustering from Aff. Prop. on SPCM function')
+s_plots = length(S_type) + 1;
+subplot(s_plots, 1, 1);
+imagesc(true_labels)
+title('True Labels')
 axis equal tight
 colormap(pink)
+    
+for i=1:length(S_type)
+        
+    s_type = S_type{i};
+    
+    switch s_type 
+        case 'SPCM' 
+            S = S_spcm;
+        case 'RIEM' 
+            S = S_riem;
+        case 'LERM'
+            S = S_lerm;
+        case 'KLDM'
+            S = S_kldm;
+        case 'JBLD'
+            S = S_jbld;
+    end
+    
+    D_aff = S - eye(size(S));    
+    fprintf('Clustering via Affinity Propagation...\n');
+    tic;
+    [E K labels_aff idx] = affinitypropagation(D_aff);
+    toc;
+    NMI = CalcNMI(true_labels, labels_aff');
+    fprintf('Number of clusters: %d, NMI Score: %d\n',K, NMI);
+    fprintf('*************************************************************\n');
 
-%% Option 2: kernel Kmeans
+    subplot(s_plots, 1, i + 1);
+    imagesc(labels_aff')
+    af_clusters = length(unique(labels_aff));
+    title_string = sprintf('Clustering from Aff.Prop with %s : K=%d, NMI=%f',s_type, af_clusters, NMI);
+    title(title_string)
+    axis equal tight
+    colormap(pink)
+
+end
+
+%% Option 2: Spectral Clustering w/k-means
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compare CRP to kmeans on projected data from Spectral Manifold
