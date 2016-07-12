@@ -9,7 +9,7 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         angle = pi/2;
         
         %Ellipsoid 1
-        Cov = ones(3,3) + diag([1 1 1]);        
+        Cov = ones(3,3) + diag([1 1 1])        
         mu = [0 0 0]';
         behavs_theta{1,1} = Cov;
         [V1,D1] = eig(Cov);
@@ -52,7 +52,8 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         %Ellipsoid 4: Different
         [Q R] = qr(randn(3,3));
         D = diag([4 3 0.5]);
-        behavs_theta{1,4} = Q*(D)*Q';
+        Cov = Q*(D)*Q'
+        behavs_theta{1,4} = Cov;
         [V4,D4] = eig(behavs_theta{1,4});
         mu = [4 0 0]';
         [x,y,z] = created3DgaussianEllipsoid(mu,V4,D4^1/2);

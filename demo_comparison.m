@@ -1,6 +1,6 @@
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compare similarity and clustering algorithms
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Compare similarity functions and clustering algorithms
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % To run some of the function on this script you need 
 % the ML_toolbox in your MATLAB path.
 
@@ -128,17 +128,29 @@ axis square
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Apply Standard Similarity-based Clustering Algorithms on Similarity Matrices
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Option 1: Affinity Propagation on Similarity Matrix
 
-% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD )
+%%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
 S_type = {'SPCM', 'RIEM', 'LERM', 'KLDM', 'JBLD'};
+% S_type = {'SPCM'};
 
-% %%% Compute clusters from Similarity Matrix using Affinity Propagation %%%%%%
+%%% Choose Clustering Algorithm %%%
+% 'affinity': Affinity Propagation
+% 'spectral': Spectral Clustering w/k-means
+% C_type = 'affinity';
+C_type = 'spectral';
+
+%%% Selection of M-dimensional Spectral Manifold (for Spectral Clustering) %%%
+% mani = 'auto';
+mani = 'known';
+
+%%%%%%%%% Compute clusters from Similarity Matrices %%%%%%%%%
 figure('Color',[1 1 1])
+
+%%% Plotting true labels
 s_plots = length(S_type) + 1;
 subplot(s_plots, 1, 1);
 imagesc(true_labels)
-title('True Labels')
+title('True Labels', 'FontSize',12,'FontWeight','bold')
 axis equal tight
 colormap(pink)
     
@@ -159,32 +171,58 @@ for i=1:length(S_type)
             S = S_jbld;
     end
     
-    D_aff = S - eye(size(S));    
-    fprintf('Clustering via Affinity Propagation...\n');
-    tic;
-    [E K labels_aff idx] = affinitypropagation(D_aff);
-    toc;
-    NMI = CalcNMI(true_labels, labels_aff');
-    fprintf('Number of clusters: %d, NMI Score: %d\n',K, NMI);
+    switch C_type
+        case 'affinity'            
+            fprintf('Clustering via Affinity Propagation...\n');
+            tic;
+            max_sim =  max(max(S));
+            D_aff = S - eye(size(S))*max_sim;
+            [E K labels idx] = affinitypropagation(D_aff, []);
+            toc;
+            clus_method = 'Aff. Prop.';
+            
+        case 'spectral'
+            fprintf('Clustering via Affinity Propagation...\n');
+            tic;
+            
+            % Project point to spectral manifold from Similarity Matrix
+            % Choose known M for the spectral manifold dimension
+            
+            switch mani
+                case 'auto'
+                    % Automatically discover M from the Eigenvalue of the Laplacian
+                    [Y, d, thres] = spectral_DimRed(S,[]);
+                    s_norm = normalize_soft(softmax(d));    
+                    M = sum(s_norm <= thres);
+            
+                case 'known'
+                    % Use M = true # clusters
+                    M = length(unique(true_labels));            
+                    [Y, d, thres] = spectral_DimRed(S, M);    
+            end
+            
+            % K-means 
+            cluster_options             = [];
+            cluster_options.method_name = 'kmeans';
+            cluster_options.K           = M;
+            result                      = ml_clustering(Y',cluster_options,'Distance','sqeuclidean','MaxIter',500);  
+            labels = result.labels;
+            clus_method = 'Spec. Clust.';
+            toc;
+    end
+    
+    [Purity NMI F] = cluster_metrics(true_labels, labels');
+    K = length(unique(labels));
+    
+    fprintf('Number of clusters: %d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',K, Purity, NMI, F);
     fprintf('*************************************************************\n');
 
     subplot(s_plots, 1, i + 1);
-    imagesc(labels_aff')
-    af_clusters = length(unique(labels_aff));
-    title_string = sprintf('Clustering from Aff.Prop with %s : K=%d, NMI=%f',s_type, af_clusters, NMI);
-    title(title_string)
+    imagesc(labels')
+    
+    title_string = sprintf('Method (%s) Metric (%s)  [K=%d, Purity: %1.2f, NMI: %1.2f, F-measure: %1.2f]', clus_method, s_type, K, Purity, NMI, F);
+    title(title_string, 'FontSize',12 ,'FontWeight','bold')
     axis equal tight
     colormap(pink)
 
 end
-
-%% Option 2: Spectral Clustering w/k-means
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compare CRP to kmeans on projected data from Spectral Manifold
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Project Data to Spectral Manifold
-
-%% Option 1: Use CRP on points projected to spectral manifold
-
-%% Option 2: Use kmeans on points projected to spectral manifold

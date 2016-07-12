@@ -100,9 +100,10 @@ if (M == 2) || (M == 3)
     end
 end
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Discover Clusters from using sd-CRP %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Discover Clusters using sd-CRP %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 fprintf('Clustering via sd-CRP...\n');
 tic;
 [Psi_MAP] = run_sdCRP(Y, S);
@@ -115,8 +116,8 @@ axis equal tight
 colormap(pink)
 sdcrp_tables = length(unique(labels_sdcrp));
 fprintf('MAP Cluster estimate recovered at iter %d: %d\n', Psi_MAP.iter, sdcrp_tables);
-NMI = CalcNMI(true_labels, labels_sdcrp); %% CHANGE THIS FUNCTION
-title_string = sprintf('Clustering from sdCRP K=%d, NMI=%f',sdcrp_tables, NMI);
+[Purity NMI F] = cluster_metrics(true_labels, labels_sdcrp');
+title_string = sprintf('Clustering from sdCRP K=%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f',sdcrp_tables, Purity, NMI, F);
 title(title_string)
-fprintf('sd-CRP LP: %d and NMI Score: %d\n', Psi_MAP.LogProb, NMI);
+fprintf('sd-CRP LP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', Psi_MAP.LogProb, Purity, NMI, F);
 fprintf('*************************************************************\n');

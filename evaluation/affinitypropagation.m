@@ -1,5 +1,6 @@
-function [E K c idx] = affinitypropagation(S)
-% INPUT: NxN matrix of similarities
+function [E K c idx] = affinitypropagation(S,lamnda)
+% INPUT: S (NxN matrix of similarities)
+%        lamnda (damping factor)
 % OUTPUT: E (NXN Evidence matrix r(i,k) + a(i,k))
 %         K (number of exemplars)
 %         c (exemplars)
@@ -9,7 +10,12 @@ function [E K c idx] = affinitypropagation(S)
 N=size(S,1); A=zeros(N,N); R=zeros(N,N); % Initialize messages
 S=S+1e-12*randn(N,N)*(max(S(:))-min(S(:))); % Remove degeneracies
 
-lam=0.5; % Set damping factor
+if isempty(lamnda)
+    lam=0.5; % Set damping factor
+else
+    lam = lamnda;
+end
+
 for iter=1:1000
     % Compute responsibilities
     Rold=R;
