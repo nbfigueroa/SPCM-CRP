@@ -1,7 +1,7 @@
 # SPCM-CRP
 SPCM-CRP : Chinese Restaurant Process for Similarity Matrices for Matlab
 
-Website: http://michaelchughes.github.com/NPBayesHMM/
+Website: http://nbfigueroa.github.io/SPCM-CRP/ 
 
 Author: Nadia Figueroa ( nadia.figueroafernandez AT epfl.ch)
 
