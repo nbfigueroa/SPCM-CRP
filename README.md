@@ -9,5 +9,5 @@ This repo provides code for running for Non-parametric Spectral Clustering algor
 
 
 
-### Reference
+### Publication
 [1] Nadia Figueroa and Aude Billard, "Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods." In preparation for Pattern Recognition.
