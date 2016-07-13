@@ -10,7 +10,7 @@ This repo provides code for running the Non-parametric Spectral Clustering algor
 To highlight the power of the proposed method, we ..
 
 <p align="center">
-<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/3d-ellipsoids.png" width="290">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/3d-ellipsoids.png" width="400">
 </p>
 
 
