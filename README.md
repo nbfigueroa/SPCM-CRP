@@ -39,6 +39,8 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 - JBLD: Jensen-Bregman LogDet Divergence
 
 
+To run the full SPCM-CRP pipeline, follow the scipt ```demo_sdCRP.m```, for the 3D dataset you should get the following output on your MATLAB terminal:
+
 ```
 Clustering via sd-CRP...
 *** Initialized with 5 clusters out of 5 observations ***
@@ -70,14 +72,8 @@ sd-CRP LP: -2.168154e+01 and Purity: 1.00, NMI Score: 1.00, F measure: 1.00
 
 ### Comparisons
 
-In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and 4 other standard Covariance Matrix Similarity functions used in literature for various datasets [1].
-
-- pics here
-
-Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
-
-- pics here
-
+- In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for various datasets [1].
+- Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
 
 #### Dependencies
 To run the **comparisons** demo, download the following toolbox and make sure to have it in your MATLAB path:
