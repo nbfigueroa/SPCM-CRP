@@ -1,5 +1,5 @@
 # SPCM-CRP
-SPCM-CRP : Chinese Restaurant Process for Similarity Matrices
+SPCM-CRP : Transform Invariant Chinese Restaurant Process for Covariance Matrices
 
 Website: http://nbfigueroa.github.io/SPCM-CRP/ 
 
