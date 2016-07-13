@@ -21,12 +21,17 @@ Seldom Covariance Matrix similarity functions explictly have the property of tra
 <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/sigmas_mod.png" width="700">
 </p>
 
-The **Spectral Polytope (SP)** is the Convex envelope of the projection of the Eigenvectors scaled by their Eigenvalues (X). The idea is, if the SPs of two covariance matrices have the same shape but are scaled by some homothetic factor, then they are similar (Refer to [1] for the math). By implementing this simple, yet elegant idea, we get robust transform-invariant similarity values, which are not well recovered by other metrics:
+The **Spectral Polytope (SP)** is the Convex envelope of the projection of the Eigenvectors scaled by their Eigenvalues (X). The idea is, if the SPs of two covariance matrices have the same shape but are scaled by some homothetic factor, then they are similar (Refer to [1] for the math). By implementing this simple, yet elegant idea, we get robust transform-invariant similarity values (second plot is the B-SPCM - a bounded version of SPCM):
 
 <p align="center">
-<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM.png" width="200">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM.png" width="300"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM.png" width="300">
 </p>
 
+,which are not well recovered by other metrics:
+
+<p align="center">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/RIEM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/LERM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/KLDM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/JBLD.png" width="200">
+</p>
 
 ```
 Computing SPCM Similarity Function for 5x5 observations...
