@@ -7,7 +7,12 @@ Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP) introduced in [1]. In a nutshell, **SPCM-CRP** is a similarity-dependent Chinese Restaurant process. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold of the similarity function.
 
 ### Illustrative Demo
-To highlight the power of the proposed method, we 
+To highlight the power of the proposed method, we ..
+
+<p align="center">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/3d-ellipsoids.png" width="290">
+</p>
+
 
 
 #### Spectral Polytope Covariance Matrix (SPCM) Similarity Function
