@@ -39,7 +39,7 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 - JBLD: Jensen-Bregman LogDet Divergence
 
 ### Similarity-based Non-parametric clustering (sd - Chinese Restaurant Process)
-Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Thus, we choose a variant of the Chinese Resturant Process, namely the sd-CRP whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
+Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Thus, we choose a variant of the Chinese Resturant Process, namely the **sd-CRP** whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
 
 #### sd-CRP steps
 - Initially, we apply an **augmented Spectral Dimenensionality** reduction algorithm, which automatically selects the dimensionality of the Spectral Manifold by applying a SoftMax on the Eigenvalues of the Laplacian of the Similarity matrix:
@@ -48,7 +48,7 @@ Now that we have a good similarity function for our task, we want to derive a cl
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/auto-spectral-manifold.png" width="500">
   </p>
 
-- Once we have the points on the Spectral Manifold corresponding to each Covariance Matrix, we apply the sd-CRP. Which follows the analogy for seating customers in a Chinese Restaurant with infinite number of tables wrt. a similarity between the customers
+- Once we have the points on the Spectral Manifold corresponding to each Covariance Matrix, we apply the **sd-CRP**. Which follows the analogy for seating customers in a Chinese Restaurant with infinite number of tables wrt. a similarity between the customers
   <p align="center">
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/ddcrp.png" width="500">
   </p>
