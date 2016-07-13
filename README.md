@@ -6,7 +6,7 @@ Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 
 This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP) introduced in [1]. In a nutshell, **SPCM-CRP** is a similarity-dependent Chinese Restaurant process. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold of the similarity function.
 
-### Illustrative Demo
+### Illustrative Example
 To highlight the power of the proposed method, we consider a dataset of 5 Covariance Matrices of 3-dimensions, which can be illustrated as ellipsoids in 3D space:
 <p align="center">
 <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/3d-ellipsoids.png" width="700">
@@ -21,7 +21,12 @@ Seldom Covariance Matrix similarity functions explictly have the property of tra
 <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/sigmas_mod.png" width="700">
 </p>
 
-The **Spectral Polytope (SP)** is the Convex envelope of the projection of the Eigenvectors scaled by their Eigenvalues (X). The idea is, if the SPs of two covariance matrices have the same shape but are scaled by some homothetic factor, then they are similar (Refer to [1] for the math).
+The **Spectral Polytope (SP)** is the Convex envelope of the projection of the Eigenvectors scaled by their Eigenvalues (X). The idea is, if the SPs of two covariance matrices have the same shape but are scaled by some homothetic factor, then they are similar (Refer to [1] for the math). By implementing this simple, yet elegant idea, we get robust transform-invariant similarity values, which are not well recovered by other metrics:
+
+<p align="center">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM.png" width="200">
+</p>
+
 
 ```
 Computing SPCM Similarity Function for 5x5 observations...
@@ -65,7 +70,8 @@ sd-CRP LP: -2.168154e+01 and Purity: 1.00, NMI Score: 1.00, F measure: 1.00
 ```
 
 ### Comparisons
-In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and 4 standard Covariance Matrix Similarity functions used in literature [1].
+
+In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and 4 other standard Covariance Matrix Similarity functions used in literature for various datasets [1].
 
 - pics here
 
