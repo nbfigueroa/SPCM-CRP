@@ -1,8 +1,18 @@
 # SPCM-CRP
-Code for Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP) introduced in [1]. 
 
-In a nutshell **SPCM-CRP** is a similarity-dependent Chinese Restaurant process. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold of the similarity function.
+SPCM-CRP : Transform Invariant Chinese Restaurant Process for Covariance Matrices  
+Website: http://nbfigueroa.github.io/SPCM-CRP/  
+Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
+
+This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP) introduced in [1]. In a nutshell, **SPCM-CRP** is a similarity-dependent Chinese Restaurant process. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold of the similarity function.
+
+### Dependencies
+Download the following toolbox and make sure to have it in your MATLAB path:
+- [ML_toolbox](https://github.com/epfl-lasa/ML_toolbox): Machine learning toolbox containing a plethora of dimensionality reduction, clustering, classification and regression algorithms accompanying the [Advanced Machine Learning](http://lasa.epfl.ch/teaching/lectures/ML_MSc_Advanced/index.php) course imparted at EPFL by Prof. Aude Billard.
 
 
+### Simple Demo
 
-[1] Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods. Nadia Figueroa and Aude Billard. In preparation for Pattern Recognition.
+
+### Publication
+[1] Nadia Figueroa and Aude Billard, "Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods." *In preparation*.
