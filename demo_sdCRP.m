@@ -110,6 +110,13 @@ tic;
 toc;
 
 figure('Color', [1 1 1])
+subplot(2,1,1)
+imagesc(true_labels)
+axis equal tight
+colormap(pink)
+title('True Labels', 'FontWeight', 'Bold')
+
+subplot(2,1,2)
 labels_sdcrp = Psi_MAP.Z_C';
 imagesc(labels_sdcrp)
 axis equal tight
@@ -118,6 +125,6 @@ sdcrp_tables = length(unique(labels_sdcrp));
 fprintf('MAP Cluster estimate recovered at iter %d: %d\n', Psi_MAP.iter, sdcrp_tables);
 [Purity NMI F] = cluster_metrics(true_labels, labels_sdcrp');
 title_string = sprintf('Clustering from sdCRP K=%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f',sdcrp_tables, Purity, NMI, F);
-title(title_string)
+title(title_string, 'FontWeight', 'Bold')
 fprintf('sd-CRP LP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', Psi_MAP.LogProb, Purity, NMI, F);
 fprintf('*************************************************************\n');
