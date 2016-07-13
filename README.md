@@ -1,4 +1,6 @@
 # SPCM-CRP
+Non-parametric clustering of transformed Covariance Matrices.
+
 SPCM-CRP : Transform Invariant Chinese Restaurant Process for Covariance Matrices  
 Website: http://nbfigueroa.github.io/SPCM-CRP/  
 Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
