@@ -59,11 +59,11 @@ sd-CRP LP: -2.168154e+01 and Purity: 1.00, NMI Score: 1.00, F measure: 1.00
 ```
 
 ### Comparisons
-In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and 4 standard Covariance Matrix Similarity functions used in literature.
+In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and 4 standard Covariance Matrix Similarity functions used in literature [1].
 
 - pics here
 
-Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means.
+Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
 
 - pics here
 
