@@ -85,6 +85,14 @@ sd-CRP LP: -2.168154e+01 and Purity: 1.00, NMI Score: 1.00, F measure: 1.00
 *************************************************************
 ```
 
+The result is:
+
+  <p align="center">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/sdCRP_results.png" width="500">
+  </p>
+
+**without** selecting or optimizing for **ANY** hyper-parameters.
+
 ### Comparisons
 
 - In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples:
