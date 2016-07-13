@@ -45,7 +45,7 @@ Now that we have a good similarity function for our task, we want to derive a cl
 - Initially, we apply an augmented Spectral Dimenensionality reduction algorithm, which automatically selects the dimensionality of the Spectral Manifold by applying a SoftMax on the Eigenvalues of the Laplacian of the Similarity matrix:
 
   <p align="center">
-  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/auto-spectral-manifold.png" width="200">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/auto-spectral-manifold.png" width="500">
   </p>
 
 - Once we have the points on the Spectral Manifold corresponding to each Covariance Matrix, we apply the sd-CRP. Which follows the analogy for seating customers in a Chinese Restaurant with infinite number of tables wrt. a similarity between the customers
