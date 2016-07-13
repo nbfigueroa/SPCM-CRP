@@ -95,17 +95,17 @@ The result is:
 
 ### Comparisons
 
-- In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples:
+- In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples are well discriminated with SPCM and B-SPCM:
  
-<p align="center">
-<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM.png" width="300"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM.png" width="300">
-</p>
-
-which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
-
-<p align="center">
-<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/RIEM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/LERM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/KLDM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/JBLD.png" width="200">
-</p>
+  <p align="center">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM_30.png" width="300"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM_30.png" width="300">
+  </p>
+  
+  while the othe functions (RIEM, LERM, KLDM, JBLD) do not show apparent partitions to the naked eye:
+  
+  <p align="center">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/RIEM_30.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/LERM_30.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/KLDM_30.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/JBLD_30.png" width="200">
+  </p>
 
 
 - Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
