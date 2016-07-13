@@ -97,6 +97,15 @@ The result is:
 
 - In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples:
  
+<p align="center">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM.png" width="300"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM.png" width="300">
+</p>
+
+which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
+
+<p align="center">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/RIEM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/LERM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/KLDM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/JBLD.png" width="200">
+</p>
 
 
 - Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
@@ -109,5 +118,5 @@ If you're not interested in running comparisons, this step is not needed.
 
 ### Publication
 [1] Nadia Figueroa and Aude Billard, "Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods." *In preparation*.  
-[2] Richard Socher, Andrew Maas Christopher D. Manning. "Spectral Chinese Restaurant Processes: Nonparametric Clustering
+[2] Richard Socher, Andrew Maas and Christopher D. Manning. "Spectral Chinese Restaurant Processes: Nonparametric Clustering
 Based on Similarities" In proceedings of th 14th International Conference on Artificial Intelligence and Statistics (AISTATS), 2011.
