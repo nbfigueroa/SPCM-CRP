@@ -116,7 +116,7 @@ To run the **comparisons** demo, download the following toolbox and make sure to
 
 If you're not interested in running comparisons, this step is not needed.
 
-### Publication
+### References
 [1] Nadia Figueroa and Aude Billard, "Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods." *In preparation*.  
 [2] Richard Socher, Andrew Maas and Christopher D. Manning. "Spectral Chinese Restaurant Processes: Nonparametric Clustering
 Based on Similarities" In proceedings of th 14th International Conference on Artificial Intelligence and Statistics (AISTATS), 2011.
