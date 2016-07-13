@@ -16,4 +16,4 @@ Download the following toolbox and make sure to have it in your MATLAB path:
 
 
 ### Publication
-[1] Nadia Figueroa and Aude Billard, "Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods." In preparation for Pattern Recognition.
+[1] Nadia Figueroa and Aude Billard, "Transform Invariant Discovery of Dynamical Primitives: Leveraging Spectral and Bayesian Non-parametric Methods." *In preparation*.
