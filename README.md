@@ -3,7 +3,7 @@ SPCM-CRP : Transform Invariant Chinese Restaurant Process for Covariance Matrice
 Website: http://nbfigueroa.github.io/SPCM-CRP/  
 Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 
-This repo provides code for running for Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP) introduced in [1]. In a nutshell, **SPCM-CRP** is a similarity-dependent Chinese Restaurant process. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold of the similarity function.
+This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP) introduced in [1]. In a nutshell, **SPCM-CRP** is a similarity-dependent Chinese Restaurant process. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold of the similarity function.
 
 ### Dependencies
 Download the following toolbox and make sure to have it in your MATLAB path:
