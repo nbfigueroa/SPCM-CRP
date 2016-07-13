@@ -10,7 +10,7 @@ Download the following toolbox and make sure to have it in your MATLAB path:
 - [ML_toolbox](): Machine learning toolbox containing a plethora of dimensionality reduction, clustering, classification and regression algorithms accompanying the [Advanced Machine Learning]() course imparted at EPFL by Prof. Aude Billard.
 
 
-### Run Demo
+### Run Simple Demo
 
 
 ### Publication
