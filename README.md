@@ -30,7 +30,7 @@ The **Spectral Polytope (SP)** is the Convex envelope of the projection of the E
 which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 
 <p align="center">
-<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/RIEM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/LERM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/KLDM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/JBLD.png" width="200">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/RIEM.png" width="250"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/LERM.png" width="250"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/KLDM.png" width="250"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/JBLD.png" width="250">
 </p>
 
 - RIEM: Affine Invariant Riemannian Metric
