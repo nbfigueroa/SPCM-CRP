@@ -50,7 +50,7 @@ Now that we have a good similarity function for our task, we want to derive a cl
 
 - Once we have the points on the Spectral Manifold corresponding to each Covariance Matrix, we apply the sd-CRP. Which follows the analogy for seating customers in a Chinese Restaurant with infinite number of tables wrt. a similarity between the customers
   <p align="center">
-  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/ddcrp.png" width="200">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/ddcrp.png" width="500">
   </p>
   Each customer chooses to sit with another customer or alone according to a prior dependent on the SPCM similarity function. Table assignments z(c), then emerge from linked customers or cycles, regardless of sequence or ordering.
 
@@ -87,7 +87,10 @@ sd-CRP LP: -2.168154e+01 and Purity: 1.00, NMI Score: 1.00, F measure: 1.00
 
 ### Comparisons
 
-- In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for various datasets [1].
+- In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples:
+ 
+
+
 - Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
 
 #### Dependencies
