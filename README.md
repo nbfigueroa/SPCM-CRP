@@ -8,7 +8,7 @@ This repo provides code for running the Non-parametric Spectral Clustering algor
 
 ### Dependencies
 Download the following toolbox and make sure to have it in your MATLAB path:
-- [ML_toolbox](): Machine learning toolbox containing a plethora of dimensionality reduction, clustering, classification and regression algorithms accompanying the [Advanced Machine Learning]() course imparted at EPFL by Prof. Aude Billard.
+- [ML_toolbox](https://github.com/epfl-lasa/ML_toolbox): Machine learning toolbox containing a plethora of dimensionality reduction, clustering, classification and regression algorithms accompanying the [Advanced Machine Learning](http://lasa.epfl.ch/teaching/lectures/ML_MSc_Advanced/index.php) course imparted at EPFL by Prof. Aude Billard.
 
 
 ### Simple Demo
