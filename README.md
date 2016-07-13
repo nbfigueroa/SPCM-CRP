@@ -38,8 +38,23 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 - KLDM: Kullback-Liebler Divergence Metric
 - JBLD: Jensen-Bregman LogDet Divergence
 
-### Non-parametric clustering (Chinese Restaurant Process)
-Our second gola is to have a clustering mechanism that is free of model selection and robust to intializations. Thus, we choose a variant of the Chinese Resturant Process, namely the sd-CRP whose priors for cluster assigment are driven by the similarity values and the clustered data are points projected on a Spectral Manifold of 
+### Similarity-based Non-parametric clustering (sd - Chinese Restaurant Process)
+Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Thus, we choose a variant of the Chinese Resturant Process, namely the sd-CRP whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
+
+#### sd-CRP steps
+- Initially, we apply an augmented Spectral Dimenensionality reduction algorithm, which automatically selects the dimensionality of the Spectral Manifold by applying a SoftMax on the Eigenvalues of the Laplacian of the Similarity matrix:
+
+  <p align="center">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/auto-spectral-manifold.png" width="200">
+  </p>
+
+- Once we have the points on the Spectral Manifold corresponding to each Covariance Matrix, we apply the sd-CRP. Which follows the analogy for seating customers in a Chinese Restaurant with infinite number of tables wrt. a similarity between the customers
+
+<p align="center">
+<img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/ddcrp.png" width="200">
+</p>
+
+ Each customer chooses to sit with another customer or alone according to a prior dependent on the SPCM similarity function. Table assignments z(c), then emerge from linked customers or cycles, regardless of sequence or ordering.
 
 To run the full SPCM-CRP pipeline, follow the scipt ```demo_sdCRP.m```, for the 3D dataset you should get the following output on your MATLAB terminal:
 
