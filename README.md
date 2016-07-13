@@ -27,11 +27,16 @@ The **Spectral Polytope (SP)** is the Convex envelope of the projection of the E
 <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM.png" width="300"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM.png" width="300">
 </p>
 
-,which are not well recovered by other metrics:
+which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 
 <p align="center">
 <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/RIEM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/LERM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/KLDM.png" width="200"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/JBLD.png" width="200">
 </p>
+
+- RIEM: Affine Invariant Riemannian Metric
+- LERM: Log-Euclidean Riemannian Metric
+- KLDM: Kullback-Liebler Divergence Metric
+- JBLD: Jensen-Bregman LogDet Divergence
 
 ```
 Computing SPCM Similarity Function for 5x5 observations...
