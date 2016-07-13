@@ -38,17 +38,6 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 - KLDM: Kullback-Liebler Divergence Metric
 - JBLD: Jensen-Bregman LogDet Divergence
 
-```
-Computing SPCM Similarity Function for 5x5 observations...
-Elapsed time is 0.009259 seconds.
-*************************************************************
-```
-
-```
-Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...
-Elapsed time is 0.075289 seconds.
-*************************************************************
-```
 
 ```
 Clustering via sd-CRP...
