@@ -130,14 +130,14 @@ axis square
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
-S_type = {'SPCM', 'RIEM', 'LERM', 'KLDM', 'JBLD'};
-% S_type = {'SPCM'};
+% S_type = {'SPCM', 'RIEM', 'LERM', 'KLDM', 'JBLD'};
+S_type = {'SPCM'};
 
 %%% Choose Clustering Algorithm %%%
 % 'affinity': Affinity Propagation
 % 'spectral': Spectral Clustering w/k-means
-% C_type = 'affinity';
-C_type = 'spectral';
+C_type = 'affinity';
+% C_type = 'spectral';
 
 %%% Selection of M-dimensional Spectral Manifold (for Spectral Clustering) %%%
 % mani = 'auto';
