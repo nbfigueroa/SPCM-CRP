@@ -21,7 +21,8 @@ function [Psi_MAP] = run_sdCRP(Y,S)
 %
 % If you use this code in your research please cite:
 % "Transform Invariant Discovery of Dynamical Primitives: Leveraging
-% Spectral and Nonparametric Methods"; N. Figueroa and A. Billard; JMLR X
+% Spectral and Nonparametric Methods"; N. Figueroa and A. Billard; Pattern
+% Recognition
 % (2016)
 
 
