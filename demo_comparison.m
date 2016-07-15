@@ -177,12 +177,13 @@ for i=1:length(S_type)
             tic;
             max_sim =  max(max(S));
             D_aff = S - eye(size(S))*max_sim;
-            [E K labels idx] = affinitypropagation(D_aff, []);
+            damp = 0.99;
+            [E K labels idx] = affinitypropagation(D_aff, damp);
             toc;
             clus_method = 'Aff. Prop.';
             
         case 'spectral'
-            fprintf('Clustering via Affinity Propagation...\n');
+            fprintf('Clustering via Spectral Clustering...\n');
             tic;
             
             % Project point to spectral manifold from Similarity Matrix

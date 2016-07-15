@@ -19,7 +19,7 @@ function [Y, d, thres] = spectral_DimRed(S , M)
 
 
 % Remove Diagonal Values (self-similarities)
-S = S - eye(size(S));
+% S = S - eye(size(S));
 
 % Compute Diagonal Degree Matrix:
 D = diag(sum(S,2));
@@ -42,8 +42,8 @@ d = diag(D_sort);
 
 % If M is not given, find optimal threshold using softmax + attractive
 % adaptation
-thres = 0;
-eps_i = 0.2;
+thres  = 0;
+eps_i  = 0.2;
 eps_ii = 0.02;
 
 if isempty(M)   
@@ -75,7 +75,9 @@ V_M = V_sort(:,1:M);
 % Normalize rows of V to unit length
 V_M = bsxfun(@rdivide, V_M, sum(V_M,2));
 
-% Define MxN observation vector X = (x1, ..., xN) as rows of V
-Y = V_M';
+% Define NxM observation vector Y = [y1; ...; yN] as rows of V
+Y = V_M;
 
+% Transpose to have columns as observations
+Y = Y';
 end
