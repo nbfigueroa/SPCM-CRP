@@ -18,7 +18,7 @@ display = 1;
 %% Toy 4D dataset, 6 Samples, 2 clusters (c1:4, c2:2)
 [sigmas, true_labels] = load_toy_dataset('4d', display);
 
-%% Toy 6D dataset, 30 Samples, 3 clusters (c1:10, c2:10, c3: 10)
+%% Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
 [sigmas, true_labels] = load_toy_dataset('6d', display);
 
 %% Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters (c1:63, c2:21, c3: 21)
