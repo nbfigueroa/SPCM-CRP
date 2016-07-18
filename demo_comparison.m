@@ -49,14 +49,14 @@ fprintf('*************************************************************\n');
 % %%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 figure('Color',[1 1 1])
 imagesc(spcm(:,:,1))
-title('Similarity Function (SPCM) Matrix')
+title('Similarity Function (SPCM) Matrix','Fontsize',16)
 colormap(pink)
 colorbar 
 axis square
 
 figure('Color',[1 1 1])
 imagesc(S_spcm)
-title('Bounded Similarity Function (B-SPCM) Matrix')
+title('Bounded Similarity Function (B-SPCM) Matrix','Fontsize',16)
 colormap(pink)
 colorbar 
 axis square
@@ -75,7 +75,7 @@ fprintf('*************************************************************\n');
 % Plot Results
 figure('Color',[1 1 1])
 imagesc(S_riem)
-title('Affine Invariant Riemannian Metric (RIEM)')
+title('Affine Invariant Riemannian Metric (RIEM)','Fontsize',16)
 colormap(pink)
 colorbar 
 axis square
@@ -91,7 +91,7 @@ fprintf('*************************************************************\n');
 % Plot Results
 figure('Color',[1 1 1])
 imagesc(S_lerm)
-title(' Log-Euclidean Riemannian Metric (LERM)')
+title(' Log-Euclidean Riemannian Metric (LERM)','Fontsize',16)
 colormap(pink)
 colorbar 
 axis square
@@ -106,7 +106,7 @@ fprintf('*************************************************************\n');
 % Plot Results
 figure('Color',[1 1 1])
 imagesc(S_kldm)
-title(' Kullback-Liebler Divergence Metric (KLDM)')
+title(' Kullback-Liebler Divergence Metric (KLDM)','Fontsize',16)
 colormap(pink)
 colorbar 
 axis square
@@ -121,7 +121,7 @@ fprintf('*************************************************************\n');
 % Plot Results
 figure('Color',[1 1 1])
 imagesc(S_jbld)
-title('Jensen-Bregman LogDet Divergence (JBLD)')
+title('Jensen-Bregman LogDet Divergence (JBLD)','Fontsize',16)
 colormap(pink)
 colorbar 
 axis square
@@ -130,8 +130,8 @@ axis square
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
-% S_type = {'SPCM', 'RIEM', 'LERM', 'KLDM', 'JBLD'};
-S_type = {'SPCM'};
+S_type = {'SPCM', 'RIEM', 'LERM', 'KLDM', 'JBLD'};
+% S_type = {'SPCM'};
 
 %%% Choose Clustering Algorithm %%%
 % 'affinity': Affinity Propagation
@@ -150,10 +150,19 @@ figure('Color',[1 1 1])
 s_plots = length(S_type) + 1;
 subplot(s_plots, 1, 1);
 imagesc(true_labels)
-title('True Labels', 'FontSize',12,'FontWeight','bold')
+title('True Labels', 'FontSize',16)
 axis equal tight
 colormap(pink)
-    
+set(gca,'XTickLabel',[]);
+set(gca,'YTickLabel',[]);
+grid on
+
+%# create cell arrays of number labels
+for jj=1:length(S)
+text(jj, 1, num2str(jj),'color','r',...
+    'HorizontalAlignment','center','VerticalAlignment','middle','Fontsize',20);
+end
+
 for i=1:length(S_type)
         
     s_type = S_type{i};
@@ -177,10 +186,10 @@ for i=1:length(S_type)
             tic;
             max_sim =  max(max(S));
             D_aff = S - eye(size(S))*max_sim;
-            damp = 0.99;
+            damp = 0.15;
             [E K labels idx] = affinitypropagation(D_aff, damp);
             toc;
-            clus_method = 'Aff. Prop.';
+            clus_method = 'Affinity Propagation';
             
         case 'spectral'
             fprintf('Clustering via Spectral Clustering...\n');
@@ -208,7 +217,7 @@ for i=1:length(S_type)
             cluster_options.K           = M;
             result                      = ml_clustering(Y',cluster_options,'Distance','sqeuclidean','MaxIter',500);  
             labels = result.labels;
-            clus_method = 'Spec. Clust.';
+            clus_method = 'Spectral Clustering';
             toc;
     end
     
@@ -221,9 +230,19 @@ for i=1:length(S_type)
     subplot(s_plots, 1, i + 1);
     imagesc(labels')
     
-    title_string = sprintf('Method (%s) Metric (%s)  [K=%d, Purity: %1.2f, NMI: %1.2f, F-measure: %1.2f]', clus_method, s_type, K, Purity, NMI, F);
-    title(title_string, 'FontSize',12 ,'FontWeight','bold')
+%     title_string = sprintf('Method (%s) Metric (%s)  [K=%d, Purity: %1.2f, NMI: %1.2f, F-measure: %1.2f]', clus_method, s_type, K, Purity, NMI, F);
+    title_string = sprintf('Method (%s) Metric (%s) ', clus_method, s_type);
+    title(title_string, 'FontSize',16)
     axis equal tight
     colormap(pink)
+    set(gca,'XTickLabel',[]);
+    set(gca,'YTickLabel',[]);
+    grid on
+   
+    %# create cell arrays of number labels
+    for jj=1:length(S)
+    text(jj, 1, num2str(jj),'color','r',...
+        'HorizontalAlignment','center','VerticalAlignment','middle','Fontsize',20);
+    end
 
 end
