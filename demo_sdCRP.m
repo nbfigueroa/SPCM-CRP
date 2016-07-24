@@ -15,7 +15,7 @@ display = 1;
 %% Toy 4D dataset, 6 Samples, 2 clusters (c1:4, c2:2)
 [sigmas, true_labels] = load_toy_dataset('4d', display);
 
-%% Toy 6D dataset, 30 Samples, 3 clusters (c1:10, c2:10, c3: 10)
+%% Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
 [sigmas, true_labels] = load_toy_dataset('6d', display);
 
 %% Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters (c1:63, c2:21, c3: 21)
@@ -72,7 +72,7 @@ plot(thres*ones(1,length(d)),'--k','LineWidth', 2); hold on
 xlabel('Eigenvalue Index')
 ylabel('Normalized Eigenvalue Softmax')
 tit = strcat('Eigenvalue Analysis for Manifold Dimensionality -> M = ', num2str(M));
-title(tit)
+title(tit, 'Fontsize',14)
 toc;
 fprintf('*************************************************************\n');
 
@@ -84,19 +84,21 @@ if (M == 2) || (M == 3)
     if M==2    
         for jj=1:true_clust
             clust_color = [rand rand rand];
-            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 100, clust_color, 'filled');hold on                      
+            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled');hold on                      
         end   
         grid on
-        title('Sigmas Respresented in 2-d Spectral space')
+        title('\theta_i-s Respresented in 2-d Spectral space', 'Fontsize',14)
     end
 
     if M==3
         for jj=1:true_clust
             clust_color = [rand rand rand];
-            scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 100, clust_color, 'filled');hold on        
+            scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color, 'filled');hold on        
         end
+        xlabel('y^1');ylabel('y^2');zlabel('y^3')
+        colormap(hot)
         grid on
-        title('Sigmas Respresented in 3-d Spectral space')
+        title('\theta_i-s Respresented in 3-d Spectral space', 'Fontsize',14)
     end
 end
 

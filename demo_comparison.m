@@ -130,14 +130,14 @@ axis square
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
-S_type = {'SPCM', 'RIEM', 'LERM', 'KLDM', 'JBLD'};
-% S_type = {'SPCM'};
+S_type = {'B-SPCM','RIEM', 'LERM', 'KLDM', 'JBLD'};
+% S_type = {'B-SPCM'};
 
 %%% Choose Clustering Algorithm %%%
 % 'affinity': Affinity Propagation
 % 'spectral': Spectral Clustering w/k-means
-C_type = 'affinity';
-% C_type = 'spectral';
+% C_type = 'affinity';
+C_type = 'spectral';
 
 %%% Selection of M-dimensional Spectral Manifold (for Spectral Clustering) %%%
 % mani = 'auto';
@@ -168,7 +168,7 @@ for i=1:length(S_type)
     s_type = S_type{i};
     
     switch s_type 
-        case 'SPCM' 
+        case 'B-SPCM' 
             S = S_spcm;
         case 'RIEM' 
             S = S_riem;
@@ -203,8 +203,8 @@ for i=1:length(S_type)
                     % Automatically discover M from the Eigenvalue of the Laplacian
                     [Y, d, thres] = spectral_DimRed(S,[]);
                     s_norm = normalize_soft(softmax(d));    
-                    M = sum(s_norm <= thres);
-            
+                    M = sum(s_norm <= thres);                    
+                    
                 case 'known'
                     % Use M = true # clusters
                     M = length(unique(true_labels));            
@@ -239,7 +239,7 @@ for i=1:length(S_type)
     set(gca,'YTickLabel',[]);
     grid on
    
-    %# create cell arrays of number labels
+%   create cell arrays of number labels
     for jj=1:length(S)
     text(jj, 1, num2str(jj),'color','r',...
         'HorizontalAlignment','center','VerticalAlignment','middle','Fontsize',20);
