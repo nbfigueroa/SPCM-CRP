@@ -32,5 +32,5 @@ for i = 1:length(clust_ids)
     end
 end
 
-%%% Posterior Log Prob of partitions given observations in spectral space  %%%
+%%% Posterior Log Prob of partitions given observations  %%%
 post_LogProb = prior_LogLik + data_LogLik;

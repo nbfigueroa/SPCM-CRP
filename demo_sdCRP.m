@@ -108,7 +108,7 @@ end
 
 fprintf('Clustering via sd-CRP...\n');
 tic;
-[Psi_MAP] = run_sdCRP(Y, S);
+[Psi_MAP] = run_sdCRP_MM(Y, S);
 toc;
 
 figure('Color', [1 1 1])

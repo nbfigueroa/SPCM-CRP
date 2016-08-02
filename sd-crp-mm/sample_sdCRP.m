@@ -120,7 +120,7 @@ for i=1:N
             end
         end
                                 
-        %%% Compute log-likelihood of data point i and its connectors %%%
+        %%% Compute log-likelihood of data point i and its friends %%%
         data_logLik = zeros(N,1);
         for ii = 1:N
             data_logLik(ii) = sum_logLiks(table_ids==Z_C(ii));

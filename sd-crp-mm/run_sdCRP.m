@@ -1,5 +1,5 @@
 function [Psi_MAP] = run_sdCRP(Y,S)
-% Similarity Depenendent Chinese Restaurant Process.
+% Similarity Depenendent Chinese Restaurant Process Mixture Model.
 % Implementation of Algorithm 2. from Socher11 paper (Spectral Chinese Restaurant Processes: Clustering Based on Similarities)
 % **Inputs**
 %          Y: projected M-dimensional points  Y (y1,...,yN) where N = dim(S),
@@ -77,15 +77,15 @@ Psi_MAP.LogProb    = -inf;
 for i = 1:niter
     fprintf('Iteration %d: Started with %d clusters ', i, max(Psi.Z_C));
     
-    %%% Sample sd-CRP %%%
+    %%% Draw Sample sd(SPCM)-CRP %%%
     [Psi.C, Psi.Z_C, Psi.clust_members, Psi.clust_params, Psi.clust_logLiks] = sample_sdCRP(Y, delta, Psi);
-    
-    %%% Re-sample table parameters %%%
-    % with Eq. 8 from spectral chinese restaurant
     
     %%% Update the LogProbability with the Priors %%%
     Psi.LogProb = logProb_sdCRP(Y, delta, Psi); %% CHANGE THIS FUNCTION ----->
     
+    %%% Re-sample table (cluster) parameters %%%
+    % with Eq. 8 from spectral chinese restaurant
+        
     fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , Psi.LogProb);
     
     %%% If current posterior is higher than previous update MAP estimate %%%
