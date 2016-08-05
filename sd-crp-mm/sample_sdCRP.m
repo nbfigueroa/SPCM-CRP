@@ -32,7 +32,7 @@ clust_logLiks  = Psi.clust_logLiks;
 K              = max(Z_C);
 
 %%% Sample random permutation of observations \tau of [1,..,N] %%%
-tau = randperm(N);
+tau = randperm(N)
 
 %%% For every i-th randomly sampled observation sample a new cluster
 %%% assignment c_i
@@ -44,28 +44,28 @@ for i=1:N
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
         
         old_c_i = C(c_i);                                
-        old_customer_cycle = clust_members{Z_C(c_i)};
+        old_customer_connections = clust_members{Z_C(c_i)}
                 
         %%% new assigned connected customer %%%
         C(c_i) = c_i;        
         %%% new connected customers considering the removal of link c_i c_{-i} %%
-        new_customer_cycle = get_Connections(C,c_i); %% CHANGE THIS FUNCTION                    
+        new_customer_connections = get_Connections(C,c_i) %% CHANGE THIS FUNCTION                    
         
         %%%%% if this removal splits a table update the likelihoods. %%%%%
         % A table seating assignment has changed!
         % Compute log-prob when removing the current c_i
-        if length(new_customer_cycle)~=length(old_customer_cycle)                        
+        if length(new_customer_connections)~=length(old_customer_connections)                        
             % Increase number of tables
             K = K+1;            
             
             % Adding new customer cycle as new table and removing other
             % linked customers
-            clust_members{K} = new_customer_cycle;            
-            idxs = ismember(old_customer_cycle,new_customer_cycle);
+            clust_members{K} = new_customer_connections;            
+            idxs = ismember(old_customer_connections,new_customer_connections);
             clust_members{Z_C(c_i)}(idxs) = [];            
             
             % Creating new table
-            Z_C(new_customer_cycle) = K;
+            Z_C(new_customer_connections) = K;
             
             % Likelihood of old table without c_i 
             % (recompute likelihood of customers sitting without c_i)            
@@ -155,7 +155,7 @@ for i=1:N
         %%%%%%%%% REWRITE THESE LINES ------>>
         customers_in_new_cycle = false(N,1);
         for n = 1:N
-            if ~any(new_customer_cycle==n)
+            if ~any(new_customer_connections==n)
                 customers_in_new_cycle(n) = true;
             end
         end
