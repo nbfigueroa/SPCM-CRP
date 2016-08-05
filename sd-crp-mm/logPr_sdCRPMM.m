@@ -28,7 +28,8 @@ data_LogLik = 0;
 for i = 1:length(clust_ids)
     k = clust_ids(i);
     if ~(sum(Z_C==k)==1 && isempty(Z_C==k))
-        data_LogLik = data_LogLik + cluster_logLik(Y(:,Z_C==k),a0,b0,mu0,kappa0);
+        data_LogLik = data_LogLik + table_logLik_NIG(Y(:,Z_C==k),a0,b0,mu0,kappa0);
+%         data_LogLik = data_LogLik + table_logLik_NIG(Y(:,Z_C==k),a0,b0,mu0,kappa0);
     end
 end
 

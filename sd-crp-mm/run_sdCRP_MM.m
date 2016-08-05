@@ -32,7 +32,7 @@ function [Psi_MAP] = run_sdCRP_MM(Y,S)
 [M, N] = size(Y);
 
 %%%% Default Sampler Options %%%%
-niter = 20;
+niter = 1;
 
 %%%% Default Hyperparameters %%%%
 hyper.alpha     = 1;
@@ -42,10 +42,6 @@ hyper.a0        = M;
 hyper.b0        = M*0.5;
 
 %%% Define Priors %%%
-% Truncate similarities... not necessary here, done in other dd-crp
-% implementations
-% prior_thres = 0.1;
-% S(S<prior_thres) = 0;
 delta = num2cell(S,2);
 
 % Remove when changed everything to similarities ---- Change this fucker LPddCRP_NG
@@ -59,7 +55,8 @@ K = max(Z_C);
 clust_LLs = zeros(size(Z_C));
 for k = 1:K
     clust_members{k} = find(Z_C==k);    
-    clust_logLiks(k) = cluster_logLik(Y(:,Z_C==k), hyper.a0, hyper.b0, hyper.mu0, hyper.kappa0);
+    clust_logLiks(k) = table_logLik_NIG(Y(:,Z_C==k), hyper.a0, hyper.b0, hyper.mu0, hyper.kappa0);
+%     clust_logLiks(k) = table_logLik_NIW(Y(:,Z_C==k), hyper.a0, hyper.b0, hyper.mu0, hyper.kappa0);%% CHANGE THIS FUNCTION -----> to NIW
     clust_params(k)  = hyper;
 end
 fprintf('*** Initialized with %d clusters out of %d observations ***\n', K, N)

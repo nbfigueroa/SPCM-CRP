@@ -1,5 +1,5 @@
-function LL = cluster_logLik(Y,a0,b0,mu0,kappa0)
-% log likelihood of cluster parametrs given data
+function LL = table_logLik_NIG(Y,a0,b0,mu0,kappa0)
+% log likelihood of table parametrs given data
 
 [M,N] = size(Y);
 % Ym = sum(Y,2)./N;

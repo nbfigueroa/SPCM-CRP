@@ -7,27 +7,45 @@ close all
 
 % Set to 1 if you want to display Covariance Matrices
 display = 1;
+% Set to 1 if you want to randomize the Covariance Matrices
+randomize = 0;
 
 %% Select Dataset:
 %% Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
-[sigmas, true_labels] = load_toy_dataset('3d', display);
+[sigmas_, true_labels_] = load_toy_dataset('3d', display);
 
 %% Toy 4D dataset, 6 Samples, 2 clusters (c1:4, c2:2)
-[sigmas, true_labels] = load_toy_dataset('4d', display);
+[sigmas_, true_labels_] = load_toy_dataset('4d', display);
 
 %% Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
-[sigmas, true_labels] = load_toy_dataset('6d', display);
+[sigmas_, true_labels_] = load_toy_dataset('6d', display);
 
 %% Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters (c1:63, c2:21, c3: 21)
 % Path to data folder
 data_path = '/home/nadiafigueroa/dev/MATLAB/SPCM-CRP/data';
-[sigmas, true_labels] = load_task_dataset(data_path);
+[sigmas_, true_labels_] = load_task_dataset(data_path);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Similarity Matrix from b-SPCM Function for dataset
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 clc;
+% %%%%%%%%%%%%%%%%%
+% Randomize indices
+%%%%%%%%%%%%%%%%%%%
+clear sigmas 
+clear true_labels
+
+if randomize == 1 
+    rand_ids = randperm(length(sigmas_));
+    for i=1:length(sigmas_)
+       sigmas{i} = sigmas_{rand_ids(i)} ;
+       true_labels(i) = true_labels_(rand_ids(i));
+    end
+else
+    sigmas = sigmas_;
+    true_labels = true_labels_;
+end
+
 % %%%%%%%%%%%%%%%%%%%%%
 % Set Hyper-parameter
 % %%%%%%%%%%%%%%%%%%%%%
