@@ -32,7 +32,7 @@ clust_logLiks  = Psi.clust_logLiks;
 K              = max(Z_C);
 
 %%% Sample random permutation of observations \tau of [1,..,N] %%%
-tau = randperm(N);
+tau = randperm(N)
 
 %%% For every i-th randomly sampled observation sample a new cluster
 %%% assignment c_i
@@ -42,30 +42,55 @@ for i=1:N
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%% "remove" the c_i, i.e. the outgoing link of customer i %%%%%
         %%%%% to do this, set its cluster to c_i, and set its connected customers to c_i                      
+<<<<<<< HEAD
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                
         ci_old = C(c_i);                                 
         old_conn_customers = clust_members{Z_C(c_i)};
+=======
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+        
+        old_c_i = C(c_i);                                
+        old_customer_connections = clust_members{Z_C(c_i)}
+>>>>>>> 9b0c2ce02ff1bca9252892455ee42c2f6e3fa32f
                 
         %%% new assigned connected customer %%%
         C(c_i) = c_i;        
         %%% new connected customers considering the removal of link c_i c_{-i} %%
+<<<<<<< HEAD
         new_conn_customers = get_Connections(C,c_i); %% CHANGE THIS FUNCTION                    
         
         %%%%% if this removal splits a table update the likelihoods. %%%%%
         % A table seating assignment has changed!        
         % ## note: splits only happen if c_i^{old} != i
         if length(new_conn_customers)~=length(old_conn_customers)                        
+=======
+        new_customer_connections = get_Connections(C,c_i) %% CHANGE THIS FUNCTION                    
+        
+        %%%%% if this removal splits a table update the likelihoods. %%%%%
+        % A table seating assignment has changed!
+        % Compute log-prob when removing the current c_i
+        if length(new_customer_connections)~=length(old_customer_connections)                        
+>>>>>>> 9b0c2ce02ff1bca9252892455ee42c2f6e3fa32f
             % Increase number of tables
             K = K+1;            
             
             % Adding new customer cycle as new table and removing other
             % linked customers
+<<<<<<< HEAD
             clust_members{K} = new_conn_customers;            
             idxs = ismember(old_connected_customers,new_connected_customers);
             clust_members{Z_C(c_i)}(idxs) = [];            
             
             % Creating new table
             Z_C(new_conn_customers) = K;
+=======
+            clust_members{K} = new_customer_connections;            
+            idxs = ismember(old_customer_connections,new_customer_connections);
+            clust_members{Z_C(c_i)}(idxs) = [];            
+            
+            % Creating new table
+            Z_C(new_customer_connections) = K;
+>>>>>>> 9b0c2ce02ff1bca9252892455ee42c2f6e3fa32f
             
             % Likelihood of old table without c_i 
             % (recompute likelihood of customers sitting without c_i)            
@@ -160,7 +185,11 @@ for i=1:N
         %%% This means there's a new table!
         customers_in_new_cycle = false(N,1);
         for n = 1:N
+<<<<<<< HEAD
             if ~any(new_conn_customers==n)
+=======
+            if ~any(new_customer_connections==n)
+>>>>>>> 9b0c2ce02ff1bca9252892455ee42c2f6e3fa32f
                 customers_in_new_cycle(n) = true;
             end
         end
