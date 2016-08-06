@@ -14,9 +14,6 @@ randomize = 0;
 %% Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
 [sigmas_, true_labels_] = load_toy_dataset('3d', display);
 
-%% Toy 4D dataset, 6 Samples, 2 clusters (c1:4, c2:2)
-[sigmas_, true_labels_] = load_toy_dataset('4d', display);
-
 %% Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
 [sigmas_, true_labels_] = load_toy_dataset('6d', display);
 
@@ -24,6 +21,8 @@ randomize = 0;
 % Path to data folder
 data_path = '/home/nadiafigueroa/dev/MATLAB/SPCM-CRP/data';
 [sigmas_, true_labels_] = load_task_dataset(data_path);
+
+%% Real XD dataset, Covariance Features from ETHZ Dataset, N Samples, k clusters (c1:63, c2:21, c3: 21)
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Similarity Matrix from b-SPCM Function for dataset
@@ -120,9 +119,9 @@ if (M == 2) || (M == 3)
     end
 end
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Discover Clusters using sd-CRP %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Discover Clusters using sd-CRP-MM %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all;
 fprintf('Clustering via sd-CRP...\n');
 tic;
@@ -149,33 +148,183 @@ title(title_string, 'FontWeight', 'Bold')
 fprintf('sd-CRP LP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', Psi_MAP.LogProb, Purity, NMI, F);
 fprintf('*************************************************************\n');
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Plot Gaussians on Projected Data %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Plot sd-CRP-MM Results on Projected Data %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Extract cluster parameters
+Mu = Psi_MAP.Cluster_Mu;
+Pr = Psi_MAP.Cluster_Pr;
+Sigma = zeros(size(Pr,1),size(Pr,1),size(Pr,2));
+for i=1:size(Pr,2)
+    Sigma(:,:,i) = diag(Pr(:,i));
+end        
+
+% Plot Gaussians on Projected Data
 figure('Color', [1 1 1])
 if (M == 2) || (M == 3)
     % Plot M-Dimensional Points of Spectral Manifold
-    idx_label   = true_labels;
-    true_clust = length(unique(true_labels));
+    idx_label   = labels_sdcrp;
+    pred_clust = length(unique(labels_sdcrp));
+    
     if M==2    
-        for jj=1:true_clust
-            clust_color = [rand rand rand];
-            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled');hold on                      
-        end   
+        for jj=1:pred_clust
+            clust_color = [rand rand rand];                                             
+            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled'); hold on;
+            plotGMM(Mu(:,jj), Sigma(:,:,jj), clust_color, 1);
+            alpha(.5)
+        end 
+        xlabel('y^1');ylabel('y^2');
+        colormap(hot)
         grid on
         title('\theta_i-s Respresented in 2-d Spectral space', 'Fontsize',14)
     end
 
     if M==3
-        for jj=1:true_clust
-            clust_color = [rand rand rand];
-            scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color, 'filled');hold on        
+        subplot(3,1,1)
+        clust_color = zeros(length(pred_clust),3);
+        for jj=1:pred_clust
+            clust_color(jj,:) = [rand rand rand];
+            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color(jj,:), 'filled');hold on  
+            plotGMM(Mu(1:2,jj), Sigma(1:2,1:2,jj), clust_color(jj,:), 1);
+            alpha(.5)
         end
-        xlabel('y^1');ylabel('y^2');zlabel('y^3')
+        xlabel('y^{(1)}');ylabel('y^{(2)}');
+        axis auto
         colormap(hot)
         grid on
-        title('\theta_i-s Respresented in 3-d Spectral space', 'Fontsize',14)
+        title('\theta_i-s Respresented in 2-d [y^{(1)}-y^{(2)}] Spectral space', 'Fontsize',14)
+        
+        subplot(3,1,2)
+        for jj=1:pred_clust
+            scatter(Y(1,idx_label==jj),Y(3,idx_label==jj), 50, clust_color(jj,:), 'filled');hold on  
+            plotGMM(Mu([1 3],jj), Sigma([1 3],[1 3],jj), clust_color(jj,:), 1);
+            alpha(.5)
+        end
+        xlabel('y^{(1)}');ylabel('y^{(3)}');
+        axis auto
+        colormap(hot)
+        grid on
+        title('\theta_i-s Respresented in 2-d [y^{(1)}-y^{(3)}] Spectral space', 'Fontsize',14)
+        
+        subplot(3,1,3)
+        for jj=1:pred_clust
+            scatter(Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color(jj,:), 'filled');hold on  
+            plotGMM(Mu(2:3,jj), Sigma(2:3,2:3,jj), clust_color(jj,:), 1);
+            alpha(.5)
+        end
+        xlabel('y^{(2)}');ylabel('y^{(3)}');
+        axis auto
+        colormap(hot)
+        grid on
+        title('\theta_i-s Respresented in 2-d [y^{(2)}-y^{(3)}] Spectral space', 'Fontsize',14)
+        
     end
 end
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Discover Clusters using CRP-MM %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+close all;
+fprintf('Clustering via CRP-MM...\n');
+tic;
+Y_c = bsxfun(@minus,Y',mean(Y'));
+Psi_crpmm = dpmm(Y_c,100);
+toc;
+
+figure('Color', [1 1 1])
+subplot(2,1,1)
+imagesc(true_labels)
+axis equal tight
+colormap(pink)
+title('True Labels', 'FontWeight', 'Bold')
+
+subplot(2,1,2)
+labels_crp = Psi_crpmm(end).classes';
+imagesc(labels_crp)
+axis equal tight
+colormap(pink)
+crp_tables = length(unique(labels_crp));
+[Purity NMI F] = cluster_metrics(true_labels, labels_crp');
+title_string = sprintf('Clustering from CRP-MM K=%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f',crp_tables, Purity, NMI, F);
+title(title_string, 'FontWeight', 'Bold')
+fprintf('CRP-MM Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', Purity, NMI, F);
+fprintf('*************************************************************\n');
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Plot sd-CRP-MM Results on Projected Data %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Extract cluster parameters
+% Mu = Psi_MAP.Cluster_Mu;
+% Pr = Psi_MAP.Cluster_Pr;
+% Sigma = zeros(size(Pr,1),size(Pr,1),size(Pr,2));
+% for i=1:size(Pr,2)
+%     Sigma(:,:,i) = diag(Pr(:,i));
+% end        
+
+% Plot Gaussians on Projected Data
+figure('Color', [1 1 1])
+if (M == 2) || (M == 3)
+    % Plot M-Dimensional Points of Spectral Manifold
+    idx_label   = labels_crp;
+    pred_clust = length(unique(labels_crp));
+    
+    if M==2    
+        for jj=1:pred_clust
+            clust_color = [rand rand rand];                                             
+            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled'); hold on;
+%             plotGMM(Mu(:,jj), Sigma(:,:,jj), clust_color, 1);
+            alpha(.5)
+        end 
+        xlabel('y^1');ylabel('y^2');
+        colormap(hot)
+        grid on
+        title('\theta_i-s Respresented in 2-d Spectral space', 'Fontsize',14)
+    end
+
+    if M==3
+        subplot(3,1,1)
+        clust_color = zeros(length(pred_clust),3);
+        for jj=1:pred_clust
+            clust_color(jj,:) = [rand rand rand];
+            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color(jj,:), 'filled');hold on  
+%             plotGMM(Mu(1:2,jj), Sigma(1:2,1:2,jj), clust_color(jj,:), 1);
+            alpha(.5)
+        end
+        xlabel('y^{(1)}');ylabel('y^{(2)}');
+        axis auto
+        colormap(hot)
+        grid on
+        title('\theta_i-s Respresented in 2-d [y^{(1)}-y^{(2)}] Spectral space', 'Fontsize',14)
+        
+        subplot(3,1,2)
+        for jj=1:pred_clust
+            scatter(Y(1,idx_label==jj),Y(3,idx_label==jj), 50, clust_color(jj,:), 'filled');hold on  
+%             plotGMM(Mu([1 3],jj), Sigma([1 3],[1 3],jj), clust_color(jj,:), 1);
+            alpha(.5)
+        end
+        xlabel('y^{(1)}');ylabel('y^{(3)}');
+        axis auto
+        colormap(hot)
+        grid on
+        title('\theta_i-s Respresented in 2-d [y^{(1)}-y^{(3)}] Spectral space', 'Fontsize',14)
+        
+        subplot(3,1,3)
+        for jj=1:pred_clust
+            scatter(Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color(jj,:), 'filled');hold on  
+%             plotGMM(Mu(2:3,jj), Sigma(2:3,2:3,jj), clust_color(jj,:), 1);
+            alpha(.5)
+        end
+        xlabel('y^{(2)}');ylabel('y^{(3)}');
+        axis auto
+        colormap(hot)
+        grid on
+        title('\theta_i-s Respresented in 2-d [y^{(2)}-y^{(3)}] Spectral space', 'Fontsize',14)
+        
+    end
+end
+
 

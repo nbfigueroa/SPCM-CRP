@@ -1,4 +1,4 @@
-function logPr = calcLogPrNormalInvWishart( Mu, invSigma, PP )
+function logPr = logPr_NormalInvWishart( Mu, invSigma, PP )
 % Mu, Sigma ~ NormInvWish( PP params )
 % PP has fields
 %  .precMu : precision of mean  (k in Murphy)

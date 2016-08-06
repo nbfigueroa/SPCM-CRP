@@ -32,7 +32,7 @@ function [Psi_MAP] = run_sdCRPMM(Y,S)
 [M, N] = size(Y);
 
 %%%% Default Sampler Options %%%%
-niter = 10;
+niter = 20;
 
 %%%% Default Hyperparameters %%%%
 hyper.alpha     = 1;
