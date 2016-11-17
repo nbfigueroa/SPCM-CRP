@@ -130,8 +130,8 @@ axis square
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
-S_type = {'B-SPCM','RIEM', 'LERM', 'KLDM', 'JBLD'};
-% S_type = {'B-SPCM'};
+% S_type = {'B-SPCM','RIEM', 'LERM', 'KLDM', 'JBLD'};
+S_type = {'RIEM'};
 
 %%% Choose Clustering Algorithm %%%
 % 'affinity': Affinity Propagation

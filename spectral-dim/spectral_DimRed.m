@@ -1,4 +1,4 @@
-function [Y, d, thres] = spectral_DimRed(S , M)
+function [Y, d, thres, V] = spectral_DimRed(S , M)
 % This algorithm maps the data into M-dimensional spectral space from
 % similarity matrix S using the method from (On Spectral Clustering: Analysis and an algorithm. Andrew Ng.)
 % Implementation of Algorithm 1. from Socher11a paper (Spectral Chinese Restaurant Processes)
@@ -32,13 +32,15 @@ L_sym = D^(-1/2)*L*D^(-1/2);
 
 % Compute Eigen Decomposition of L_sym
 [V,D] = eig(L_sym);
+%det(V)
 
 D_sort = diag(sort(diag(D),'ascend')); % make diagonal matrix out of sorted diagonal values of input D
 [~, ind]=sort(diag(D_sort),'ascend'); % store the indices of which columns the sorted eigenvalues come from
 V_sort=V(:,ind); % arrange the columns in this order
 
 % Vectorize eigenvalues
-d = diag(D_sort); 
+d = diag(D_sort);
+
 
 % If M is not given, find optimal threshold using softmax + attractive
 % adaptation

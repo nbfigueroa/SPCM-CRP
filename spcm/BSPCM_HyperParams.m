@@ -61,7 +61,7 @@ clear all
 close all
 
 % d-Dimension of data samples
-dim = [6];
+dim = [3];
 
 % Values from H(Theta_i ~ Theta_j) = s(Sigma_i,Sigma_j)
 s = linspace(0,10,100);
@@ -69,7 +69,7 @@ s = linspace(0,10,100);
 % Tolerance tau for scaling function
 taus = linspace(0,20,100);
 
-% Probability Function from SPCM p(theta_i~theta_j|Sigma_i,Sigma_j) = 1/( 1 + s(Sigma_i,Sigma_j)*alpha(tau,dim)figure('Color', [1 1 1])
+% Bounded Similarity Function delta(theta_i~theta_j|Sigma_i,Sigma_j) = 1/( 1 + s(Sigma_i,Sigma_j)*alpha(tau,dim)figure('Color', [1 1 1])
 figure('Color', [1 1 1])
 for k=1:1:length(dim)
     dim_idx = k;

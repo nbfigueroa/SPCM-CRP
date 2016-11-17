@@ -2,8 +2,7 @@ function [sigmas, true_labels] = load_task_dataset(data_path)
 
 behavs = [];
 behavs_theta = [];
-cd(data_path)
-load 6D-Grasps.mat
+load(data_path)
 
 dim = 6; 
 for i=1:size(behavs_theta,1)

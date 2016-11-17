@@ -19,10 +19,11 @@ randomize = 0;
 
 %% Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters (c1:63, c2:21, c3: 21)
 % Path to data folder
-data_path = '/home/nadiafigueroa/dev/MATLAB/SPCM-CRP/data';
-[sigmas_, true_labels_] = load_task_dataset(data_path);
+data_path = '/home/nadiafigueroa/dev/MATLAB/SPCM-CRP/data/';
 
-%% Real XD dataset, Covariance Features from ETHZ Dataset, N Samples, k clusters (c1:63, c2:21, c3: 21)
+[sigmas_, true_labels_] = load_task_dataset(strcat(data_path,'6D-Grasps.mat'));
+
+%% Real XD dataset, Covariance Features from ETH80 Dataset, N Samples, k clusters (c1:63, c2:21, c3: 21)
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Similarity Matrix from b-SPCM Function for dataset
@@ -53,7 +54,8 @@ tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data
 
 % Number of datapoints
 N = length(sigmas);
-fprintf('Computing SPCM Similarity Function for %dx%d observations...\n',N,N);
+D = size(sigmas{1},1);
+fprintf('Computing SPCM Similarity Function for %dx%d Covariance Matrices of %dx%d dimensions...\n',N,N,D,D);
 tic;
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
 toc;
@@ -73,10 +75,10 @@ axis square
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
-tic;
 
 % Automatic Discovery of Dimensionality of M Manifold
-[Y, d, thres] = spectral_DimRed(S,[]);
+tic;
+[Y, d, thres, V] = spectral_DimRed(S,[]);
 s_norm = normalize_soft(softmax(d));    
 M = sum(s_norm <= thres);
 
@@ -88,9 +90,10 @@ plot(s_norm,'-*r'); hold on
 plot(thres*ones(1,length(d)),'--k','LineWidth', 2); hold on
 xlabel('Eigenvalue Index')
 ylabel('Normalized Eigenvalue Softmax')
-tit = strcat('Eigenvalue Analysis for Manifold Dimensionality -> M = ', num2str(M));
+tit = strcat('Eigenvalue Analysis for Manifold Dimensionality  M = ', num2str(M));
 title(tit, 'Fontsize',14)
 toc;
+
 fprintf('*************************************************************\n');
 
 if (M == 2) || (M == 3)
@@ -104,7 +107,7 @@ if (M == 2) || (M == 3)
             scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled');hold on                      
         end   
         grid on
-        title('\theta_i-s Respresented in 2-d Spectral space', 'Fontsize',14)
+        title('$\Sigma_i$-s Respresented in 2-d Spectral space')
     end
 
     if M==3
@@ -112,17 +115,17 @@ if (M == 2) || (M == 3)
             clust_color = [rand rand rand];
             scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color, 'filled');hold on        
         end
-        xlabel('y^1');ylabel('y^2');zlabel('y^3')
+        xlabel('$y_1$');ylabel('$y_2$');zlabel('$y_3$')
         colormap(hot)
         grid on
-        title('\theta_i-s Respresented in 3-d Spectral space', 'Fontsize',14)
+        title('$\Sigma_i$-s Respresented in 3-d Spectral space')
     end
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Discover Clusters using sd-CRP-MM %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-close all;
+
 fprintf('Clustering via sd-CRP...\n');
 tic;
 [Psi_MAP] = run_sdCRPMM(Y, S);
@@ -174,10 +177,10 @@ if (M == 2) || (M == 3)
             plotGMM(Mu(:,jj), Sigma(:,:,jj), clust_color, 1);
             alpha(.5)
         end 
-        xlabel('y^1');ylabel('y^2');
+        xlabel('$y_1$');ylabel('$y_2$');
         colormap(hot)
         grid on
-        title('\theta_i-s Respresented in 2-d Spectral space', 'Fontsize',14)
+        title('$\Sigma_i$-s Respresented in 2-d Spectral space')
     end
 
     if M==3
@@ -189,11 +192,11 @@ if (M == 2) || (M == 3)
             plotGMM(Mu(1:2,jj), Sigma(1:2,1:2,jj), clust_color(jj,:), 1);
             alpha(.5)
         end
-        xlabel('y^{(1)}');ylabel('y^{(2)}');
+        xlabel('$y_1$');ylabel('$y_2$');
         axis auto
         colormap(hot)
         grid on
-        title('\theta_i-s Respresented in 2-d [y^{(1)}-y^{(2)}] Spectral space', 'Fontsize',14)
+        title('$\Sigma_i$-s Respresented in 2-d [$y_1$-$y_2$] Spectral space', 'Fontsize',14)
         
         subplot(3,1,2)
         for jj=1:pred_clust
@@ -201,11 +204,11 @@ if (M == 2) || (M == 3)
             plotGMM(Mu([1 3],jj), Sigma([1 3],[1 3],jj), clust_color(jj,:), 1);
             alpha(.5)
         end
-        xlabel('y^{(1)}');ylabel('y^{(3)}');
+        xlabel('$y_1$');ylabel('$y_3$');
         axis auto
         colormap(hot)
         grid on
-        title('\theta_i-s Respresented in 2-d [y^{(1)}-y^{(3)}] Spectral space', 'Fontsize',14)
+        title('$\Sigma_i$-s Respresented in 2-d [$y_1$-$y_3$] Spectral space', 'Fontsize',14)
         
         subplot(3,1,3)
         for jj=1:pred_clust
@@ -213,11 +216,11 @@ if (M == 2) || (M == 3)
             plotGMM(Mu(2:3,jj), Sigma(2:3,2:3,jj), clust_color(jj,:), 1);
             alpha(.5)
         end
-        xlabel('y^{(2)}');ylabel('y^{(3)}');
+        xlabel('$y_2$');ylabel('$y_3$');
         axis auto
         colormap(hot)
         grid on
-        title('\theta_i-s Respresented in 2-d [y^{(2)}-y^{(3)}] Spectral space', 'Fontsize',14)
+        title('$\Sigma_i$-s Respresented in 2-d [$y_2$-$y_3$] Spectral space', 'Fontsize',14)
         
     end
 end
@@ -228,12 +231,20 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all;
-fprintf('Clustering via CRP-MM...\n');
+fprintf('Clustering via DP(CRP)-MM (MCMC Estimation)...\n');
 tic;
-Y_c = bsxfun(@minus,Y',mean(Y'));
-Psi_crpmm = dpmm(Y_c,100);
+[labels_dpgmm,Theta_dpgmm,w,llh] = mixGaussGb(Y);
 toc;
+figure
 
+dpgmm_k = length(w);
+% Mu    = model_dpgmm.m_
+% Sigma = model_dpgmm.U_
+
+
+fprintf('Clustering via DP(CRP)-MM (Variational Estimation)...\n');
+..
+%%
 figure('Color', [1 1 1])
 subplot(2,1,1)
 imagesc(true_labels)
