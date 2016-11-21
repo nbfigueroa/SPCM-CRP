@@ -1,4 +1,4 @@
-function [sigmas, true_labels] = load_toy_dataset(type, display)
+function [Sigmas, True_Labels] = load_toy_dataset(type, display, randomize)
 
 if strcmp(type, '3d') || strcmp(type, '4d')  
         
@@ -250,4 +250,22 @@ if strcmp(type,'6d')
     sigmas = behavs_theta6toy;
     true_labels = [ones(1,tot_1) , ones(1,tot_2)*2, ones(1,tot_3)*3];    
 end
+
+
+
+if (randomize == 1) 
+    fprintf('Randomize Indices: 1 \n');
+    rand_ids = randperm(length(sigmas));
+    for i=1:length(sigmas)
+       Sigmas{i} = sigmas{rand_ids(i)} ;
+       True_Labels(i) = true_labels(rand_ids(i));
+    end
+elseif (randomize == 0) 
+    fprintf('Randomize Indices: 0 \n');
+    Sigmas = sigmas;
+    True_Labels = true_labels;
+end
+
+
+
 end
