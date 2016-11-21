@@ -4,7 +4,7 @@ SPCM-CRP-MM : Transform Invariant Chinese Restaurant Process Mixture Model for C
 Website: https://github.com/nbfigueroa/SPCM-CRP  
 Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 
-This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP-MM) introduced in [1]. In a nutshell, **SPCM-CRP** is a similarity-dependent Chinese Restaurant process. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold of the similarity function.
+This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP-MM) introduced in [1]. In a nutshell, **SPCM-CRP-MM** is a similarity-dependent Chinese Restaurant Process Mixture Model. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold induced from the similarity function.
 
 ### Illustrative Example
 To highlight the power of the proposed method, we consider a dataset of 5 Covariance Matrices of 3-dimensions, which can be illustrated as ellipsoids in 3D space:
@@ -38,7 +38,7 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 - KLDM: Kullback-Liebler Divergence Metric
 - JBLD: Jensen-Bregman LogDet Divergence
 
-### Similarity-based Non-parametric clustering (sd - Chinese Restaurant Process)
+### Similarity-based Non-parametric clustering (sd - Chinese Restaurant Process Mixture Model)
 Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Ideally, we could use Similarity-based clustering such as Affinity Propagation or Spectral Clustering, the performance of these methods, however, rely heavily on hyper-parameter tuning. Thus, we choose a variant of the Chinese Resturant Process, namely the **sd-CRP** [2] whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
 
 #### sd-CRP steps
