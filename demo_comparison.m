@@ -80,7 +80,7 @@ colormap(pink)
 colorbar 
 axis square
 
-%%%%%%%%%%%%%%% 'LERM': Log-Euclidean Riemannina Metric %%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%% 'LERM': Log-Euclidean Riemannina Metric %%%%%%%%%%%%%%%
 fprintf('Computing LERM Similarity Function for %dx%d observations...\n',N,N);
 tic;
 S_lerm = compute_cov_sim( sigmas, 'LERM' );
@@ -96,7 +96,7 @@ colormap(pink)
 colorbar 
 axis square
 
-%%%%%%%%%%%%%%% 'KLDM': Kullback-Liebler Divergence Metric %%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%% 'KLDM': Kullback-Liebler Divergence Metric %%%%%%%%%%%%%%%
 fprintf('Computing KLDM Similarity Function for %dx%d observations...\n',N,N);
 tic;
 S_kldm = compute_cov_sim( sigmas, 'KLDM' );
@@ -111,7 +111,7 @@ colormap(pink)
 colorbar 
 axis square
 
-%%%%%%%%%%%%%%% 'JBLD': Jensen-Bregman LogDet Divergence %%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%% 'JBLD': Jensen-Bregman LogDet Divergence %%%%%%%%%%%%%%%
 fprintf('Computing JBLD Similarity Function for %dx%d observations...\n',N,N);
 tic;
 S_jbld = compute_cov_sim( sigmas, 'JBLD' );

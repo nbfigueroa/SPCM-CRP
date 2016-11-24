@@ -6,10 +6,13 @@ clear all
 close all
 
 % Set to 1 if you want to display Covariance Matrices
-display = 1;
+display = 0;
 
 % Set to 1 if you want to randomize the Covariance Matrices indices
 randomize = 0;
+
+% Path to data folder
+data_path = './data/';
 
 %% Select Dataset:
 %% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
@@ -19,15 +22,24 @@ randomize = 0;
 [sigmas, true_labels] = load_toy_dataset('6d', display, randomize);
 
 %% 3) Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters (c1:63, c2:21, c3: 21)
-% Path to data folder
-data_path = '/home/nadiafigueroa/dev/MATLAB/SPCM-CRP/data/';
 [sigmas, true_labels] = load_task_dataset(strcat(data_path,'6D-Grasps.mat'));
 
-%% 4) Real XD dataset, Covariance Features from ETH80 Dataset, N Samples, k clusters (c1:63, c2:21, c3: 21)
+%% 4) Real 400D dataset, Covariance Features from ETH80 Dataset, 80 Samples, 8 classes/clusters (c1:10, c2:10,.., c8: 10)
 
+data_split = 1;
+load(strcat(data_path, sprintf('/ETH80_subspace_and_covariance_features/split%d_data.mat', data_split)))
+true_labels_ = [tr_labels; te_labels]';
+sigmas_      = [tr_covariance_features te_covariance_features]; % covariance features
+% sigmas      = reshape(cell2mat(covariance_features),[400 400 length(covariance_features)]);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compute Similarity Matrix from b-SPCM Function for dataset
+nSgs = 40;
+true_labels = true_labels_(1:nSgs);
+clear sigmas
+for i=1:nSgs
+sigmas{i} = sigmas_{i};
+end
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Compute Similarity Matrix from B-SPCM Function for dataset
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,7 +52,7 @@ D = size(sigmas{1},1); % Dimension of Covariance Matrices
 fprintf('Computing SPCM Similarity Function for %dx%d Covariance Matrices of %dx%d dimensions...\n',N,N,D,D);
 tic;
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
-toc;
+t
 S = spcm(:,:,2); % Bounded Decay SPCM Similarity Matrix
 fprintf('*************************************************************\n');
 
@@ -49,16 +61,21 @@ if exist('h0','var') && isvalid(h0), delete(h0);end
 title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Run Spectral Manifold Algorithm
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%% Automatic Discovery of Dimensionality of M Manifold % %%%%%%
 fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
 tic;
-[Y, d, thres, V] = spectral_DimRed(S,[]);
-s_norm = normalize_soft(softmax(d));    
-M = sum(s_norm <= thres);
+M = 3;
+[Y, d, thres, V] = spectral_DimRed(S, M);
+
+if isempty(M)
+    s_norm = normalize_soft(softmax(d));
+    M = sum(s_norm <= thres);
+end
+
 toc;
 fprintf('*************************************************************\n');
 
@@ -66,7 +83,7 @@ fprintf('*************************************************************\n');
 if exist('h1','var') && isvalid(h1), delete(h1);end
 h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Discover Clusters using sd-CRP-MM %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -46,7 +46,7 @@ d = diag(D_sort);
 % adaptation
 thres  = 0;
 eps_i  = 0.2;
-eps_ii = 0.02;
+eps_ii = 0.2;
 
 if isempty(M)   
     s = softmax(d);
@@ -64,10 +64,10 @@ if isempty(M)
         M_cut = sum(s_norm < thres);
     end
     
-    if abs(s_norm(M_cut + 1) - thres) < eps_ii
-        M_cut = M_cut + 1;
-        thres = s_norm(M_cut);
-    end
+        if abs(s_norm(M_cut + 1) - thres) < eps_ii
+            M_cut = M_cut + 1;
+            thres = s_norm(M_cut);
+        end
     M = M_cut;
 end
 
