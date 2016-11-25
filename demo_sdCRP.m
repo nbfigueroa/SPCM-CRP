@@ -6,7 +6,7 @@ clear all
 close all
 
 % Set to 1 if you want to display Covariance Matrices
-display = 0;
+display = 1;
 
 % Set to 1 if you want to randomize the Covariance Matrices indices
 randomize = 0;
@@ -32,83 +32,10 @@ split = 10;
 split = 1;
 [sigmas, true_labels] = load_youtube_dataset(data_path,split);
 
-%% 6) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples, 10/5 clusters
+%% 6) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples, 4 clusters (c1: ... c2: ... c3:... c4:...)
+type = 'real';
+[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 
-% Load MRI Image and Parameters
-S = openFDT(strcat(data_path,'./fandtasia_demo/fandtasia_demo.fdt'));
-params = textread(strcat(data_path,'./fandtasia_demo/fandtasia_demo.txt'));
-
-% Extract and plot Gradient orientations
-GradientOrientations=params(:,[1:3]);
-b_value=params(:,4);
-g=GradientOrientations([2:47],:);
-
-% Estimate DTI from Gradient Orientation and b_value
-G=constructMatrixOfMonomials(GradientOrientations, 2);
-C=constructSetOf81Polynomials(2)';
-P=G*C;P=[-diag(b_value)*P ones(size(GradientOrientations,1),1)];
-DTI=zeros(3,3,size(S,1),size(S,2));S0=zeros(size(S,1),size(S,2));
-for i=1:size(S,1)
-   for j=1:size(S,2)
-      y=log(squeeze(S(i,j,1,:)));
-      x=lsqnonneg(P, y);
-      T = C * x([1:81]);
-      UniqueTensorCoefficients(:,i,j)=T;
-      DTI(:,:,i,j)=[T(6) T(5)/2 T(4)/2
-      T(5)/2 T(3) T(2)/2
-      T(4)/2 T(2)/2 T(1)];
-      S0(i,j)=exp(x(82));
-   end
-end
-
-%% Plot DTI and Mean Diffusivity Values
-
-figure('Color',[1 1 1]);
-plotDTI(DTI,0.002);
-title('REAL DT-MRI of Rat Hippocampi')
-
-% Compute Mean Diffusivity
-mean_diffusivity = zeros(size(DTI,3),size(DTI,4));
-for i=1:size(DTI,3)
-    for j=1:size(DTI,4)
-        mean_diffusivity(i,j)=trace(DTI(:,:,i,j))/3;
-    end
-end
-mean_diffusivity = flipud(mean_diffusivity);
-
-% Plot Mean Diffusivity of Diffusion Tensors
-figure('Color',[1 1 1]);
-imagesc(mean_diffusivity)
-colormap(pink)
-colorbar
-axis square
-title('Mean Diffusivity of Diffusion Tensors')
-
-% Compute Fractional Anisotropy
-frac_anisotropy = zeros(size(DTI,3),size(DTI,4));
-for i=1:size(DTI,3)
-    for j=1:size(DTI,4)
-        [eigenvectors,l] = eig(DTI(:,:,i,j));
-        m=(l(1,1)+l(2,2)+l(3,3))/3;
-        frac_anisotropy(i,j)=sqrt(3/2)*sqrt((l(1,1)-m)^2+(l(2,2)-m)^2+(l(3,3)-m)^2)/sqrt(l(1,1)^2+l(2,2)^2+l(3,3)^2);;
-    end
-end
-frac_anisotropy = flipud(frac_anisotropy);
-
-% Plot Fractional Anisotropy of Diffusion Tensors
-figure('Color',[1 1 1]);
-imagesc(frac_anisotropy)
-colormap(pink)
-colorbar
-axis square
-title('Fractional Anisotropy of Diffusion Tensors')
-
-
-% Create Tensor Dataset to Cluster
-% ...
-
-% Generate labels from Fractional Anisotropy Value
-% ...
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Similarity Matrix from B-SPCM Function for dataset
@@ -116,7 +43,7 @@ title('Fractional Anisotropy of Diffusion Tensors')
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 N = length(sigmas);    % Number of Covariance Matrices
@@ -128,7 +55,7 @@ toc;
 S = spcm(:,:,2); % Bounded Decay SPCM Similarity Matrix
 fprintf('*************************************************************\n');
 
-% %%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+%% %%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 if exist('h0','var') && isvalid(h0), delete(h0);end
 title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
@@ -151,7 +78,7 @@ end
 toc;
 fprintf('*************************************************************\n');
 
-% %%%%%% Plot Spectral Manifold Representation for M=2 or M=3 % %%%%%
+%%%%%%% Plot Spectral Manifold Representation for M=2 or M=3 % %%%%%
 if exist('h1','var') && isvalid(h1), delete(h1);end
 h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
@@ -166,7 +93,7 @@ tic;
 toc;
 fprintf('*************************************************************\n');
 
-% %%%%%%%% Plot Clustering Results against True Labels % %%%%%%%%
+%% %%%%%%% Plot Clustering Results against True Labels % %%%%%%%%
 if exist('h2','var') && isvalid(h2), delete(h2);end
 clust_type = 'sd-CRP-MM';
 est_labels = Psi_MAP.Z_C';
@@ -187,6 +114,16 @@ end
 % Visualize Cluster Parameters on Manifold Data
 if exist('h3','var') && isvalid(h3), delete(h3);end
 h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
+
+%% %%%%%%%% Plot cluster labels for DTI %% %%%%%%%%
+        
+% Generate labels from Fractional Anisotropy Value
+figure('Color',[1 1 1]);
+imagesc(flipud(reshape(est_labels,[size(DTI,3) size(DTI,4)])))
+colormap(pink)
+colorbar
+axis square
+title('Estimated Cluster Labels of Diffusion Tensors')
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

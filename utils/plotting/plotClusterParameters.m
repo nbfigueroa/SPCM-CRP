@@ -18,10 +18,10 @@ if (M == 2) || (M == 3)
             plotGMM(Mu(:,jj), Sigma(:,:,jj), clust_color, 1);
             alpha(.5)
         end 
-        xlabel('$y_1$');ylabel('$y_2$');
+        xlabel('y_1');ylabel('y_2');
         colormap(hot)
         grid on
-        title('$\Sigma_i$-s Respresented in 2-d Spectral space')
+        title('\Sigma_i-s Respresented in 2-d Spectral space')
     end
 
     if M==3
@@ -33,11 +33,11 @@ if (M == 2) || (M == 3)
             plotGMM(Mu(1:2,jj), Sigma(1:2,1:2,jj), clust_color(jj,:), 1);
             alpha(.5)
         end
-        xlabel('$y_1$');ylabel('$y_2$');
+        xlabel('y_1');ylabel('y_2');
         axis auto
         colormap(hot)
         grid on
-        title('$\Sigma_i$-s Respresented in 2-d [$y_1$-$y_2$] Spectral space', 'Fontsize',14)
+        title('\Sigma_i-s Respresented in 2-d [y_1-y_2] Spectral space', 'Fontsize',14)
         
         subplot(3,1,2)
         for jj=1:pred_clust
@@ -45,11 +45,11 @@ if (M == 2) || (M == 3)
             plotGMM(Mu([1 3],jj), Sigma([1 3],[1 3],jj), clust_color(jj,:), 1);
             alpha(.5)
         end
-        xlabel('$y_1$');ylabel('$y_3$');
+        xlabel('y_1');ylabel('y_3');
         axis auto
         colormap(hot)
         grid on
-        title('$\Sigma_i$-s Respresented in 2-d [$y_1$-$y_3$] Spectral space', 'Fontsize',14)
+        title('\Sigma_i-s Respresented in 2-d [y_1-y_3] Spectral space', 'Fontsize',14)
         
         subplot(3,1,3)
         for jj=1:pred_clust
@@ -57,11 +57,11 @@ if (M == 2) || (M == 3)
             plotGMM(Mu(2:3,jj), Sigma(2:3,2:3,jj), clust_color(jj,:), 1);
             alpha(.5)
         end
-        xlabel('$y_2$');ylabel('$y_3$');
+        xlabel('y_2');ylabel('y_3');
         axis auto
         colormap(hot)
         grid on
-        title('$\Sigma_i$-s Respresented in 2-d [$y_2$-$y_3$] Spectral space', 'Fontsize',14)
+        title('\Sigma_i-s Respresented in 2-d [y_2-y_3] Spectral space', 'Fontsize',14)
         
     end
 end
