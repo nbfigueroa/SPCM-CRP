@@ -13,7 +13,7 @@ plot(thres*ones(1,length(d)),'--k','LineWidth', 2); hold on
 xlabel('Eigenvalue Index')
 ylabel('Normalized Eigenvalue Softmax')
 tit = strcat('Eigenvalue Analysis for Manifold Dimensionality  M = ', num2str(M));
-title(tit, 'Fontsize',14)
+title(tit)
 
 if (M == 2) || (M == 3)
     subplot(2,1,2)
@@ -26,7 +26,7 @@ if (M == 2) || (M == 3)
             scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled');hold on                      
         end   
         grid on
-        title('$\Sigma_i$-s Represented in 2-d Spectral space')
+        title('\Sigma_i-s Represented in 2-d Spectral space')
     end
 
     if M==3
@@ -34,10 +34,10 @@ if (M == 2) || (M == 3)
             clust_color = [rand rand rand];
             scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color, 'filled');hold on        
         end
-        xlabel('$y_1$');ylabel('$y_2$');zlabel('$y_3$')
+        xlabel('y_1');ylabel('y_2');zlabel('y_3')
         colormap(hot)
         grid on
-        title('$\Sigma_i$-s Represented in 3-d Spectral space')
+        title('\Sigma_i-s Represented in 3-d Spectral space')
     end
 end
 
