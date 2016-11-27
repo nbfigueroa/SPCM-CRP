@@ -2,13 +2,15 @@ function [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, r
 %Loads a a real DT-MRI Dataset or create a synthetic one, each tensor is
 %3x3 DT-MRI size is 32x32
 
-% Load MRI Image and Parameters
-S = openFDT(strcat(data_path,'./fandtasia_demo/fandtasia_demo.fdt'));
-params = textread(strcat(data_path,'./fandtasia_demo/fandtasia_demo.txt'));
 
 
 switch type
-    case 'real'
+    case 'real'                
+        
+        % Load Real DW-MRI Image and Parameters
+        S = openFDT(strcat(data_path,'./fandtasia_demo/fandtasia_demo.fdt'));
+        params = textread(strcat(data_path,'./fandtasia_demo/fandtasia_demo.txt'));
+        
         % Extract and plot Gradient orientations
         GradientOrientations=params(:,[1:3]);
         b_value=params(:,4);
