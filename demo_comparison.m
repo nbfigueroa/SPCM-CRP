@@ -246,3 +246,32 @@ for i=1:length(S_type)
     end
 
 end
+
+
+%%
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Discover Clusters using CRP-MM %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fprintf('Clustering via DP(CRP)-MM (MCMC Estimation)...\n');
+% %%%%%% Non-parametric Clustering on Manifold Data % %%%%%%
+tic;
+[labels_dpgmm,Theta_dpgmm,w,llh] = mixGaussGb(Y);
+toc;
+fprintf('*************************************************************\n');
+
+%% Extract learnt parameters
+k_dpgmm  = length(unique(labels_dpgmm));
+Mu_dpgmm = zeros(size(Y,1), k_dpgmm);
+
+% Sigma = model_dpgmm.U_
+
+
+%%
+fprintf('Clustering via DP(CRP)-MM (Variational Estimation)...\n');
+% ...
+% .. test vbdpgmm here
+% ...
+
+

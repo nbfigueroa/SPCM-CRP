@@ -47,6 +47,10 @@ delta = num2cell(S,2);
 % Remove when changed everything to similarities ---- Change this fucker LPddCRP_NG
 A = {1:(N)};A = A(ones(N,1));
 
+
+fprintf('Clustering via sd-CRP-MM...\n');
+tic;
+
 %%% Compute Initial Cluster Assignments %%%
 C = 1:N;
 clust_members = cell(N,1);
@@ -99,6 +103,9 @@ end
 %%% Re-sample table parameters %%%
 % with Eq. 8 from spectral chinese restaurant
 [Psi_MAP.Cluster_Mu, Psi_MAP.Cluster_Pr, Psi_MAP.clust_params] = resample_TableParams(Y, Psi_MAP.Z_C, Psi_MAP.clust_params);
+
+toc;
+fprintf('*************************************************************\n');
 
 end
 

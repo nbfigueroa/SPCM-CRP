@@ -252,20 +252,14 @@ if strcmp(type,'6d')
 end
 
 
-
 if (randomize == 1) 
     fprintf('Randomize Indices: 1 \n');
-    rand_ids = randperm(length(sigmas));
-    for i=1:length(sigmas)
-       Sigmas{i} = sigmas{rand_ids(i)} ;
-       True_Labels(i) = true_labels(rand_ids(i));
-    end
+    [Sigmas True_Labels] = randomize_data(sigmas, true_labels);
 elseif (randomize == 0) 
     fprintf('Randomize Indices: 0 \n');
     Sigmas = sigmas;
     True_Labels = true_labels;
 end
-
 
 
 end

@@ -1,4 +1,4 @@
-function [sigmas, true_labels] = load_task_dataset(data_path)
+function [Sigmas, True_Labels] = load_task_dataset(data_path, randomize)
 
 behavs = [];
 behavs_theta = [];
@@ -21,5 +21,15 @@ sigmas = behavs_theta6;
 samples = 21;
 true_labels = [ones(1,samples*3) , ones(1,samples)*2, ones(1,samples)*3];
 
+
+
+if (randomize == 1) 
+    fprintf('Randomize Indices: 1 \n');
+    [Sigmas True_Labels] = randomize_data(sigmas, true_labels);
+elseif (randomize == 0) 
+    fprintf('Randomize Indices: 0 \n');
+    Sigmas = sigmas;
+    True_Labels = true_labels;
+end
 
 end

@@ -21,6 +21,10 @@ function [Y, d, thres, V] = spectral_DimRed(S , M)
 % Remove Diagonal Values (self-similarities)
 % S = S - eye(size(S));
 
+
+fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
+tic;
+
 % Compute Diagonal Degree Matrix:
 D = diag(sum(S,2));
 
@@ -82,4 +86,9 @@ Y = V_M;
 
 % Transpose to have columns as observations
 Y = Y';
+
+
+toc;
+fprintf('*************************************************************\n');
+
 end
