@@ -38,7 +38,7 @@ display = 0; randomize = 1;
 
 %% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
 % This function loads the 6-D ellipsoid dataset used to generate Fig. 6 and 
-% from Section 4 and the results in Section 7 in the accompanying paper.
+% from Section 4 and the results in Section 8 in the accompanying paper.
 
 clc; clear all; close all;
 display = 0; randomize = 1;
@@ -47,7 +47,7 @@ display = 0; randomize = 1;
 %% 3) Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters 
 %% Cluster Distibution: (c1:63, c2:21, c3: 21)
 % This function loads the 6-D task-ellipsoid dataset used to evaluate this 
-% algorithm in Section 7 of the accompanying paper.
+% algorithm in Section 8 of the accompanying paper.
 %
 % Please cite the following paper if you make use of this data:
 % El-Khoury, S., de Souza, R. L. and Billard, A. (2014) On Computing 
@@ -57,10 +57,39 @@ clc; clear all; close all;
 data_path = './data/'; randomize = 1;
 [sigmas, true_labels] = load_task_dataset(data_path, randomize);
 
-%% 4a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
+%% 4a) Toy 3D dataset, Diffusion Tensors from Synthetic Dataset, 1024 Samples
+%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
+
+type = 'synthetic';
+[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
+
+%% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
+%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
+% This function loads a 3-D Diffusion Tensor Image from a Diffusion
+% Weight MRI Volume of a Rat's Hippocampus, the extracted 3D DTI is used
+% to evaluate this algorithm in Section 8 of the accompanying paper.
+%
+% To load and visualize this dataset, you must download the dataset files 
+% in the  ~/SPCM-CRP/data directory. These are provided in the online 
+% tutorial on Diffusion Tensor MRI in Matlab:
+% http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
+% One must also download the fanDTasia toolbox in the ~/SPCM-CRP/3rdParty
+% directory, this toolbox is also provided in this link.
+
+clc; clear all; close all;
+data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
+[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
+
+%% 5) Real 7D dataset, Multi-Model GMM with 67 components
+%% Cluster Distibution is unknown
+% This function loads the 7-D (K=67) GMM describing human search strategies
+% used to evaluate this algorithm in Section 8 of the accompanying paper.
+
+
+%% 6a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
 %% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
 % This function loads the 400-D ETH80 Covariance Feature dataset 
-% used to evaluate this algorithm in Section 7 of the accompanying paper.
+% used to evaluate this algorithm in Section 8 of the accompanying paper.
 %
 %
 % You must download this dataset from the following link: 
@@ -75,10 +104,10 @@ clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 1; 
 [sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
 
-%% 4b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
+%% 6b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
 %% Cluster Distibution: 47 classes/clusters (each cluster has 9 samples)
-% This function loads the 400-D ETH80 Covariance Feature dataset 
-% used to evaluate this algorithm in Section 7 of the accompanying paper.
+% This function loads the 900-D YouTube Covariance Feature dataset 
+% used to evaluate this algorithm in Section 8 of the accompanying paper.
 %
 % You must download this dataset from the following link: 
 % http://ravitejav.weebly.com/classification-of-manifold-features.html
@@ -91,29 +120,6 @@ data_path = './data/'; split = 1; randomize = 1;
 clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 0; 
 [sigmas, true_labels] = load_youtube_dataset(data_path, split, randomize);
-
-%% 5a) Toy 3D dataset, Diffusion Tensors from Synthetic Dataset, 1024 Samples
-%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
-
-type = 'synthetic';
-[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-
-%% 5b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
-%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
-% This function loads a 3-D Diffusion Tensor Image from a Diffusion
-% Weight MRI Volume of a Rat's Hippocampus, the extracted 3D DTI is used
-% to evaluate this algorithm in Section 7 of the accompanying paper.
-%
-% To load and visualize this dataset, you must download the dataset files 
-% in the  ~/SPCM-CRP/data directory. These are provided in the online 
-% tutorial on Diffusion Tensor MRI in Matlab:
-% http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
-% One must also download the fanDTasia toolbox in the ~/SPCM-CRP/3rdParty
-% directory, this toolbox is also provided in this link.
-
-clc; clear all; close all;
-data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
-[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1: Compute Similarity Matrix from B-SPCM Function for dataset   %%
@@ -132,12 +138,26 @@ if exist('h0','var') && isvalid(h0), delete(h0);end
 title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
+%% %%% For Dataset 4b) Computing the Similarities takes ages so we %% %%%
+%%%%%% can load a precomputed Similarity matrix with this command: %% %%%
+
+%%%%%%% Select the YouTube Dataset %%%%%%%%%%%%%%
+clc; clear all; close all;
+data_path = './data/'; dataset = 'YouTube';
+[S, true_labels] = loadSimilarityConfMatrix(data_path, dataset);
+
+%% %%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+if exist('h0','var') && isvalid(h0), delete(h0);end
+title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
+h0 = plotSimilarityConfMatrix(S, title_str);
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        Step 2: Run Automatic Spectral Dimensionality Reduction        %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
 M = [];
+M = 2;
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
