@@ -59,8 +59,17 @@ data_path = './data/'; randomize = 1;
 
 %% 4a) Toy 3D dataset, Diffusion Tensors from Synthetic Dataset, 1024 Samples
 %% Cluster Distibution: 4 clusters (each cluster has 10 samples)
+% This function will generate a synthetic DW-MRI (Diffusion Weighted)-MRI
+% This is done following the "Tutorial on Diffusion Tensor MRI using
+% Matlab" by Angelos Barmpoutis, Ph.D. which can be found in the following
+% link: http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
+%
+% To run this function you should download fanDTasia toolbox in the 
+% ~/SPCM-CRP/3rdParty directory, this toolbox is also provided in 
+% the tutorial link.
 
-type = 'synthetic';
+clc; clear all; close all;
+data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 
 %% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
@@ -73,6 +82,7 @@ type = 'synthetic';
 % in the  ~/SPCM-CRP/data directory. These are provided in the online 
 % tutorial on Diffusion Tensor MRI in Matlab:
 % http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
+%
 % One must also download the fanDTasia toolbox in the ~/SPCM-CRP/3rdParty
 % directory, this toolbox is also provided in this link.
 
@@ -121,6 +131,14 @@ clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 0; 
 [sigmas, true_labels] = load_youtube_dataset(data_path, split, randomize);
 
+%% %%% For Dataset 6b) ONLY! Computing the Similarities takes ages so we %% 
+%%%%%% can load a precomputed Similarity matrix with this command: %% %%%
+
+%%%%%%% Select the YouTube Dataset %%%%%%%%%%%%%%
+clc; clear all; close all;
+data_path = './data/'; dataset = 'YouTube';
+[S, true_labels] = loadSimilarityConfMatrix(data_path, dataset);
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1: Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -138,26 +156,12 @@ if exist('h0','var') && isvalid(h0), delete(h0);end
 title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
-%% %%% For Dataset 4b) Computing the Similarities takes ages so we %% %%%
-%%%%%% can load a precomputed Similarity matrix with this command: %% %%%
-
-%%%%%%% Select the YouTube Dataset %%%%%%%%%%%%%%
-clc; clear all; close all;
-data_path = './data/'; dataset = 'YouTube';
-[S, true_labels] = loadSimilarityConfMatrix(data_path, dataset);
-
-%% %%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-if exist('h0','var') && isvalid(h0), delete(h0);end
-title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
-h0 = plotSimilarityConfMatrix(S, title_str);
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        Step 2: Run Automatic Spectral Dimensionality Reduction        %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
 M = [];
-M = 2;
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
@@ -207,7 +211,7 @@ if exist('h3','var') && isvalid(h3), delete(h3);end
 h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%% For Datasets 5a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
+%% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Visualize Estimated Cluster Labels as DTI

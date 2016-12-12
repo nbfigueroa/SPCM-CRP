@@ -43,7 +43,7 @@ D_sort = diag(sort(diag(D),'ascend')); % make diagonal matrix out of sorted diag
 V_sort=V(:,ind); % arrange the columns in this order
 
 % Vectorize eigenvalues
-d = diag(D_sort);
+d = real(diag(D_sort));
 
 
 % If M is not given, find optimal threshold using softmax + attractive
