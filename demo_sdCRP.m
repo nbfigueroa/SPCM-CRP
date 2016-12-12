@@ -90,11 +90,14 @@ clc; clear all; close all;
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 
-%% 5) Real 7D dataset, Multi-Model GMM with 67 components
+%% 5) Real 7D dataset, Multi-Model GMM with 137 components
 %% Cluster Distibution is unknown
-% This function loads the 7-D (K=67) GMM describing human search strategies
+% This function loads the 7-D (K=137) GMM describing human search strategies
 % used to evaluate this algorithm in Section 8 of the accompanying paper.
 
+% clc; clear all; close all;
+data_path = './data/';  display = 1; type = 'table'; %full/table
+[ sigmas, true_labels, GMM ] = load_search_dataset(data_path, type, display );
 
 %% 6a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
 %% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
@@ -145,7 +148,7 @@ data_path = './data/'; dataset = 'YouTube';
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
@@ -195,7 +198,7 @@ est_labels = Psi_MAP.Z_C';
 [ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%% For Datasets 1-4: Visualize sd-CRP-MM Results on Manifold Data %% %%
+%% For Datasets 1-3 + 6a/b: Visualize sd-CRP-MM Results on Manifold Data %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Extract Learnt cluster parameters
@@ -215,10 +218,15 @@ h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Visualize Estimated Cluster Labels as DTI
-figure('Color',[1 1 1]);
 if exist('h3','var') && isvalid(h3), delete(h3);end
-imagesc(flipud(reshape(est_labels,[sqrt(size(est_labels,2)) sqrt(size(est_labels,2))])))
-colormap(pink)
-colorbar
-axis square
-title('Estimated Cluster Labels of Diffusion Tensors')
+title = 'Estimated Cluster Labels of Diffusion Tensors';
+h3 = plotlabelsDTI(est_labels, title);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%% For Datasets 5: Visualize cluster labels for SS-GMM %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Visualize Search Strageies GMM with Clustered Gaussians
+if exist('h3','var') && isvalid(h3), delete(h3);end
+h3 = plotSearchStrategiesGMM(GMM, est_labels);
