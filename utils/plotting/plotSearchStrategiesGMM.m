@@ -17,8 +17,8 @@ function [hf] = plotSearchStrategiesGMM(GMM, labels)
         set(handles(i),'FaceLighting','phong','FaceColor',colors(labels(i),:),'FaceAlpha',alpha(i),'AmbientStrength',0.1,'EdgeColor','none');
     end
     
-    plotcube([0.5 0.7 0.05],[ -0.25 -0.35  -0.025],1,[1 1 1]);
-    plotcube([0.03  0.06 0.025],[ 0.15 0.125 0.025],1,[0.0 1.0 0.0]);
+    plotcube([0.5 0.7 0.05],[ -0.25 -0.35  -0.025],0.35,[1 1 1]);
+    plotcube([0.03  0.06 0.025],[ 0.15 0.125 0.025],0.35,[0.0 1.0 0.0]);
     
     set(gca,'ZTick',[-0.02 0.08]);
     camlight
