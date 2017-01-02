@@ -41,7 +41,7 @@ display = 0; randomize = 1;
 % from Section 4 and the results in Section 8 in the accompanying paper.
 
 clc; clear all; close all;
-display = 0; randomize = 1;
+display = 0; randomize = 1; dataset_name = 'Toy 6D';
 [sigmas, true_labels] = load_toy_dataset('6d', display, randomize);
 
 %% 3) Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters 
@@ -54,7 +54,7 @@ display = 0; randomize = 1;
 % Task-Oriented Grasps. Robotics and Autonomous Systems. 2015 
 
 clc; clear all; close all;
-data_path = './data/'; randomize = 1;
+data_path = './data/'; randomize = 1; dataset_name = 'Real 6D (Task-Ellipsoids)';
 [sigmas, true_labels] = load_task_dataset(data_path, randomize);
 
 %% 4a) Toy 3D dataset, Diffusion Tensors from Synthetic Dataset, 1024 Samples
@@ -181,9 +181,26 @@ h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%% Non-parametric Clustering on Manifold Data with Sim prior %%%%%%%%
-options      = [];
-options.iter = 100; % Max Sampler Iterations 
-[Psi_MAP] = run_sdCRPMM(Y, S);
+
+% Chosen hyper parameters (Default values)
+options       = [];
+hyper.alpha     = 1;     % Concentration parameter
+hyper.mu0       = 0;      % hyper for N(mu_k|mu_0,kappa_0)
+hyper.kappa0    = 1;      % hyper for N(mu_k|mu_0,kappa_0)
+hyper.a0        = M;      % hyper for IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
+hyper.b0        = M*0.5;  % hyper for IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+options.hyper = hyper;    % Setting hyper-parameters
+options.niter = 1000;     % Sampler Iterations 
+
+% Run Gibb Sampler
+[Psi_MAP Psi_Stats] = run_sdCRPMM(Y, S, options);
+
+%% %%%%%% Visualize Gibbs Sampler Stats %%%%%%%%%%%%%%
+if exist('h1b','var') && isvalid(h1b), delete(h1b);end
+options = [];
+options.dataset      = dataset_name;
+options.true_labels  = true_labels; 
+[ h1b ] = plotSamplerStats( Psi_Stats, hyper, options );
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                     Visualize Clustering Results                      %%
@@ -195,7 +212,7 @@ options = [];
 options.clust_type = 'sd-CRP-MM';
 options.Psi_MAP    = Psi_MAP; 
 est_labels = Psi_MAP.Z_C';
-[ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options );
+[ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options ); %<== Change this function to a prettier representation
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% For Datasets 1-3 + 6a/b: Visualize sd-CRP-MM Results on Manifold Data %%

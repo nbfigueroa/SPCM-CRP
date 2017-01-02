@@ -1,4 +1,4 @@
-function [Psi_MAP] = run_sdCRPMM(Y,S)
+function [Psi_MAP, Psi_Stats] = run_sdCRPMM(Y,S, options)
 % Similarity Depenendent Chinese Restaurant Process Mixture Model.
 % Implementation of Algorithm 2. from Socher11 paper (Spectral Chinese Restaurant Processes: Clustering Based on Similarities)
 % **Inputs**
@@ -31,15 +31,28 @@ function [Psi_MAP] = run_sdCRPMM(Y,S)
 % (M = reduced spectral space, N = # of observations)
 [M, N] = size(Y);
 
-%%%% Default Sampler Options %%%%
-niter = 20;
-
 %%%% Default Hyperparameters %%%%
 hyper.alpha     = 1;
 hyper.mu0       = 0;
 hyper.kappa0    = 1;
 hyper.a0        = M;   
 hyper.b0        = M*0.5;
+
+%%%% Parse Sampler Options %%%%
+if nargin < 3
+    niter = 100;
+else
+    niter = options.niter;
+    
+    if isfield(options, 'hyper')
+        hyper.alpha     = options.hyper.alpha;
+        hyper.mu0       = options.hyper.mu0;
+        hyper.kappa0    = options.hyper.kappa0;
+        hyper.a0        = options.hyper.a0;
+        hyper.b0        = options.hyper.b0;
+    end
+end
+
 
 %%% Define Priors %%%
 delta = num2cell(S,2);
@@ -74,6 +87,11 @@ Psi.clust_params   = clust_params;
 Psi.clust_logLiks  = clust_logLiks;
 Psi_MAP.LogProb    = -inf;
 
+
+%%% Load Stats Variabes  %%%
+Psi_Stats.JointLogProbs = zeros(1,niter);
+Psi_Stats.TotalClust    = zeros(1,niter);
+
 %%% Run Gibbs Sampler for niter iterations %%%
 for i = 1:niter
     fprintf('Iteration %d: Started with %d clusters ', i, max(Psi.Z_C));
@@ -90,6 +108,10 @@ for i = 1:niter
 %     [Psi_MAP.Cluster_Mu, Psi_MAP.Cluster_Pr, Psi_MAP.clust_params] = resample_TableParams(Y, Psi_MAP.Z_C, Psi_MAP.clust_params);
     
     fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , Psi.LogProb);
+    
+    %%% Store Stats %%%
+    Psi_Stats.JointLogProbs(i) = Psi.LogProb;
+    Psi_Stats.TotalClust(i)    = max(Psi.Z_C);
     
     %%% If current posterior is higher than previous update MAP estimate %%%
     if (Psi.LogProb > Psi_MAP.LogProb && max(Psi.Z_C) > 1)
