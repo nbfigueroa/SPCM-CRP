@@ -15,11 +15,19 @@ b0 = hyp.b0;
 
 %%% Compute Cluster Priors %%%
 prior_LogLik = 0;
+% for i = 1:length(C)
+%     if i==C(i)
+%         prior_LogLik = prior_LogLik + log(alpha./(alpha+N));
+%     else
+%         prior_LogLik = prior_LogLik + log(delta{i}(C(i))./(alpha+sum(delta{i})));
+%     end
+% end
+
 for i = 1:length(C)
     if i==C(i)
-        prior_LogLik = prior_LogLik + log(alpha./(alpha+N));
+        prior_LogLik = prior_LogLik + log(alpha./(N));
     else
-        prior_LogLik = prior_LogLik + log(delta{i}(C(i))./(alpha+sum(delta{i})));
+        prior_LogLik = prior_LogLik + log(delta{i}(C(i))./(sum(delta{i})));
     end
 end
 

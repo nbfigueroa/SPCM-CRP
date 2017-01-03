@@ -190,13 +190,13 @@ hyper.kappa0    = 1;      % hyper for N(mu_k|mu_0,kappa_0)
 hyper.a0        = M;      % hyper for IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
 hyper.b0        = M*0.5;  % hyper for IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 options.hyper = hyper;    % Setting hyper-parameters
-options.niter = 10;     % Sampler Iterations 
+options.niter = 100;     % Sampler Iterations 
 
 % Run Gibb Sampler
 [Psi_MAP Psi_Stats] = run_sdCRPMM(Y, S, options);
 
 %% %%%%%% Visualize Gibbs Sampler Stats %%%%%%%%%%%%%%
-if exist('h1b','var') && isvalid(h1b), delete(h1b);end
+% if exist('h1b','var') && isvalid(h1b), delete(h1b);end
 options = [];
 options.dataset      = dataset_name;
 options.true_labels  = true_labels; 
