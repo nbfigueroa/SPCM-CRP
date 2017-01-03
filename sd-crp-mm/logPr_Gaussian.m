@@ -1,4 +1,4 @@
-function logPr = calcLogPrGaussian( X, mu, invSigma)
+function logPr = logPr_Gaussian( X, mu, invSigma)
 % Each row of X is an independent draw from Normal( mu, invSigma )
 
 D = size( invSigma,1);

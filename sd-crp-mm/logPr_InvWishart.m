@@ -1,4 +1,4 @@
-function [logPrSigma, cholInvSigma] = calcLogPrInvWishart( invSigma, PP )
+function [logPrSigma, cholInvSigma] = logPr_InvWishart( invSigma, nu, Lambda )
 % Compute prob. of drawing inv( invSigma ) from InvWishart distr.
 %       given hyperparameters PP
 % INPUT:
@@ -16,8 +16,11 @@ function [logPrSigma, cholInvSigma] = calcLogPrInvWishart( invSigma, PP )
 N = size( invSigma, 3 );
 D = size( invSigma, 2 );
 
-v = PP.degFree;
-S  = PP.ScaleMat;
+% v = PP.degFree;
+% S  = PP.ScaleMat;
+
+v = nu;
+S = Lambda;
 
 logDetS = 2*sum( log( diag( chol(S) ) ) );
 
