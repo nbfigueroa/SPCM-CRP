@@ -190,7 +190,7 @@ hyper.kappa0    = 1;      % hyper for N(mu_k|mu_0,kappa_0)
 hyper.a0        = M;      % hyper for IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
 hyper.b0        = M*0.5;  % hyper for IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 options.hyper = hyper;    % Setting hyper-parameters
-options.niter = 1000;     % Sampler Iterations 
+options.niter = 10;     % Sampler Iterations 
 
 % Run Gibb Sampler
 [Psi_MAP Psi_Stats] = run_sdCRPMM(Y, S, options);
