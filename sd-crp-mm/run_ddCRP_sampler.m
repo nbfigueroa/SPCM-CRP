@@ -1,6 +1,5 @@
-function [Psi_MAP, Psi_Stats] = run_ddCRPMM(Y,S, options)
-% Similarity Depenendent Chinese Restaurant Process Mixture Model.
-% Implementation of Algorithm 2. from Socher11 paper (Spectral Chinese Restaurant Processes: Clustering Based on Similarities)
+function [Psi_MAP, Psi_Stats] = run_ddCRP_sampler(Y,S, options)
+% Distance Depenendent Chinese Restaurant Process Mixture Model.
 % **Inputs**
 %          Y: projected M-dimensional points  Y (y1,...,yN) where N = dim(S),
 %          S: Similarity Matrix where s_ij=1 is full similarity and

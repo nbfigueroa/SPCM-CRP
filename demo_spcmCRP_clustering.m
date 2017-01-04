@@ -193,7 +193,7 @@ options.hyper = hyper;    % Setting hyper-parameters
 options.niter = 100;     % Sampler Iterations 
 
 % Run Gibb Sampler
-[Psi_MAP Psi_Stats] = run_sdCRPMM(Y, S, options);
+[Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);
 
 %% %%%%%% Visualize Gibbs Sampler Stats %%%%%%%%%%%%%%
 % if exist('h1b','var') && isvalid(h1b), delete(h1b);end
@@ -210,8 +210,8 @@ options.true_labels  = true_labels;
 if exist('h2','var') && isvalid(h2), delete(h2);end
 options = [];
 options.clust_type = 'sd-CRP-MM';
-options.Psi_MAP    = Psi_MAP; 
-est_labels = Psi_MAP.Z_C';
+options.Psi        = Psi; 
+est_labels         = Psi.Z_C';
 [ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options ); %<== Change this function to a prettier representation
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -219,8 +219,8 @@ est_labels = Psi_MAP.Z_C';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Extract Learnt cluster parameters
-Mu = Psi_MAP.Cluster_Mu;
-Pr = Psi_MAP.Cluster_Pr;
+Mu = Psi.Cluster_Mu;
+Pr = Psi.Cluster_Pr;
 Sigma = zeros(size(Pr,1),size(Pr,1),size(Pr,2));
 for i=1:size(Pr,2)
     Sigma(:,:,i) = diag(Pr(:,i));
