@@ -55,9 +55,10 @@ end
 
 %%% Define Priors %%%
 delta = num2cell(S,2);
+size(delta)
 
 % Remove when changed everything to similarities ---- Change this fucker LPddCRP_NG
-A = {1:(N)};A = A(ones(N,1));
+% A = {1:(N)};A = A(ones(N,1));
 
 
 fprintf('Clustering via sd-CRP-MM...\n');

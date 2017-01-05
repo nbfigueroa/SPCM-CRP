@@ -33,7 +33,7 @@
 % and 5 from Section 4 and the results in Section 7 in the accompanying paper.
 
 clc; clear all; close all;
-display = 0; randomize = 1;
+display = 0; randomize = 0;
 [sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
 
 %% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
@@ -148,7 +148,7 @@ data_path = './data/'; dataset = 'YouTube';
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  

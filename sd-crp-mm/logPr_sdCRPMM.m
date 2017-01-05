@@ -25,7 +25,7 @@ prior_LogLik = 0;
 
 for i = 1:length(C)
     if i==C(i)
-        prior_LogLik = prior_LogLik + log(alpha./(N));
+        prior_LogLik = prior_LogLik + log(alpha./(sum(delta{i})));
     else
         prior_LogLik = prior_LogLik + log(delta{i}(C(i))./(sum(delta{i})));
     end
