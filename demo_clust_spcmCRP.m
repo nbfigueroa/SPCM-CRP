@@ -2,15 +2,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main demo script for the SPCM-CRP-MM Clustering Algorithm proposed in:
 %
-% N. Figueroa and A. Billard, “Discovering Similarities in Transformed Data: 
-% Leveraging Spectral and Bayesian Non-parametic Methods for 
-% Transform-Invariant Clustering and Segmentation”, Arxiv, 2016. 
+% N. Figueroa and A. Billard, “Leveraging Spectral Methods and Bayesian 
+% Non-parametric Models for Transform-Invariant Clustering and Segmentation”
+% Arxiv, 2016. 
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% November 2016; Last revision: 27-November-2016
+% November 2016; Last revision: 6-January-2017
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -27,13 +27,12 @@
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                    --Select a Dataset to Test--                       %%     
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
 % This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
 % and 5 from Section 4 and the results in Section 7 in the accompanying paper.
 
 clc; clear all; close all;
-display = 0; randomize = 0;
+display = 0; randomize = 0;dataset_name = 'Toy 3D';
 [sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
 
 %% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
@@ -90,16 +89,7 @@ clc; clear all; close all;
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 
-%% 5) Real 7D dataset, Multi-Model GMM with 137 components
-%% Cluster Distibution is unknown
-% This function loads the 7-D (K=137) GMM describing human search strategies
-% used to evaluate this algorithm in Section 8 of the accompanying paper.
-
-% clc; clear all; close all;
-data_path = './data/';  display = 1; type = 'table'; %full/table
-[ sigmas, true_labels, GMM ] = load_search_dataset(data_path, type, display );
-
-%% 6a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
+%% 5a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
 %% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
 % This function loads the 400-D ETH80 Covariance Feature dataset 
 % used to evaluate this algorithm in Section 8 of the accompanying paper.
@@ -117,7 +107,7 @@ clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 1; 
 [sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
 
-%% 6b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
+%% 5b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
 %% Cluster Distibution: 47 classes/clusters (each cluster has 9 samples)
 % This function loads the 900-D YouTube Covariance Feature dataset 
 % used to evaluate this algorithm in Section 8 of the accompanying paper.
@@ -134,7 +124,7 @@ clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 0; 
 [sigmas, true_labels] = load_youtube_dataset(data_path, split, randomize);
 
-%% %%% For Dataset 6b) ONLY! Computing the Similarities takes ages so we %% 
+%% %%% For Dataset 5b) ONLY! Computing the Similarities takes ages so we %% 
 %%%%%% can load a precomputed Similarity matrix with this command: %% %%%
 
 %%%%%%% Select the YouTube Dataset %%%%%%%%%%%%%%
@@ -142,13 +132,22 @@ clc; clear all; close all;
 data_path = './data/'; dataset = 'YouTube';
 [S, true_labels] = loadSimilarityConfMatrix(data_path, dataset);
 
+%% 6) Real 7D dataset, Multi-Model GMM with 137 components
+%% Cluster Distibution is unknown
+% This function loads the 7-D (K=137) GMM describing human search strategies
+% used to evaluate this algorithm in Section 8 of the accompanying paper.
+
+% clc; clear all; close all;
+data_path = './data/';  display = 1; type = 'table'; %full/table
+[ sigmas, true_labels, GMM ] = load_search_dataset(data_path, type, display );
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1: Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
@@ -175,32 +174,40 @@ end
 if exist('h1','var') && isvalid(h1), delete(h1);end
 h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 3: Discover Clusters with sd-CRP-MM                  %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%% Non-parametric Clustering on Manifold Data with Sim prior %%%%%%%%
 
-% Chosen hyper parameters (Default values)
-options       = [];
-hyper.alpha     = 1;     % Concentration parameter
-hyper.mu0       = 0;      % hyper for N(mu_k|mu_0,kappa_0)
-hyper.kappa0    = 1;      % hyper for N(mu_k|mu_0,kappa_0)
-hyper.a0        = M;      % hyper for IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-hyper.b0        = M*0.5;  % hyper for IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
-options.hyper = hyper;    % Setting hyper-parameters
-options.niter = 100;     % Sampler Iterations 
+% Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
+options                 = [];
+options.type            = 'diag'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
+options.T               = 100;     % Sampler Iterations 
+options.alpha           = 1;      % Concentration parameter
+lambda.mu0              = 0;      % hyper for N(mu_k|mu_0,kappa_0)
+lambda.kappa0           = 1;      % hyper for N(mu_k|mu_0,kappa_0)
+if strcmp(options.type,'diag')
+    lambda.alpha0       = M;      % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
+    lambda.beta0        = M*0.1;  % G(sigma_k^-1|alpha_0,beta_0): (precision)
+end
+if strcmp(options.type,'full')
+    lambda.nu_0        = M;           % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
+    lambda.Lambda_0    = eye(M)*M*0.5;% IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+end
+options.lambda        = lambda;
 
-% Run Gibb Sampler
+% Run Collapsed Gibb Sampler
 [Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);
 
-%% %%%%%% Visualize Gibbs Sampler Stats %%%%%%%%%%%%%%
+%% %%%%%% Visualize Collapsed Gibbs Sampler Stats %%%%%%%%%%%%%%
 % if exist('h1b','var') && isvalid(h1b), delete(h1b);end
 options = [];
 options.dataset      = dataset_name;
 options.true_labels  = true_labels; 
-[ h1b ] = plotSamplerStats( Psi_Stats, hyper, options );
+options.lambda       = Psi.lambda;
+options.alpha        = Psi.alpha;
+[ h1b ] = plotSamplerStats( Psi_Stats, options );
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                     Visualize Clustering Results                      %%
@@ -215,7 +222,7 @@ est_labels         = Psi.Z_C';
 [ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options ); %<== Change this function to a prettier representation
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% For Datasets 1-3 + 6a/b: Visualize sd-CRP-MM Results on Manifold Data %%
+%% For Datasets 1-3 + 5a/b: Visualize sd-CRP-MM Results on Manifold Data %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Extract Learnt cluster parameters
@@ -241,9 +248,9 @@ h3 = plotlabelsDTI(est_labels, title);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%% For Datasets 5: Visualize cluster labels for SS-GMM %%%%%%%%%%%%
+%% %%%%%%%  For Dataset 6: Visualize cluster labels for SS-GMM %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Visualize Search Strageies GMM with Clustered Gaussians
+% Visualize Search Strategies GMM with Clustered Gaussians
 if exist('h3','var') && isvalid(h3), delete(h3);end
 h3 = plotSearchStrategiesGMM(GMM, est_labels);

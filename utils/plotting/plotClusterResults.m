@@ -20,10 +20,10 @@ est_clust = length(unique(est_labels));
 % Parse options
 clust_type = options.clust_type;
 if strcmp(clust_type, 'sd-CRP-MM')
-    Psi_MAP = options.Psi_MAP;             
+    Psi = options.Psi;             
     title_string = sprintf('Clustering from %s K=%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f', clust_type, est_clust, Purity, NMI, F);
-    fprintf('MAP Cluster estimate recovered at iter %d: %d\n', Psi_MAP.iter, length(est_labels));
-    fprintf('%s LP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', clust_type, Psi_MAP.LogProb, Purity, NMI, F);
+    fprintf('MAP Cluster estimate recovered at iter %d: %d\n', Psi.iter, est_clust);
+    fprintf('%s LP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', clust_type, Psi.LogProb, Purity, NMI, F);
 end
 
 title(title_string, 'FontWeight', 'Bold')

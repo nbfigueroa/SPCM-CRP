@@ -8,10 +8,10 @@ handle = figure('Color', [1 1 1]);
 dataset       = 'Test';
 true_labels   = [];
 lambda        = options.lambda;
-alpha         = options.alpha;
+alpha         = options.alpha
 
 % Parse Options
-if nargin > 1
+if nargin > 2
     if isfield(options, 'dataset'); dataset  = options.dataset ; end
     if isfield(options, 'true_labels'); true_labels = options.true_labels ; end
 end
@@ -21,7 +21,7 @@ semilogx(1:length(Psi_Stats.JointLogProbs),Psi_Stats.JointLogProbs,'r-+', 'LineW
 xlabel('Gibbs Iteration'); ylabel('Posterior LogPr p(C|Y,S)')
 box on;
 grid on;
-title(sprintf('Sampling results on %s Dataset with Hypers: \\alpha=%1.2f, \\mu_0=%1.2f, \\kappa_0=%1.2f, \\Lambda_0=%1.2f, \\nu_0=%1.2f',dataset, alpha, lambda.mu0, lambda.kappa0, lambda.b0, lambda.a0))
+title(sprintf('Sampling results on %s Dataset with Hypers: \\alpha=%1.2f, \\mu_0=%1.2f, \\kappa_0=%1.2f, \\Lambda_0=%1.2f, \\nu_0=%1.2f',dataset, alpha, hyper.mu0, hyper.kappa0, hyper.b0,hyper.a0))
 
 subplot(2,1,2)
 stairs(Psi_Stats.TotalClust, 'LineWidth',2);

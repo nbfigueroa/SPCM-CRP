@@ -1,22 +1,21 @@
-function [C, Z_C, clust_members, clust_params, clust_logLiks] = sample_sdCRP(Y, S_alpha, Psi)
-% Gibbs Sampling of the sd-CRP
+function [C, Z_C, clust_members, clust_logLiks] = sample_ddCRPMM(Y, S_alpha, Psi, type)
+% Gibbs Sampling of the dd-CRP
 % **Inputs** 
-%   Y:          Data points in Spectral Space
-%   S(\alpha):  Similarities in Original Space
-%   Psi:        Current Markov Chain State
+%   o Y:          Data points in Spectral Space
+%   o S_alpha:    Similarities in Original Space (self-simiarity = alpha)
+%   o Psi:        Current Markov Chain State
 %
 % **Outputs** 
-%   C:              new customer assignments
-%   Z_C:            new table ids
-%   clust_members:
-%   clust_params:
-%   clust_logLiks:
+%   o C:              Customer Assignments
+%   o Z_C:            Table Assignments
+%   o table_members:
+%   o clust_logLiks:
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch
 % Website: http://lasa.epfl.ch
-% February 2016; Last revision: 29-Feb-2016
+% February 2016; Last revision: 6-Jan-2017
 
 
 %  Data Dimensionality
@@ -26,8 +25,10 @@ function [C, Z_C, clust_members, clust_params, clust_logLiks] = sample_sdCRP(Y, 
 %%% Extracting current markov state %%%
 C              = Psi.C;
 Z_C            = Psi.Z_C;
+alpha          = Psi.alpha;
+lambda         = Psi.lambda;
+type           = Psi.type;
 clust_members  = Psi.clust_members;
-clust_params   = Psi.clust_params;
 clust_logLiks  = Psi.clust_logLiks;
 K              = max(Z_C);
 
@@ -37,31 +38,30 @@ tau = randperm(N);
 %%% For every i-th randomly sampled observation sample a new cluster
 %%% assignment c_i
 for i=1:N       
-        C
-        c_i = tau(i)        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%% "remove" the c_i, i.e. the outgoing link of customer i %%%%%
+        c_i = tau(i);        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%% Step 1: "Remove" the c_i, i.e. the outgoing link of customer i   %%%%%
         %%%%% to do this, set its cluster to c_i, and set its connected customers to c_i                      
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%               
         ci_old = C(c_i);                                 
         old_conn_customers = clust_members{Z_C(c_i)};
                 
-        %%% new assigned connected customer %%%
+        %%% new assigned connected customer (assign to itself) %%%
         C(c_i) = c_i;        
-        %%% new connected customers considering the removal of link c_i c_{-i} %%
-        new_conn_customers = get_Connections(C,c_i); %% CHANGE THIS FUNCTION                    
         
-        %%%%% if this removal splits a table update the likelihoods. %%%%%
-        % A table seating assignment has changed!        
-        % ## note: splits only happen if c_i^{old} != i
-        if length(new_conn_customers)~=length(old_conn_customers)                        
+        %%% new connected customers (table) considering the removal of c_i from C; i.e. C_{-i} %%
+        % CHANGE THIS FUNCTION                    
+        new_conn_customers = get_Connections(C,c_i);
+        
+        %%%%% Compute likelihood of C_i and ci=j. %%%%%
+        if length(new_conn_customers)~=length(old_conn_customers) 
             % Increase number of tables
             K = K+1;            
             
             % Adding new customer cycle as new table and removing other
             % linked customers
             clust_members{K} = new_conn_customers;            
-            idxs = ismember(old_connected_customers,new_connected_customers);
+            idxs = ismember(old_conn_customers,new_conn_customers);
             clust_members{Z_C(c_i)}(idxs) = [];            
             
             % Creating new table
@@ -70,27 +70,16 @@ for i=1:N
             % Likelihood of old table without c_i 
             % (recompute likelihood of customers sitting without c_i)            
             old_table_id = Z_C(ci_old);            
-            hyper = clust_params(old_table_id);
-            clust_logLiks(old_table_id) = table_logLik_NIG(Y(:,Z_C==old_table_id),hyper.a0,hyper.b0,hyper.mu0,hyper.kappa0);
-            %%% CHANGE THIS FUNCTION TO normal-inverse Wishart and to take
-            %%% updated table parameteres
-%             clust_logLiks(old_table_id) = cluster_logLik_NIW(Y(:,Z_C==old_table_id),hyper.a0,hyper.b0,hyper.mu0,hyper.kappa0);
+            clust_logLiks(old_table_id) = table_logLik(Y(:,Z_C==old_table_id), lambda, type);           
             
             % Likelihood of new table created by c_i            
             new_table_id = K;            
-            % sample a new parameters for this new table
-            hyper = clust_params(new_table_id);
-            %%%%%%%%%%% INSERT FUNCTION HERE
-            clust_params(new_table_id) = hyper;
             % (compute likelihood of new customers sitting with c_i)            
-            clust_logLiks(new_table_id) = table_logLik_NIG(Y(:,Z_C==new_table_id),hyper.a0,hyper.b0,hyper.mu0,hyper.kappa0);  
-            %%% CHANGE THIS FUNCTION TO normal-inverse Wishart and to take
-            %%% updated table parameteres
-%             clust_logLiks(old_table_id) = cluster_logLik_NIW(Y(:,Z_C==old_table_id),hyper.a0,hyper.b0,hyper.mu0,hyper.kappa0);
-        end                             
+            clust_logLiks(new_table_id) = table_logLik(Y(:,Z_C==new_table_id), lambda, type);  
+        end                         
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%% Compute priors p(c_i = j | S^(\alpha)) %%
+        %%%%% Compute priors p(c_i = j | S, \alpha) %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         assign_priors = S_alpha{c_i};   
         assign_logPriors = log(assign_priors)';
@@ -108,7 +97,9 @@ for i=1:N
         new_logLiks = zeros(tables,1);
         sum_logLiks = zeros(tables,1);        
         old_logLiks  = clust_logLiks(table_ids); 
+        
         %%%%%%%%% REWRITE THESE LINES ------>>
+        %%%% Eq. 30 Likelihood of Partition!        
         for j = 1:tables
             k = table_ids(j);
             if table_id_curr==k
@@ -116,22 +107,25 @@ for i=1:N
             else
                 others = true(size(table_ids));
                 others([j find(table_ids==table_id_curr)]) = false;
-                 
-                hyper = clust_params(j);
-                new_logLiks(j) = table_logLik_NIG(Y(:,Z_C==k|Z_C==table_id_curr),hyper.a0,hyper.b0,hyper.mu0,hyper.kappa0);
-%                 new_logLiks(j) = cluster_logLik_NIW(Y(:,Z_C==k|Z_C==table_id_curr),hyper.a0,hyper.b0,hyper.mu0,hyper.kappa0);
+                
+                new_logLiks(j) = table_logLik(Y(:,Z_C==k|Z_C==table_id_curr), lambda, type);
                 sum_logLiks(j) = sum(old_logLiks(others)) + new_logLiks(j);                
             end
         end
                                 
-        %%% Compute log-likelihood of data point i and its friends %%%
+        %%% Compute Cluster LogLikes %%%
         data_logLik = zeros(N,1);
         for ii = 1:N
             data_logLik(ii) = sum_logLiks(table_ids==Z_C(ii));
         end        
         data_logLik = data_logLik - max(data_logLik);
         
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%% STEP 2: Sample new customer assignment from updated conditional %%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                
         %%% Compute log cond prob of all possible cluster assignments %%%
+        % Eq. 31
         log_cond_prob = assign_logPriors + data_logLik;
         
         %%% Compute conditional distribution %%%          
@@ -142,33 +136,17 @@ for i=1:N
         % generate distribution
         cond_prob = cumsum(cond_prob);
                 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%% Sample from the distribution %%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% Pick new cluster assignment proportional to conditional probability
-        c_i_sample = find(cond_prob > rand , 1 )
+        c_i_sample = find(cond_prob > rand , 1 );
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%% Adjust customer seating, table assignments and LogLiks %%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % If new cluster assignment is part of the new connected customers
-        % (new created cycle) then move these customers to that table
-        % This happens if a customer joins a pre-existing table, leaving
-        % their current table and thus reducing table numbers   
-        
-        %%%%%%%%% REWRITE THESE LINES ------>>
-        %%% This means there's a new table!
-        customers_in_new_cycle = false(N,1);
-        for n = 1:N
-            if ~any(new_conn_customers==n)
-                customers_in_new_cycle(n) = true;
-            end
-        end
-        
-        customers_in_new_cycle
-        
-        if customers_in_new_cycle(c_i_sample)  
-            display('Updating cluster members and likelihoods')
+        % If sampled customer assignment leaves table assignments intact do
+        % nothing, otherwise it means that it joined another table!
+        % Update table parameters and likelihoods
+                
+        if ~ismember(c_i_sample, new_conn_customers)
             %%% Table id for sampled cluster assign %%%
             table_id_sample  = Z_C(c_i_sample);
                         
@@ -179,11 +157,11 @@ for i=1:N
             clust_members(clust_swap(2)) = [];
             
             %%%%%%%%% REWRITE THESE LINES ------>>
-            %%% Update Table Ids %%%
+            %%% Update Table Assignments %%%
             Z_C(Z_C==clust_swap(2)) = clust_swap(1);
             Z_C(Z_C>clust_swap(2)) = Z_C(Z_C>clust_swap(2))-1;
             
-            %%% Update Cluster logLiks %%%
+            %%% Update Table logLiks %%%
             clust_logLiks(clust_swap(1))       = new_logLiks(table_ids == Z_C(c_i_sample));
             clust_logLiks(clust_swap(2):(K-1)) = clust_logLiks((clust_swap(2)+1):K);
             
@@ -191,8 +169,7 @@ for i=1:N
             K = K - 1;
         end
         
-        %%%%% Update cluster assignment %%%%%
+        %%%%% Update Customer assignment %%%%%
         C(c_i) = c_i_sample;
-        C
 end
 clust_logLiks = clust_logLiks(1:K);
