@@ -16,7 +16,6 @@ function handles = plot3dGaussian(Priors, Mus,Sigmas )
 %
 
 
-
 K = size(Mus,2);
 npts = 500; 
 

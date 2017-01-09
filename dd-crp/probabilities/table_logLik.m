@@ -5,14 +5,14 @@ function LL = table_logLik(Y, lambda, type)
 [M,N] = size(Y);
 Ybar = mean(Y,2);
 
-mu_0    = lambda.mu0;
-kappa_0 = lambda.kappa0;
+mu_0    = lambda.mu_0
+kappa_0 = lambda.kappa_0
 
 switch type
     case 'diag'                
         % Marginal log likelihood of NG distribution
-        alpha_0 = lambda.alpha0;
-        beta_0 = lambda.beta0;
+        alpha_0 = lambda.alpha_0
+        beta_0 = lambda.beta_0
         
         % Compute posterior update parameters Eq. 86-89
         % p(\mu, \lambda) = NG(\mu,\lambda | \mu_N, \kappa_n, \alpha_n,

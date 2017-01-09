@@ -31,32 +31,20 @@ function [Psi, Psi_Stats] = run_ddCRP_sampler(Y,S, options)
 [M, N] = size(Y);
 
 %%%% Default Hyperparameters %%%%
-alpha            = 1;
-lambda.mu0       = 0;
-lambda.kappa0    = 1;
-lambda.a0        = M;   
-lambda.b0        = M*0.5;
-
-%%%% Default Covariance Matrix Type %%%
-type = 'diag';
+% T                = 100;
+% alpha            = 1;
+% type             = 'full';
+% lambda.mu_0      = 0;
+% lambda.kappa_0   = 1;
+% lambda.nu_0      = M;
+% lambda.Lambda_0  = eye(M)*M*0.5;
 
 %%%% Parse Sampler Options %%%%
-if nargin < 3
-    T = 100; % number of iterations
-else
-    T = options.T;
-    
-    if isfield(options, 'lambda')
-        alpha            = options.alpha;
-        lambda.mu0       = options.lambda.mu0;
-        lambda.kappa0    = options.lambda.kappa0;
-        lambda.alpha0    = options.lambda.alpha0;
-        lambda.beta0     = options.lambda.beta0;
-    end
-        
-    if isfield(options, 'type')
-        type = options.type;
-    end
+if nargin > 2
+    if isfield(options, 'T');      T = options.T;end
+    if isfield(options, 'alpha');  alpha = options.alpha;end          
+    if isfield(options, 'type');   type = options.type;end    
+    if isfield(options, 'lambda'); clear lambda; lambda = options.lambda;end
 end
 
 %%% Initialize Stats Variabes  %%%

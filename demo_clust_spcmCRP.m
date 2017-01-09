@@ -137,8 +137,8 @@ data_path = './data/'; dataset = 'YouTube';
 % This function loads the 7-D (K=137) GMM describing human search strategies
 % used to evaluate this algorithm in Section 8 of the accompanying paper.
 
-% clc; clear all; close all;
-data_path = './data/';  display = 1; type = 'table'; %full/table
+clc; clear all; close all;
+data_path = './data/';  display = 1; dataset_name = 'search';type = 'full'; %full/table
 [ sigmas, true_labels, GMM ] = load_search_dataset(data_path, type, display );
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,13 +183,13 @@ h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
 options                 = [];
 options.type            = 'diag'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
-options.T               = 100;     % Sampler Iterations 
+options.T               = 10;     % Sampler Iterations 
 options.alpha           = 1;      % Concentration parameter
-lambda.mu0              = 0;      % hyper for N(mu_k|mu_0,kappa_0)
-lambda.kappa0           = 1;      % hyper for N(mu_k|mu_0,kappa_0)
+lambda.mu_0              = 0;      % hyper for N(mu_k|mu_0,kappa_0)
+lambda.kappa_0           = 1;      % hyper for N(mu_k|mu_0,kappa_0)
 if strcmp(options.type,'diag')
-    lambda.alpha0       = M;      % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
-    lambda.beta0        = M*0.1;  % G(sigma_k^-1|alpha_0,beta_0): (precision)
+    lambda.alpha_0       = M;      % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
+    lambda.beta_0        = M*0.1;  % G(sigma_k^-1|alpha_0,beta_0): (precision)
 end
 if strcmp(options.type,'full')
     lambda.nu_0        = M;           % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
@@ -205,8 +205,7 @@ options.lambda        = lambda;
 options = [];
 options.dataset      = dataset_name;
 options.true_labels  = true_labels; 
-options.lambda       = Psi.lambda;
-options.alpha        = Psi.alpha;
+options.Psi          = Psi;
 [ h1b ] = plotSamplerStats( Psi_Stats, options );
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

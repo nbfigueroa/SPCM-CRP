@@ -6,18 +6,18 @@ function [new_lambdas] = resample_lambdas(Y, Z_C, lambdas, type)
     YbarN = Y*Z; % Ybar*N
     Ybar = bsxfun(@rdivide,YbarN,Nks);
     
-    % Updating Means
-    new_lambdas.mu_n = bsxfun(@rdivide,lambdas.kappa0.*lambdas.mu0 + YbarN, lambdas.kappa0+Nks);
+    % Updating Mean Parameters
+    new_lambdas.mu_n = bsxfun(@rdivide,lambdas.kappa_0.*lambdas.mu_0 + YbarN, lambdas.kappa_0+Nks);
+    new_lambdas.kappa_n = Nks + lambdas.kappa_0;
     
     switch type
         case 'diag'
-            % Computing lambdas for Precision (NG)
-            new_lambdas.kappa_n = Nks + lambdas.kappa0;
-            new_lambdas.a_n = lambdas.a0 + Nks./2;
-            new_lambdas.b_n = lambdas.b0 + 0.5 * ((Y-YbarN(:,Z_C)).^2)*Z + bsxfun(@rdivide,lambdas.kappa0.* bsxfun(@times,Nks, (Ybar-lambdas.mu0).^2),2.*(lambdas.kappa0+Nks));
+            % Update Precision Parameters (NG)
+            new_lambdas.alpha_n = lambdas.alpha_0 + Nks./2;
+            new_lambdas.beta_n  = lambdas.beta_0 + 0.5 * ((Y-YbarN(:,Z_C)).^2)*Z + bsxfun(@rdivide,lambdas.kappa_0.* bsxfun(@times,Nks, (Ybar-lambdas.mu_0).^2),2.*(lambdas.kappa_0+Nks));
             
         case 'full'
-            % Computing lambdas for Covariance Matrix (NIW)
+            % Update Covariance Parameters (NIW)
     end
     
    
