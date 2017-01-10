@@ -186,7 +186,7 @@ h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
 % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
 options                 = [];
-options.type            = 'full'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
+options.type            = 'diag'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
 options.T               = 100;    % Sampler Iterations 
 options.alpha           = 1;      % Concentration parameter
 lambda.mu_0             = 0;      % hyper for N(mu_k|mu_0,kappa_0)
@@ -206,9 +206,10 @@ options.lambda        = lambda;
 % Run Collapsed Gibb Sampler
 [Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);
 
+
 %% Sample Table Parameters
 % Eq. 39 
-% [Psi.Theta] = sample_TableParams(Y, Psi.Z_C, lambda, Psi.type);
+[Psi.Theta] = sample_TableParams(Y, Psi.Z_C, lambda, Psi.type);
 
 %% %%%%%% Visualize Collapsed Gibbs Sampler Stats %%%%%%%%%%%%%%
 if exist('h1b','var') && isvalid(h1b), delete(h1b);end
@@ -237,9 +238,10 @@ est_labels         = Psi.Z_C';
 % Extract Learnt cluster parameters
 Mu = Psi.Theta.Mu;
 Sigma = Psi.Theta.Sigma;
-      
+       
+
 % Visualize Cluster Parameters on Manifold Data
-% if exist('h3','var') && isvalid(h3), delete(h3);end
+if exist('h3','var') && isvalid(h3), delete(h3);end
 h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -250,6 +252,7 @@ h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
 if exist('h3','var') && isvalid(h3), delete(h3);end
 title = 'Estimated Cluster Labels of Diffusion Tensors';
 h3 = plotlabelsDTI(est_labels, title);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%%  For Dataset 6: Visualize cluster labels for SS-GMM %%%%%%%%%%%%

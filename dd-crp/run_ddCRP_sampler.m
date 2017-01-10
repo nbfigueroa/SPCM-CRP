@@ -31,13 +31,13 @@ function [Psi, Psi_Stats] = run_ddCRP_sampler(Y,S, options)
 [M, N] = size(Y);
 
 %%%% Default Hyperparameters %%%%
-% T                = 100;
-% alpha            = 1;
-% type             = 'full';
-% lambda.mu_0      = 0;
-% lambda.kappa_0   = 1;
-% lambda.nu_0      = M;
-% lambda.Lambda_0  = eye(M)*M*0.5;
+T                = 100;
+alpha            = 1;
+type             = 'full';
+lambda.mu_0      = 0;
+lambda.kappa_0   = 1;
+lambda.nu_0      = M;
+lambda.Lambda_0  = eye(M)*M*0.5;
 
 %%%% Parse Sampler Options %%%%
 if nargin > 2
@@ -59,14 +59,14 @@ Psi_Stats.TotalClust    = zeros(1,T);
 S = S + eye(N)*(alpha-1);
 S_alpha = num2cell(S,2);
 
-%%% Compute Initial Cluster Assignments and Likelihoods %%%
+%%% Compute Initial Customer/Table Assignments and Likelihoods %%%
 C = 1:N;
-clust_members = cell(N,1);
+table_members = cell(N,1);
 Z_C   = extract_TableIds(C); %% CHANGE THIS FUNCTION ----->
 K = max(Z_C);
 for k = 1:K
-    clust_members{k} = find(Z_C==k);    
-    clust_logLiks(k) = table_logLik(Y(:,Z_C==k), lambda, type);
+    table_members{k} = find(Z_C==k);    
+    table_logLiks(k) = table_logLik(Y(:,Z_C==k), lambda, type);
 end
 
 fprintf('*** Initialized with %d clusters out of %d observations ***\n', K, N)
@@ -77,8 +77,8 @@ Psi.Z_C            = Z_C;
 Psi.lambda         = lambda;
 Psi.alpha          = alpha;
 Psi.type           = type;
-Psi.clust_members  = clust_members;
-Psi.clust_logLiks  = clust_logLiks;
+Psi.table_members  = table_members;
+Psi.table_logLiks  = table_logLiks;
 Psi.LogProb        = -inf;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,11 +90,11 @@ tic;
 for i = 1:T
     fprintf('Iteration %d: Started with %d clusters ', i, max(Psi.Z_C));
     
-    %%% Draw Sample sd(SPCM)-CRP %%%
-    [Psi.C, Psi.Z_C, Psi.clust_members, Psi.clust_logLiks] = sample_ddCRPMM(Y, S_alpha, Psi);    
+    %%% Draw Sample dd(SPCM)-CRP %%%
+    [Psi.C, Psi.Z_C, Psi.table_members, Psi.table_logLiks] = sample_ddCRPMM(Y, S_alpha, Psi);    
     
-    %%% Update the LogProbability with the Priors %%%
-    LogProb = logPr_sdCRPMM(Y, S_alpha, Psi); %% CHANGE THIS FUNCTION ----->    
+    %%% Compute the Posterior Conditional Probability of current Partition %%%
+    LogProb = logPr_spcmCRP(Y, S_alpha, Psi); %% CHANGE THIS FUNCTION ----->    
     fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , LogProb);
     
     %%% Store Stats %%%
@@ -102,7 +102,7 @@ for i = 1:T
     Psi_Stats.TotalClust(i)    = max(Psi.Z_C);
     
     %%% If current posterior is higher than previous update MAP estimate %%%
-    if (LogProb > Psi.LogProb && max(Psi.Z_C) > 1)
+    if (LogProb > Psi.LogProb)
         Psi.LogProb = LogProb;
         Psi.Z_C = Psi.Z_C;
         Psi.iter = i;
@@ -110,8 +110,8 @@ for i = 1:T
 end
 
 %%% Re-sample table parameters %%%
-% Eq. 39 
-[Psi.Theta] = resample_TableParams(Y, Psi.Z_C, lambda, type);
+% Eq. 5X in Appendix 
+[Psi.Theta] = sample_TableParams(Y, Psi.Z_C, lambda, type);
 
 toc;
 fprintf('*************************************************************\n');

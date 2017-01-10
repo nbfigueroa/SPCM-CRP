@@ -19,9 +19,9 @@ if nargin > 1
     xlabel('Gibbs Iteration'); ylabel('Posterior LogPr p(C|Y,S)')
     box on;
     grid on;
-    if strcmp(type,'diag')
+    if strcmp(Psi.type,'diag')
         title(sprintf('Sampling results on %s Dataset with Hypers: \\alpha=%1.2f, \\mu_0=%1.2f, \\kappa_0=%1.2f, \\Lambda_0=%1.2f, \\nu_0=%1.2f', ...
-            dataset, alpha, lambda.mu_0, lambda.kappa_0, lambda.beta_0, lambda.alpha_0))
+            dataset, Psi.alpha, Psi.lambda.mu_0, Psi.lambda.kappa_0, Psi.lambda.beta_0, Psi.lambda.alpha_0))
     end
     
     subplot(2,1,2)

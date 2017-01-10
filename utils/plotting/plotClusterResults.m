@@ -19,7 +19,7 @@ est_clust = length(unique(est_labels));
 
 % Parse options
 clust_type = options.clust_type;
-if strcmp(clust_type, 'sd-CRP-MM')
+if strcmp(clust_type, 'spcm-CRP-MM')
     Psi = options.Psi;             
     title_string = sprintf('Clustering from %s K=%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f', clust_type, est_clust, Purity, NMI, F);
     fprintf('MAP Cluster estimate recovered at iter %d: %d\n', Psi.iter, est_clust);
