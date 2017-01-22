@@ -70,7 +70,7 @@ data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)'
 clc; clear all; close all;
 data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-
+ dataset_name = 'Synthetic DT-MRI';
 %% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
 %% Cluster Distibution: 4 clusters (each cluster has 10 samples)
 % This function loads a 3-D Diffusion Tensor Image from a Diffusion
@@ -168,6 +168,7 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 
 %%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
 M = [];
+M = 3;
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
@@ -205,18 +206,19 @@ options.lambda        = lambda;
 
 % Run Collapsed Gibb Sampler
 [Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);
+est_labels = Psi.Z_C';
 
-%% Sample Table Parameters
-% Eq. 39 
-% [Psi.Theta] = sample_TableParams(Y, Psi.Z_C, lambda, Psi.type);
-
-%% %%%%%% Visualize Collapsed Gibbs Sampler Stats %%%%%%%%%%%%%%
+%% %%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
 if exist('h1b','var') && isvalid(h1b), delete(h1b);end
 options = [];
 options.dataset      = dataset_name;
 options.true_labels  = true_labels; 
 options.Psi          = Psi;
 [ h1b ] = plotSamplerStats( Psi_Stats, options );
+
+[Purity NMI F] = cluster_metrics(true_labels, est_labels');
+fprintf('---%s Results---\nLP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+'spcm-CRP-MM', Psi.LogProb, Purity, NMI, F);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                     Visualize Clustering Results                      %%

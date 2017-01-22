@@ -139,7 +139,7 @@ if display==1
     % Plot DT-MRI Image with tensors
     figure('Color',[1 1 1]);
     plotDTI(DTI,0.002);
-    title(dti_title)
+    title(dti_title,'Interpreter','latex','FontSize',14)
 
     
     % Plot Fractional Anisotropy of Diffusion Tensors
@@ -148,7 +148,7 @@ if display==1
     colormap(pink)
     colorbar
     axis square
-    title('Fractional Anisotropy of Diffusion Tensors')
+    title('Fractional Anisotropy of Diffusion Tensors','Interpreter','latex','FontSize',14)
     
     % Generate labels from Fractional Anisotropy Value
     figure('Color',[1 1 1]);
@@ -156,7 +156,7 @@ if display==1
     colormap(pink)
     colorbar
     axis square
-    title('True Cluster Labels of Diffusion Tensors')
+    title('True Cluster Labels of Diffusion Tensors','Interpreter','latex','FontSize',14)
     
 end
 

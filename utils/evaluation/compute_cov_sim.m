@@ -23,7 +23,9 @@ if isempty(type)
 end
 N = length(Sigmas);
 S = zeros (N,N);
+D = size(Sigmas{1},1);
 
+fprintf('Computing %s Similarity Function for %dx%d Covariance Matrices of %dx%d dimensions...\n',type,N,N,D,D);
 for i=1:N
     for j=1:N
         
@@ -51,6 +53,8 @@ for i=1:N
        
     end
 end
+fprintf('*************************************************************\n');
+
 
 end
 

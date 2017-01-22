@@ -1,168 +1,163 @@
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compare similarity functions and clustering algorithms
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Compare similarity functions and clustering algorithms  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % To run some of the function on this script you need 
 % the ML_toolbox in your MATLAB path.
 
-clc
-clear all
-close all
+clc;  clear all; close all
 
-% Set to 1 if you want to display Covariance Matrices
-display = 1;
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                    --Select a Dataset to Test--                       %%     
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
+% This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
+% and 5 from Section 4 and the results in Section 7 in the accompanying paper.
 
-%% Select Dataset:
-%% Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
-[sigmas, true_labels] = load_toy_dataset('3d', display);
+clc; clear all; close all;
+display = 0; randomize = 0; dataset_name = 'Toy 3D';
+[sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
 
-%% Toy 4D dataset, 6 Samples, 2 clusters (c1:4, c2:2)
-[sigmas, true_labels] = load_toy_dataset('4d', display);
+%% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
+% This function loads the 6-D ellipsoid dataset used to generate Fig. 6 and 
+% from Section 4 and the results in Section 8 in the accompanying paper.
 
-%% Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
-[sigmas, true_labels] = load_toy_dataset('6d', display);
+clc; clear all; close all;
+display = 0; randomize = 0; dataset_name = 'Toy 6D';
+[sigmas, true_labels] = load_toy_dataset('6d', display, randomize);
 
-%% Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters (c1:63, c2:21, c3: 21)
-% Path to data folder
-data_path = '/home/nadiafigueroa/dev/MATLAB/SPCM-CRP/data';
-[sigmas, true_labels] = load_task_dataset(data_path);
+%% 3) Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters 
+%% Cluster Distibution: (c1:63, c2:21, c3: 21)
+% This function loads the 6-D task-ellipsoid dataset used to evaluate this 
+% algorithm in Section 8 of the accompanying paper.
+%
+% Please cite the following paper if you make use of this data:
+% El-Khoury, S., de Souza, R. L. and Billard, A. (2014) On Computing 
+% Task-Oriented Grasps. Robotics and Autonomous Systems. 2015 
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compute Similarity Matrix from b-SPCM Function for dataset
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc;
-% %%%%%%%%%%%%%%%%%%%%%
-% Set Hyper-parameter
-% %%%%%%%%%%%%%%%%%%%%%
+clc; clear all; close all;
+data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)';
+[sigmas, true_labels] = load_task_dataset(data_path, randomize);
+
+%% 4a) Toy 3D dataset, Diffusion Tensors from Synthetic Dataset, 1024 Samples
+%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
+% This function will generate a synthetic DW-MRI (Diffusion Weighted)-MRI
+% This is done following the "Tutorial on Diffusion Tensor MRI using
+% Matlab" by Angelos Barmpoutis, Ph.D. which can be found in the following
+% link: http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
+%
+% To run this function you should download fanDTasia toolbox in the 
+% ~/SPCM-CRP/3rdParty directory, this toolbox is also provided in 
+% the tutorial link.
+
+clc; clear all; close all;
+data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
+[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
+
+%% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
+%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
+% This function loads a 3-D Diffusion Tensor Image from a Diffusion
+% Weight MRI Volume of a Rat's Hippocampus, the extracted 3D DTI is used
+% to evaluate this algorithm in Section 8 of the accompanying paper.
+%
+% To load and visualize this dataset, you must download the dataset files 
+% in the  ~/SPCM-CRP/data directory. These are provided in the online 
+% tutorial on Diffusion Tensor MRI in Matlab:
+% http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
+%
+% One must also download the fanDTasia toolbox in the ~/SPCM-CRP/3rdParty
+% directory, this toolbox is also provided in this link.
+
+clc; clear all; close all;
+data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
+[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Compute Similarity Matrix from B-SPCM Function for dataset   %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
-% Number of datapoints
-N = length(sigmas);
-fprintf('Computing SPCM Similarity Function for %dx%d observations...\n',N,N);
-tic;
+% %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
-toc;
-S_spcm = spcm(:,:,2); % Bounded Decay SPCM Similarity Matrix
-fprintf('*************************************************************\n');
+S_spcm   = spcm(:,:,2);
 
+%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+if exist('h0','var') && isvalid(h0), delete(h0);end
+title_str = 'Bounded SPCM (B-SPCM) Similarity Function';
+h0 = plotSimilarityConfMatrix(S_spcm, title_str);
 
-% %%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-figure('Color',[1 1 1])
-imagesc(spcm(:,:,1))
-title('Similarity Function (SPCM) Matrix','Fontsize',16)
-colormap(pink)
-colorbar 
-axis square
-
-figure('Color',[1 1 1])
-imagesc(S_spcm)
-title('Bounded Similarity Function (B-SPCM) Matrix','Fontsize',16)
-colormap(pink)
-colorbar 
-axis square
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compute other Similarity Functions for Comparison
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%% Affine Invariant Riemannian Metric %%%%%%%%%%%%%%%
-fprintf('Computing RIEM Similarity Function for %dx%d observations...\n',N,N);
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%          Compute other Similarity Functions for Comparison          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%% Affine Invariant Riemannian Metric %%%%%%%%%%%%%%%
 tic;
 S_riem = compute_cov_sim( sigmas, 'RIEM' );
 toc;
-fprintf('*************************************************************\n');
 
-% Plot Results
-figure('Color',[1 1 1])
-imagesc(S_riem)
-title('Affine Invariant Riemannian Metric (RIEM)','Fontsize',16)
-colormap(pink)
-colorbar 
-axis square
+%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+if exist('h1','var') && isvalid(h1), delete(h1);end
+title_str = 'Affine Invariant Riemannian Metric (RIEM)';
+h1 = plotSimilarityConfMatrix(S_riem, title_str);
 
 %% %%%%%%%%%%%%% 'LERM': Log-Euclidean Riemannina Metric %%%%%%%%%%%%%%%
-fprintf('Computing LERM Similarity Function for %dx%d observations...\n',N,N);
 tic;
 S_lerm = compute_cov_sim( sigmas, 'LERM' );
 toc;
-fprintf('*************************************************************\n');
 
-
-% Plot Results
-figure('Color',[1 1 1])
-imagesc(S_lerm)
-title(' Log-Euclidean Riemannian Metric (LERM)','Fontsize',16)
-colormap(pink)
-colorbar 
-axis square
+%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+if exist('h2','var') && isvalid(h2), delete(h2);end
+title_str = 'Log-Euclidean Riemannian Metric (LERM)';
+h2 = plotSimilarityConfMatrix(S_lerm, title_str);
 
 %% %%%%%%%%%%%%% 'KLDM': Kullback-Liebler Divergence Metric %%%%%%%%%%%%%%%
-fprintf('Computing KLDM Similarity Function for %dx%d observations...\n',N,N);
 tic;
 S_kldm = compute_cov_sim( sigmas, 'KLDM' );
 toc;
-fprintf('*************************************************************\n');
 
-% Plot Results
-figure('Color',[1 1 1])
-imagesc(S_kldm)
-title(' Kullback-Liebler Divergence Metric (KLDM)','Fontsize',16)
-colormap(pink)
-colorbar 
-axis square
+%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+if exist('h3','var') && isvalid(h3), delete(h3);end
+title_str = 'Kullback-Liebler Divergence Metric (KLDM)';
+h3 = plotSimilarityConfMatrix(S_kldm, title_str);
 
 %% %%%%%%%%%%%%% 'JBLD': Jensen-Bregman LogDet Divergence %%%%%%%%%%%%%%%
-fprintf('Computing JBLD Similarity Function for %dx%d observations...\n',N,N);
 tic;
 S_jbld = compute_cov_sim( sigmas, 'JBLD' );
 toc;
-fprintf('*************************************************************\n');
 
-% Plot Results
-figure('Color',[1 1 1])
-imagesc(S_jbld)
-title('Jensen-Bregman LogDet Divergence (JBLD)','Fontsize',16)
-colormap(pink)
-colorbar 
-axis square
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+if exist('h4','var') && isvalid(h3), delete(h3);end
+title_str = 'Jensen-Bregman LogDet Divergence (JBLD)';
+h4 = plotSimilarityConfMatrix(S_jbld, title_str);
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Apply Standard Similarity-based Clustering Algorithms on Similarity Matrices
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
-% S_type = {'B-SPCM','RIEM', 'LERM', 'KLDM', 'JBLD'};
-S_type = {'RIEM'};
+S_type = {'RIEM', 'LERM', 'KLDM', 'JBLD', 'B-SPCM'};
+% S_type = {'B-SPCM'};
 
 %%% Choose Clustering Algorithm %%%
 % 'affinity': Affinity Propagation
 % 'spectral': Spectral Clustering w/k-means
-% C_type = 'affinity';
-C_type = 'spectral';
+% C_type = 'Affinity';
+C_type = 'Spectral';
 
 %%% Selection of M-dimensional Spectral Manifold (for Spectral Clustering) %%%
 % mani = 'auto';
 mani = 'known';
 
 %%%%%%%%% Compute clusters from Similarity Matrices %%%%%%%%%
-figure('Color',[1 1 1])
-
-%%% Plotting true labels
-s_plots = length(S_type) + 1;
-subplot(s_plots, 1, 1);
-imagesc(true_labels)
-title('True Labels', 'FontSize',16)
-axis equal tight
-colormap(pink)
-set(gca,'XTickLabel',[]);
-set(gca,'YTickLabel',[]);
-grid on
-
-%# create cell arrays of number labels
-for jj=1:length(S)
-text(jj, 1, num2str(jj),'color','r',...
-    'HorizontalAlignment','center','VerticalAlignment','middle','Fontsize',20);
-end
-
+clc;
+runs = 10;
+Purities = zeros(length(S_type),runs);
+NMIs     = zeros(length(S_type),runs);
+F1s      = zeros(length(S_type),runs);
+Ks       = zeros(length(S_type),runs);
+for j =1:runs
 for i=1:length(S_type)
         
     s_type = S_type{i};
@@ -181,8 +176,8 @@ for i=1:length(S_type)
     end
     
     switch C_type
-        case 'affinity'            
-            fprintf('Clustering via Affinity Propagation...\n');
+        case 'Affinity'            
+            fprintf('Clustering %s similarities via Affinity Propagation...\n', s_type);
             tic;
             max_sim =  max(max(S));
             D_aff = S - eye(size(S))*max_sim;
@@ -191,8 +186,8 @@ for i=1:length(S_type)
             toc;
             clus_method = 'Affinity Propagation';
             
-        case 'spectral'
-            fprintf('Clustering via Spectral Clustering...\n');
+        case 'Spectral'
+            fprintf('Clustering %s similarities via Spectral Clustering...\n', s_type);
             tic;
             
             % Project point to spectral manifold from Similarity Matrix
@@ -224,54 +219,21 @@ for i=1:length(S_type)
     [Purity NMI F] = cluster_metrics(true_labels, labels');
     K = length(unique(labels));
     
+    Purities(i,j) = Purity;
+    NMIs(i,j)     = NMI;
+    F1s(i,j)      = F;
+    Ks(i,j)       = K;
+    
     fprintf('Number of clusters: %d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',K, Purity, NMI, F);
     fprintf('*************************************************************\n');
 
-    subplot(s_plots, 1, i + 1);
-    imagesc(labels')
-    
-%     title_string = sprintf('Method (%s) Metric (%s)  [K=%d, Purity: %1.2f, NMI: %1.2f, F-measure: %1.2f]', clus_method, s_type, K, Purity, NMI, F);
-    title_string = sprintf('Method (%s) Metric (%s) ', clus_method, s_type);
-    title(title_string, 'FontSize',16)
-    axis equal tight
-    colormap(pink)
-    set(gca,'XTickLabel',[]);
-    set(gca,'YTickLabel',[]);
-    grid on
-   
-%   create cell arrays of number labels
-    for jj=1:length(S)
-    text(jj, 1, num2str(jj),'color','r',...
-        'HorizontalAlignment','center','VerticalAlignment','middle','Fontsize',20);
-    end
-
+end
 end
 
-
-%%
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Discover Clusters using CRP-MM %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-fprintf('Clustering via DP(CRP)-MM (MCMC Estimation)...\n');
-% %%%%%% Non-parametric Clustering on Manifold Data % %%%%%%
-tic;
-[labels_dpgmm,Theta_dpgmm,w,llh] = mixGaussGb(Y);
-toc;
-fprintf('*************************************************************\n');
-
-%% Extract learnt parameters
-k_dpgmm  = length(unique(labels_dpgmm));
-Mu_dpgmm = zeros(size(Y,1), k_dpgmm);
-
-% Sigma = model_dpgmm.U_
-
-
-%%
-fprintf('Clustering via DP(CRP)-MM (Variational Estimation)...\n');
-% ...
-% .. test vbdpgmm here
-% ...
-
-
+%% Compute Stats for Paper
+clc;
+for i=1:length(S_type)    
+  fprintf('%s Clustering with %s-- K: %1.2f +- %1.2f, Purity: %1.2f +-%1.2f , NMI Score: %1.2f +-%1.2f, F measure: %1.2f+-%1.2f \n', ...
+      C_type, S_type{i}, mean(Ks(i,:)), std(Ks(i,:)), mean(Purities(i,:)), std(Purities(i,:)), mean(NMIs(i,:)), std(NMIs(i,:)), ...
+      mean(F1s(i,:)), std(F1s(i,:)));
+end

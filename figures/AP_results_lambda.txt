@@ -1,0 +1,57 @@
+---- DATASET 1 (Toy 6d) ---- 
+lambda = 0.15
+Affinity Clustering with RIEM-- K: 2.00 +- 0.00, Purity: 0.38 +-0.00 , NMI Score: 0.03 +-0.00, F measure: 0.48+-0.00 
+Affinity Clustering with LERM-- K: 2.00 +- 0.00, Purity: 0.38 +-0.00 , NMI Score: 0.03 +-0.00, F measure: 0.48+-0.00 
+Affinity Clustering with KLDM-- K: 1.00 +- 0.00, Purity: 0.33 +-0.00 , NMI Score: 0.00 +-0.00, F measure: 0.50+-0.00 
+Affinity Clustering with JBLD-- K: 2.00 +- 0.00, Purity: 0.38 +-0.00 , NMI Score: 0.03 +-0.00, F measure: 0.48+-0.00 
+
+lambda = 0.5
+Affinity Clustering with RIEM-- K: 2.00 +- 0.00, Purity: 0.38 +-0.00 , NMI Score: 0.03 +-0.00, F measure: 0.48+-0.00 
+Affinity Clustering with LERM-- K: 2.00 +- 0.00, Purity: 0.38 +-0.00 , NMI Score: 0.03 +-0.00, F measure: 0.48+-0.00 
+Affinity Clustering with KLDM-- K: 1.00 +- 0.00, Purity: 0.33 +-0.00 , NMI Score: 0.00 +-0.00, F measure: 0.50+-0.00 
+Affinity Clustering with JBLD-- K: 2.00 +- 0.00, Purity: 0.38 +-0.00 , NMI Score: 0.03 +-0.00, F measure: 0.48+-0.00 
+Affinity Clustering with B-SPCM-- K: 46.00 +- 16.47, Purity: 0.89 +-0.14 , NMI Score: 0.44 +-0.10, F measure: 0.19+-0.13 
+
+
+---- DATASET 2 (6d Ellipsoids) ---- 
+lambda = 0.15, tau = 1
+Affinity Clustering with RIEM-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with LERM-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with KLDM-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with JBLD-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with B-SPCM-- K: 46.00 +- 0.00, Purity: 1.00 +-0.00 , NMI Score: 0.55 +-0.00, F measure: 0.47+-0.00 
+
+lambda = 0.5, tau = 1
+Affinity Clustering with RIEM-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with LERM-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with KLDM-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with JBLD-- K: 2.00 +- 0.00, Purity: 0.79 +-0.00 , NMI Score: 0.73 +-0.00, F measure: 0.85+-0.00 
+Affinity Clustering with B-SPCM-- K: 11.00 +- 0.00, Purity: 1.00 +-0.00 , NMI Score: 0.64 +-0.00, F measure: 0.53+-0.00 
+
+
+---- DATASET 3 (3D DTI Synthetic) ---- 
+
+lambda = 0.3
+Affinity Clustering with RIEM-- K: 78.70 +- 103.20, Purity: 0.53 +-0.05 , NMI Score: 0.41 +-0.21, F measure: 0.40+-0.24 
+Affinity Clustering with LERM-- K: 53.60 +- 84.44, Purity: 0.52 +-0.05 , NMI Score: 0.44 +-0.20, F measure: 0.44+-0.24 
+Affinity Clustering with KLDM-- K: 247.40 +- 177.80, Purity: 0.54 +-0.12 , NMI Score: 0.19 +-0.09, F measure: 0.13+-0.08 
+Affinity Clustering with JBLD-- K: 34.90 +- 70.65, Purity: 0.53 +-0.05 , NMI Score: 0.48 +-0.17, F measure: 0.49+-0.20 
+Affinity Clustering with B-SPCM-- K: 610.40 +- 210.83, Purity: 0.96 +-0.05 , NMI Score: 0.53 +-0.05, F measure: 0.34+-0.17 
+
+lambda = 0.5, tau = 5
+Affinity Clustering with RIEM-- K: 2.00 +- 0.00, Purity: 0.55 +-0.00 , NMI Score: 0.56 +-0.00, F measure: 0.58+-0.00 
+Affinity Clustering with LERM-- K: 2.00 +- 0.00, Purity: 0.55 +-0.00 , NMI Score: 0.56 +-0.00, F measure: 0.58+-0.00 
+Affinity Clustering with KLDM-- K: 2.00 +- 0.00, Purity: 0.55 +-0.00 , NMI Score: 0.56 +-0.00, F measure: 0.58+-0.00 
+Affinity Clustering with JBLD-- K: 2.00 +- 0.00, Purity: 0.55 +-0.00 , NMI Score: 0.56 +-0.00, F measure: 0.58+-0.00 
+Affinity Clustering with B-SPCM-- K: 362.20 +- 191.49, Purity: 0.86 +-0.09 , NMI Score: 0.57 +-0.05, F measure: 0.51+-0.14 
+
+
+---- DATASET 4 (3D DTI REAL) ----
+lambda = 0.05, tau = 5
+
+lambda = 0.5,  tau = 5
+Affinity Clustering with RIEM-- K: 2.00 +- 0.00, Purity: 0.41 +-0.00 , NMI Score: 0.17 +-0.00, F measure: 0.43+-0.00 
+Affinity Clustering with LERM-- K: 3.00 +- 0.00, Purity: 0.42 +-0.00 , NMI Score: 0.15 +-0.00, F measure: 0.42+-0.00 
+Affinity Clustering with KLDM-- K: 1.00 +- 0.00, Purity: 0.33 +-0.00 , NMI Score: 0.00 +-0.00, F measure: 0.43+-0.00 
+Affinity Clustering with JBLD-- K: 2.00 +- 0.00, Purity: 0.44 +-0.00 , NMI Score: 0.20 +-0.00, F measure: 0.46+-0.00 
+Affinity Clustering with B-SPCM-- K: 59.40 +- 0.52, Purity: 0.96 +-0.00 , NMI Score: 0.55 +-0.00, F measure: 0.25+-0.01 
