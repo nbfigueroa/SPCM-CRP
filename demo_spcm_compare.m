@@ -52,7 +52,7 @@ data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)'
 clc; clear all; close all;
 data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-
+dataset_name = 'Synthetic DT-MRI';
 %% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
 %% Cluster Distibution: 4 clusters (each cluster has 10 samples)
 % This function loads a 3-D Diffusion Tensor Image from a Diffusion
@@ -70,8 +70,7 @@ data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0;
 clc; clear all; close all;
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-
-
+dataset_name = 'Real DT-MRI';
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,7 +91,7 @@ h0 = plotSimilarityConfMatrix(S_spcm, title_str);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%          Compute other Similarity Functions for Comparison          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%%%%%%%% Affine Invariant Riemannian Metric %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% Affine Invariant Riemannian Metric %%%%%%%%%%%%%%%
 tic;
 S_riem = compute_cov_sim( sigmas, 'RIEM' );
 toc;
@@ -102,7 +101,7 @@ if exist('h1','var') && isvalid(h1), delete(h1);end
 title_str = 'Affine Invariant Riemannian Metric (RIEM)';
 h1 = plotSimilarityConfMatrix(S_riem, title_str);
 
-%% %%%%%%%%%%%%% 'LERM': Log-Euclidean Riemannina Metric %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% 'LERM': Log-Euclidean Riemannina Metric %%%%%%%%%%%%%%%
 tic;
 S_lerm = compute_cov_sim( sigmas, 'LERM' );
 toc;
@@ -112,7 +111,7 @@ if exist('h2','var') && isvalid(h2), delete(h2);end
 title_str = 'Log-Euclidean Riemannian Metric (LERM)';
 h2 = plotSimilarityConfMatrix(S_lerm, title_str);
 
-%% %%%%%%%%%%%%% 'KLDM': Kullback-Liebler Divergence Metric %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% 'KLDM': Kullback-Liebler Divergence Metric %%%%%%%%%%%%%%%
 tic;
 S_kldm = compute_cov_sim( sigmas, 'KLDM' );
 toc;
@@ -122,7 +121,7 @@ if exist('h3','var') && isvalid(h3), delete(h3);end
 title_str = 'Kullback-Liebler Divergence Metric (KLDM)';
 h3 = plotSimilarityConfMatrix(S_kldm, title_str);
 
-%% %%%%%%%%%%%%% 'JBLD': Jensen-Bregman LogDet Divergence %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%% 'JBLD': Jensen-Bregman LogDet Divergence %%%%%%%%%%%%%%%
 tic;
 S_jbld = compute_cov_sim( sigmas, 'JBLD' );
 toc;
@@ -137,14 +136,14 @@ h4 = plotSimilarityConfMatrix(S_jbld, title_str);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
-S_type = {'RIEM', 'LERM', 'KLDM', 'JBLD', 'B-SPCM'};
-% S_type = {'B-SPCM'};
+% S_type = {'RIEM', 'LERM', 'KLDM', 'JBLD', 'B-SPCM'};
+S_type = {'B-SPCM'};
 
 %%% Choose Clustering Algorithm %%%
 % 'affinity': Affinity Propagation
 % 'spectral': Spectral Clustering w/k-means
-% C_type = 'Affinity';
-C_type = 'Spectral';
+C_type = 'Affinity';
+% C_type = 'Spectral';
 
 %%% Selection of M-dimensional Spectral Manifold (for Spectral Clustering) %%%
 % mani = 'auto';
@@ -178,10 +177,19 @@ for i=1:length(S_type)
     switch C_type
         case 'Affinity'            
             fprintf('Clustering %s similarities via Affinity Propagation...\n', s_type);
-            tic;
+            tic;                       
+            % Hacks such that AP works
             max_sim =  max(max(S));
-            D_aff = S - eye(size(S))*max_sim;
-            damp = 0.15;
+            if strcmp(s_type,'B-SPCM')                
+                if (strcmp(dataset_name,'Toy 6D') || strcmp(dataset_name,'Synthetic DT-MRI') || strcmp(dataset_name,'Real DT-MRI'))
+                    D_aff = -(S + eye(size(S)));
+                else
+                    D_aff = (S - eye(size(S)));
+                end
+            else
+                D_aff = (S - 2*eye(size(S))*max_sim);
+            end           
+            damp = 0.5;
             [E K labels idx] = affinitypropagation(D_aff, damp);
             toc;
             clus_method = 'Affinity Propagation';

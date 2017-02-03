@@ -11,7 +11,9 @@ function [Purity NMI F] = cluster_metrics(true_labels, pred_labels)
 %        pred_labels (Nx1 vector with predicted labels)
 
 % Output: NMI (Normalized Mutual Information Score 1: best, 0: worst)
-
+%         Purity:     1(best), 0 (worst)
+%         F-measure : 1(best), 0 (worst)
+%
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  

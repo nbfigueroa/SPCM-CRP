@@ -46,6 +46,7 @@ switch type
         dti_title = 'Synthetic DT-MRI';
         
         % Cluster Step for Fractional Anisotropy
+%         cl_step = 0.075;
         cl_step = 0.075;
 
         
@@ -61,7 +62,7 @@ switch type
         g=GradientOrientations([2:47],:);
         
         % Image Title
-        dti_title = 'REAL DT-MRI of Rat Hippocampi';  
+        dti_title = 'REAL DT-MRI of Rat Hippocampus';  
         
         % Cluster Step for Fractional Anisotropy
         cl_step = 0.25;
@@ -106,7 +107,6 @@ for i=1:size(DTI,3)
         frac_anisotropy(j,i)=sqrt(3/2)*sqrt((l(1,1)-m)^2+(l(2,2)-m)^2+(l(3,3)-m)^2)/sqrt(l(1,1)^2+l(2,2)^2+l(3,3)^2);
     end
 end
-
 minFA = min(frac_anisotropy(:));
 maxFA = max(frac_anisotropy(:));
 
@@ -148,7 +148,7 @@ if display==1
     colormap(pink)
     colorbar
     axis square
-    title('Fractional Anisotropy of Diffusion Tensors','Interpreter','latex','FontSize',14)
+    title('Fractional Anisotropy (FA) of Diffusion Tensors','Interpreter','latex','FontSize',14)
     
     % Generate labels from Fractional Anisotropy Value
     figure('Color',[1 1 1]);
@@ -156,7 +156,7 @@ if display==1
     colormap(pink)
     colorbar
     axis square
-    title('True Cluster Labels of Diffusion Tensors','Interpreter','latex','FontSize',14)
+    title('``Ground Truth" Labels from FA values','Interpreter','latex','FontSize',14)
     
 end
 

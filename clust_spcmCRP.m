@@ -46,8 +46,8 @@ hyper.mu0       = 0;      % hyper for N(mu_k|mu_0,kappa_0)
 hyper.kappa0    = 1;      % hyper for N(mu_k|mu_0,kappa_0)
 hyper.a0        = M;      % hyper for IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
 hyper.b0        = M*0.5;  % hyper for IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
-options.hyper = hyper;    % Setting hyper-parameters
-options.niter = 100;     % Sampler Iterations 
+options.hyper   =  hyper;    % Setting hyper-parameters
+options.niter   = 100;     % Sampler Iterations 
 
 % Run Gibb Sampler
 [Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);

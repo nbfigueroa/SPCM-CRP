@@ -23,7 +23,6 @@
 % data_path:  {'./data/'} -- Path to data folder
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                    --Select a Dataset to Test--                       %%     
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,7 +69,7 @@ data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)'
 clc; clear all; close all;
 data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
- dataset_name = 'Synthetic DT-MRI';
+dataset_name = 'Synthetic DT-MRI';
 %% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
 %% Cluster Distibution: 4 clusters (each cluster has 10 samples)
 % This function loads a 3-D Diffusion Tensor Image from a Diffusion
@@ -88,7 +87,7 @@ data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0;
 clc; clear all; close all;
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-
+dataset_name = 'Real DT-MRI';
 %% 5a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
 %% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
 % This function loads the 400-D ETH80 Covariance Feature dataset 
@@ -104,7 +103,7 @@ data_path = './data/'; type = 'real'; display = 1; randomize = 0;
 % Classification of Manifold Features”, CVPR, 2013. 
 
 clc; clear all; close all;
-data_path = './data/'; split = 1; randomize = 1; 
+data_path = './data/'; split = 1; randomize = 0; 
 [sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
 
 %% 5b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
@@ -158,7 +157,7 @@ spcm = ComputeSPCMfunctionMatrix(sigmas, tau);
 S = spcm(:,:,2);
 
 %%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-if exist('h0','var') && isvalid(h0), delete(h0);end
+if exist('h0','var') && isvalid(h0), delete(h0); end
 title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
@@ -199,8 +198,8 @@ if strcmp(options.type,'diag')
     lambda.beta_0        = M*0.1;  % G(sigma_k^-1|alpha_0,beta_0): (precision)
 end
 if strcmp(options.type,'full')
-    lambda.nu_0        = M;          % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-    lambda.Lambda_0    = eye(M); % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+    lambda.nu_0        = M;        % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
+    lambda.Lambda_0    = eye(M);   % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
 options.lambda        = lambda;
 
