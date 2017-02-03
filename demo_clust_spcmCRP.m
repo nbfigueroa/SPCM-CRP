@@ -184,13 +184,15 @@ C = 2;
 
 mu_diff = 0.1;
 iter = 0;
-min_diff = 0.2;
+min_diff = 0.19;
 while mu_diff < min_diff
     % Estimate params of GMM
-    [mu_est, sigma_est, w_est, counter, difference] = gaussian_mixture_model(d', C, 1.0e-5);    
+    [mu_est, sigma_est, w_est, counter, difference] = gaussian_mixture_model(d', C, 1.0e-5);   
+    gmm = 
+    mu_est =
     % Check the distance between the means
-    mu_diff = abs(mu_est(1) - mu_est(2));
-    iter = iter + 1;
+    mu_diff = abs(mu_est(1) - mu_est(2))
+    iter = iter + 1
 end
 
 fprintf('%d iterations to repell means\n',iter);
@@ -200,7 +202,7 @@ gau_1 = norm_density(d, mu_est(1), sigma_est(1));
 gau_2 = norm_density(d, mu_est(2), sigma_est(2));
 weighted_sum  = w_est(1)*gau_1 + w_est(2)*gau_2;
 weighted_diff = w_est(1)*gau_1 - w_est(2)*gau_2;
-gauss_diff = gau_1 - gau_2;
+gauss_diff =  gau_1 - gau_2;
 
 % Optimal Dimensionality is that of the eigenvalues with positive pdf
 M = sum(weighted_diff >= 0)
