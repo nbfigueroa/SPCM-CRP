@@ -10,10 +10,11 @@ if (M == 2) || (M == 3)
 end
 plot(s_norm,'-*r'); hold on
 plot(thres*ones(1,length(d)),'--k','LineWidth', 2); hold on
-xlabel('Eigenvalue Index')
-ylabel('Normalized Eigenvalue Softmax')
+grid on
+xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
+ylabel('$\zeta(\mathbf{\lambda})_i$','Interpreter','Latex','FontSize',14)
 tit = strcat('Eigenvalue Analysis for Manifold Dimensionality  M = ', num2str(M));
-title(tit)
+title(tit, 'Interpreter','Latex','FontSize',14)
 
 if (M == 2) || (M == 3)
     subplot(2,1,2)
@@ -26,7 +27,9 @@ if (M == 2) || (M == 3)
             scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled');hold on                      
         end   
         grid on
-        title('\Sigma_i-s Represented in 2-d Spectral space')
+        xlabel('$y_1$', 'Interpreter','Latex','FontSize',14);
+        ylabel('$y_2$', 'Interpreter','Latex','FontSize',14);        
+        title('$\Sigma_i$ Represented in 2-d Spectral space', 'Interpreter','Latex','FontSize',14)
     end
 
     if M==3
@@ -34,10 +37,12 @@ if (M == 2) || (M == 3)
             clust_color = [rand rand rand];
             scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color, 'filled');hold on        
         end
-        xlabel('y_1');ylabel('y_2');zlabel('y_3')
+        xlabel('$y_1$', 'Interpreter','Latex','FontSize',14);
+        ylabel('$y_2$', 'Interpreter','Latex','FontSize',14);
+        zlabel('$y_3$', 'Interpreter','Latex','FontSize',14);
         colormap(hot)
         grid on
-        title('\Sigma_i-s Represented in 3-d Spectral space')
+        title('$\Sigma_i$ Represented in 3-d Spectral space','Interpreter','Latex','FontSize',14)
     end
 end
 

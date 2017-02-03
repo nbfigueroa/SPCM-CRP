@@ -164,10 +164,9 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        Step 2: Run Automatic Spectral Dimensionality Reduction        %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+close all;
 %%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
 M = [];
-M = 3;
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
@@ -177,6 +176,56 @@ end
 %%%%%%%% Visualize Spectral Manifold Representation for M=2 or M=3 %%%%%%%%
 if exist('h1','var') && isvalid(h1), delete(h1);end
 h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
+
+
+% New method: 
+% 1) Fit a bi-modal GMM to the distribution of Laplacian Eigenvalues
+C = 2;
+
+mu_diff = 0.1;
+iter = 0;
+min_diff = 0.2;
+while mu_diff < min_diff
+    % Estimate params of GMM
+    [mu_est, sigma_est, w_est, counter, difference] = gaussian_mixture_model(d', C, 1.0e-5);    
+    % Check the distance between the means
+    mu_diff = abs(mu_est(1) - mu_est(2));
+    iter = iter + 1;
+end
+
+fprintf('%d iterations to repell means\n',iter);
+
+% 2) Compute the difference of Weighted Gaussians
+gau_1 = norm_density(d, mu_est(1), sigma_est(1));
+gau_2 = norm_density(d, mu_est(2), sigma_est(2));
+weighted_sum  = w_est(1)*gau_1 + w_est(2)*gau_2;
+weighted_diff = w_est(1)*gau_1 - w_est(2)*gau_2;
+gauss_diff = gau_1 - gau_2;
+
+% Optimal Dimensionality is that of the eigenvalues with positive pdf
+M = sum(weighted_diff >= 0)
+M_g = sum(gauss_diff >= 0)
+
+figure('Color',[1 1 1])
+subplot(2,1,1)
+plot(d,'-*r'); hold on
+plot(M, d(M),'ok','MarkerSize',10)
+grid on;
+title('Laplacian EigenValues', 'Interpreter','Latex');
+
+subplot(2,1,2)
+plot(d, weighted_sum, 'k', 'linewidth', 2);hold on;
+plot(d, gau_1 , 'g--', 'linewidth', 1);hold on;
+plot(d, gau_1,  'b--', 'linewidth', 1);hold on;
+plot(d, weighted_diff, 'r', 'linewidth', 2);hold on;
+plot(d(M), 0,'ok','MarkerSize',10)
+
+grid on;
+legend({'$\sum_{k=1}^{2}\alpha_k\mathcal{N}(\mu_k,\sigma_k)$','$\mathcal{N}(\mu_1,\sigma_1)$','$\mathcal{N}(\mu_2,\sigma_2)$','$\alpha_1\mathcal{N}(\mu_1,\sigma_1) - \alpha_2\mathcal{N}(\mu_2,\sigma_2)$'},'Interpreter','Latex')
+title('Bi-Model GMM of Laplacian Eigenvalues', 'Interpreter','Latex');
+
+
+
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 3: Discover Clusters with sd-CRP-MM                  %%
