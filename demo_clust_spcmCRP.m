@@ -166,7 +166,7 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all;
 %%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
-M = [];
+M = 2;
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
@@ -178,7 +178,7 @@ if exist('h1','var') && isvalid(h1), delete(h1);end
 h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
 
-% New method: 
+%% New method: 
 % 1) Fit a bi-modal GMM to the distribution of Laplacian Eigenvalues
 C = 2;
 
@@ -188,11 +188,9 @@ min_diff = 0.19;
 while mu_diff < min_diff
     % Estimate params of GMM
     [mu_est, sigma_est, w_est, counter, difference] = gaussian_mixture_model(d', C, 1.0e-5);   
-    gmm = 
-    mu_est =
     % Check the distance between the means
     mu_diff = abs(mu_est(1) - mu_est(2))
-    iter = iter + 1
+    iter = iter + 1;
 end
 
 fprintf('%d iterations to repell means\n',iter);
@@ -206,26 +204,59 @@ gauss_diff =  gau_1 - gau_2;
 
 % Optimal Dimensionality is that of the eigenvalues with positive pdf
 M = sum(weighted_diff >= 0)
-M_g = sum(gauss_diff >= 0)
+if M  <= 1
+    M =2;
+end
+
+close all
 
 figure('Color',[1 1 1])
-subplot(2,1,1)
+subplot(3,1,1)
 plot(d,'-*r'); hold on
 plot(M, d(M),'ok','MarkerSize',10)
 grid on;
 title('Laplacian EigenValues', 'Interpreter','Latex');
 
-subplot(2,1,2)
+subplot(3,1,2)
 plot(d, weighted_sum, 'k', 'linewidth', 2);hold on;
 plot(d, gau_1 , 'g--', 'linewidth', 1);hold on;
 plot(d, gau_1,  'b--', 'linewidth', 1);hold on;
 plot(d, weighted_diff, 'r', 'linewidth', 2);hold on;
-plot(d(M), 0,'ok','MarkerSize',10)
+plot(d, 0,'*r','MarkerSize',5)
+plot(d(M), weighted_diff(M),'ok','MarkerSize',10)
 
 grid on;
-legend({'$\sum_{k=1}^{2}\alpha_k\mathcal{N}(\mu_k,\sigma_k)$','$\mathcal{N}(\mu_1,\sigma_1)$','$\mathcal{N}(\mu_2,\sigma_2)$','$\alpha_1\mathcal{N}(\mu_1,\sigma_1) - \alpha_2\mathcal{N}(\mu_2,\sigma_2)$'},'Interpreter','Latex')
+legend({'$\sum_{k=1}^{2}\alpha_k\mathcal{N}(\mu_k,\sigma_k)$','$\mathcal{N}(\mu_1,\sigma_1)$', ...
+    '$\mathcal{N}(\mu_2,\sigma_2)$','$\alpha_1\mathcal{N}(\mu_1,\sigma_1) - \alpha_2\mathcal{N}(\mu_2,\sigma_2)$'},'Interpreter','Latex')
 title('Bi-Model GMM of Laplacian Eigenvalues', 'Interpreter','Latex');
 
+% Alternative.. fit a beta distribution to the eigenvalues
+normal = fitdist(d,'Normal');
+ndist = pdf(normal, d);
+
+logis = fitdist(d,'logistic');
+ldist = pdf(logis, d);
+
+M_n = sum(ndist <= 1e-2)
+M_l = sum(ldist <= 1e-4)
+
+if M_n  <= 1
+    M_n =2;
+end
+
+if M_l  <= 1
+    M_l =2;
+end
+
+subplot(3,1,3)
+plot(d,ndist,'-k','linewidth',2); hold on;
+plot(d,ldist,'-r','linewidth',2); hold on;
+plot(d, 0,'*r','MarkerSize',5); hold on;
+plot(d(M_n), ndist(M_n),'ok','MarkerSize',10)
+plot(d(M_l), ldist(M_l),'or','MarkerSize',10)
+legend({'$\mathcal{N}(\lambda;\mu,\sigma)$','$\log(\lambda;\mu,\sigma)$'},'Interpreter','Latex')
+title('Fitted Distributions on Laplacian Eigenvalues', 'Interpreter','Latex');
+grid on;
 
 
 
@@ -254,7 +285,7 @@ if strcmp(options.type,'full')
 end
 options.lambda        = lambda;
 
-% Run Collapsed Gibb Sampler
+% Run Collapsed Gibbs Sampler
 [Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);
 est_labels = Psi.Z_C';
 
