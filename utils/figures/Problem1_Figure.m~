@@ -1,0 +1,27 @@
+%% Load 2D dataset for testing GMM-EM & Likelihood
+clear all; close all; clc;
+
+load('probl1_gmm.mat')
+X = [];
+
+% Visualize Dataset
+options.labels      = [];
+options.class_names = {};
+options.title       = '2D GMM Dataset';
+options.plot_labels = {'$x_1$','$x_2$'};
+
+colors     = hsv(4);
+ml_plot_centroid(gmm.Mu',colors);hold on; 
+ml_plot_gmm_contour(gca,gmm.Priors,gmm.Mu,gmm.Sigma,colors);
+
+xlabel(plot_labels{1},'Interpreter','Latex', 'FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+            
+ylabel(plot_labels{2},'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+            
+
+
+grid on; box on;
+
+
+%% Visualize GMM pdf from learnt parameters
+ml_plot_gmm_pdf(X, Priors, Mu, Sigma)

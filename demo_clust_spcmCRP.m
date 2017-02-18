@@ -2,15 +2,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main demo script for the SPCM-CRP-MM Clustering Algorithm proposed in:
 %
-% N. Figueroa and A. Billard, “Leveraging Spectral Methods and Bayesian 
-% Non-parametric Models for Transform-Invariant Clustering and Segmentation”
+% N. Figueroa and A. Billard, “Transform-Invariant Clustering of SPD Matrices 
+% and its Application on Joint Segmentation and Action Discovery}”
 % Arxiv, 2016. 
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% November 2016; Last revision: 6-January-2017
+% November 2016; Last revision: 18-February-2017
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
