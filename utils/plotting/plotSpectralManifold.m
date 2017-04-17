@@ -16,6 +16,7 @@ ylabel('$\zeta(\mathbf{\lambda})_i$','Interpreter','Latex','FontSize',14)
 tit = strcat('Eigenvalue Analysis for Manifold Dimensionality  M = ', num2str(M));
 title(tit, 'Interpreter','Latex','FontSize',14)
 
+
 if (M == 2) || (M == 3)
     subplot(2,1,2)
     % Plot M-Dimensional Points of Spectral Manifold
@@ -44,6 +45,14 @@ if (M == 2) || (M == 3)
         grid on
         title('$\Sigma_i$ Represented in 3-d Spectral space','Interpreter','Latex','FontSize',14)
     end
+elseif M > 3
+    
+    % Plot result of Laplacian Eigenmaps Projection
+    plot_options              = [];
+    plot_options.labels       = true_labels;
+    plot_options.title        = '$\Sigma_i$ Represented in M-d Spectral space';
+    ml_plot_data(Y',plot_options);
+    
 end
 
 end

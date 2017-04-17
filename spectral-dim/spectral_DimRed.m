@@ -25,6 +25,8 @@ function [Y, d, thres, V] = spectral_DimRed(S , M)
 fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
 tic;
 
+[N] = length(S);
+
 % Compute Diagonal Degree Matrix:
 D = diag(sum(S,2));
 
@@ -36,7 +38,6 @@ L_sym = D^(-1/2)*L*D^(-1/2);
 
 % Compute Eigen Decomposition of L_sym
 [V,D] = eig(L_sym);
-%det(V)
 
 D_sort = diag(sort(diag(D),'ascend')); % make diagonal matrix out of sorted diagonal values of input D
 [~, ind]=sort(diag(D_sort),'ascend'); % store the indices of which columns the sorted eigenvalues come from
@@ -44,7 +45,6 @@ V_sort=V(:,ind); % arrange the columns in this order
 
 % Vectorize eigenvalues
 d = real(diag(D_sort));
-
 
 % If M is not given, find optimal threshold using softmax + attractive
 % adaptation
@@ -78,8 +78,12 @@ end
 % Choose M eigenvectors
 V_M = V_sort(:,1:M);
 
+% Scale by square eigenvalues
+lambda_sqrt = repmat(d(1:M)',N,1);
+V_M = V_M.*lambda_sqrt;
+
 % Normalize rows of V to unit length
-V_M = bsxfun(@rdivide, V_M, sum(V_M,2));
+% V_M = bsxfun(@rdivide, V_M, sum(V_M,2));
 
 % Define NxM observation vector Y = [y1; ...; yN] as rows of V
 Y = V_M;

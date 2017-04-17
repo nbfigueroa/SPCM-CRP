@@ -4,7 +4,7 @@
 %
 % N. Figueroa and A. Billard, “Transform-Invariant Clustering of SPD Matrices 
 % and its Application on Joint Segmentation and Action Discovery}”
-% Arxiv, 2016. 
+% Arxiv, 2017. 
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
@@ -31,7 +31,7 @@
 % and 5 from Section 4 and the results in Section 7 in the accompanying paper.
 
 clc; clear all; close all;
-display = 0; randomize = 0; dataset_name = 'Toy 3D';
+display = 1; randomize = 0; dataset_name = 'Toy 3D';
 [sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
 
 %% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
@@ -66,7 +66,7 @@ data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)'
 % ~/SPCM-CRP/3rdParty directory, this toolbox is also provided in 
 % the tutorial link.
 
-clc; clear all; close all;
+% clc; clear all; close all;
 data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Synthetic DT-MRI';
@@ -84,7 +84,7 @@ dataset_name = 'Synthetic DT-MRI';
 % One must also download the fanDTasia toolbox in the ~/SPCM-CRP/3rdParty
 % directory, this toolbox is also provided in this link.
 
-clc; clear all; close all;
+% clc; clear all; close all;
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Real DT-MRI';
@@ -164,9 +164,8 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        Step 2: Run Automatic Spectral Dimensionality Reduction        %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-close all;
 %%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
-M = 2;
+M = [];
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
@@ -177,87 +176,95 @@ end
 if exist('h1','var') && isvalid(h1), delete(h1);end
 h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
-
 %% New method: 
-% 1) Fit a bi-modal GMM to the distribution of Laplacian Eigenvalues
-C = 2;
+% 1) Fit a normal or logistic distribution of Laplacian Eigenvalues
+if exist('h2','var') && isvalid(h2), delete(h2);end
+h2 = figure('Color',[1 1 1]);
+clear title xlabel ylabel
 
-mu_diff = 0.1;
-iter = 0;
-min_diff = 0.19;
-while mu_diff < min_diff
-    % Estimate params of GMM
-    [mu_est, sigma_est, w_est, counter, difference] = gaussian_mixture_model(d', C, 1.0e-5);   
-    % Check the distance between the means
-    mu_diff = abs(mu_est(1) - mu_est(2))
-    iter = iter + 1;
-end
+d_ = d;
 
-fprintf('%d iterations to repell means\n',iter);
-
-% 2) Compute the difference of Weighted Gaussians
-gau_1 = norm_density(d, mu_est(1), sigma_est(1));
-gau_2 = norm_density(d, mu_est(2), sigma_est(2));
-weighted_sum  = w_est(1)*gau_1 + w_est(2)*gau_2;
-weighted_diff = w_est(1)*gau_1 - w_est(2)*gau_2;
-gauss_diff =  gau_1 - gau_2;
-
-% Optimal Dimensionality is that of the eigenvalues with positive pdf
-M = sum(weighted_diff >= 0)
-if M  <= 1
-    M =2;
-end
-
-close all
-
-figure('Color',[1 1 1])
 subplot(3,1,1)
-plot(d,'-*r'); hold on
-plot(M, d(M),'ok','MarkerSize',10)
-grid on;
+plot(d_','-*r'); hold on
+plot(M, d_(M),'ok','MarkerSize',10);
+xlabel('Eigenvector Index','Interpreter','Latex');
+ylabel('$\lambda$','Interpreter','Latex');
 title('Laplacian EigenValues', 'Interpreter','Latex');
+grid on;
+
+% Alternative.. fit a normal distribution to the eigenvalues
+normal = fitdist(d,'Normal');
+ndist = pdf(normal, d_);
+M_n = sum(ndist <= 1e-2)
+
+if M_n ==0
+    M_n = 1;
+end
 
 subplot(3,1,2)
-plot(d, weighted_sum, 'k', 'linewidth', 2);hold on;
-plot(d, gau_1 , 'g--', 'linewidth', 1);hold on;
-plot(d, gau_1,  'b--', 'linewidth', 1);hold on;
-plot(d, weighted_diff, 'r', 'linewidth', 2);hold on;
-plot(d, 0,'*r','MarkerSize',5)
-plot(d(M), weighted_diff(M),'ok','MarkerSize',10)
-
+plot(d_,ndist,'-k','linewidth',2); hold on;
+plot(d_, 0,'*r','MarkerSize',5); hold on;
+plot(d_(M_n), ndist(M_n),'ok','MarkerSize',10)
+title('Fitted $\mathcal{N}(\lambda;\mu,\sigma)$ on Laplacian Eigenvalues', 'Interpreter','Latex');
 grid on;
-legend({'$\sum_{k=1}^{2}\alpha_k\mathcal{N}(\mu_k,\sigma_k)$','$\mathcal{N}(\mu_1,\sigma_1)$', ...
-    '$\mathcal{N}(\mu_2,\sigma_2)$','$\alpha_1\mathcal{N}(\mu_1,\sigma_1) - \alpha_2\mathcal{N}(\mu_2,\sigma_2)$'},'Interpreter','Latex')
-title('Bi-Model GMM of Laplacian Eigenvalues', 'Interpreter','Latex');
 
-% Alternative.. fit a beta distribution to the eigenvalues
-normal = fitdist(d,'Normal');
-ndist = pdf(normal, d);
-
+% Alternative.. fit a logistic distribution to the eigenvalues
 logis = fitdist(d,'logistic');
-ldist = pdf(logis, d);
-
-M_n = sum(ndist <= 1e-2)
+ldist = pdf(logis, d_);
 M_l = sum(ldist <= 1e-4)
 
-if M_n  <= 1
-    M_n =2;
-end
-
-if M_l  <= 1
-    M_l =2;
+if M_l ==0
+    M_l = 1;
 end
 
 subplot(3,1,3)
-plot(d,ndist,'-k','linewidth',2); hold on;
-plot(d,ldist,'-r','linewidth',2); hold on;
-plot(d, 0,'*r','MarkerSize',5); hold on;
-plot(d(M_n), ndist(M_n),'ok','MarkerSize',10)
-plot(d(M_l), ldist(M_l),'or','MarkerSize',10)
-legend({'$\mathcal{N}(\lambda;\mu,\sigma)$','$\log(\lambda;\mu,\sigma)$'},'Interpreter','Latex')
-title('Fitted Distributions on Laplacian Eigenvalues', 'Interpreter','Latex');
+plot(d_,ldist,'-k','linewidth',2); hold on;
+plot(d_, 0,'*r','MarkerSize',5); hold on;
+plot(d_(M_l), ldist(M_l),'oK','MarkerSize',10)
+title('Fitted $\log(\lambda;\mu,\sigma)$ on Laplacian Eigenvalues', 'Interpreter','Latex');
 grid on;
 
+
+%% 1) Fit a bi-modal GMM to the distribution of Laplacian Eigenvalues
+% C = 2;
+% 
+% mu_diff = 0.1;
+% iter = 0;
+% min_diff = 0.19;
+% while mu_diff < min_diff
+%     % Estimate params of GMM
+%     [mu_est, sigma_est, w_est, counter, difference] = gaussian_mixture_model(d', C, 1.0e-5);   
+%     % Check the distance between the means
+%     mu_diff = abs(mu_est(1) - mu_est(2))
+%     iter = iter + 1;
+% end
+% 
+% fprintf('%d iterations to repell means\n',iter);
+% 2) Compute the difference of Weighted Gaussians
+% gau_1 = norm_density(d, mu_est(1), sigma_est(1));
+% gau_2 = norm_density(d, mu_est(2), sigma_est(2));
+% weighted_sum  = w_est(1)*gau_1 + w_est(2)*gau_2;
+% weighted_diff = w_est(1)*gau_1 - w_est(2)*gau_2;
+% gauss_diff =  gau_1 - gau_2;
+% 
+% % Optimal Dimensionality is that of the eigenvalues with positive pdf
+% M = sum(weighted_diff >= 0)
+% if M  <= 1
+%     M =2;
+% end
+
+% subplot(3,1,2)
+% plot(d, weighted_sum, 'k', 'linewidth', 2);hold on;
+% plot(d, gau_1 , 'g--', 'linewidth', 1);hold on;
+% plot(d, gau_1,  'b--', 'linewidth', 1);hold on;
+% plot(d, weighted_diff, 'r', 'linewidth', 2);hold on;
+% plot(d, 0,'*r','MarkerSize',5)
+% plot(d(M), weighted_diff(M),'ok','MarkerSize',10)
+% 
+% grid on;
+% legend({'$\sum_{k=1}^{2}\alpha_k\mathcal{N}(\mu_k,\sigma_k)$','$\mathcal{N}(\mu_1,\sigma_1)$', ...
+%     '$\mathcal{N}(\mu_2,\sigma_2)$','$\alpha_1\mathcal{N}(\mu_1,\sigma_1) - \alpha_2\mathcal{N}(\mu_2,\sigma_2)$'},'Interpreter','Latex')
+% title('Bi-Model GMM of Laplacian Eigenvalues', 'Interpreter','Latex');
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -281,7 +288,7 @@ if strcmp(options.type,'diag')
 end
 if strcmp(options.type,'full')
     lambda.nu_0        = M;        % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-    lambda.Lambda_0    = eye(M);   % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+    lambda.Lambda_0    = eye(M)*0.1;   % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
 options.lambda        = lambda;
 
@@ -322,7 +329,7 @@ Mu = Psi.Theta.Mu;
 Sigma = Psi.Theta.Sigma;
       
 % Visualize Cluster Parameters on Manifold Data
-% if exist('h3','var') && isvalid(h3), delete(h3);end
+if exist('h3','var') && isvalid(h3), delete(h3);end
 h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
