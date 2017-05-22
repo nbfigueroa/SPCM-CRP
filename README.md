@@ -38,8 +38,8 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 - KLDM: Kullback-Liebler Divergence Metric
 - JBLD: Jensen-Bregman LogDet Divergence
 
-### Similarity-based Non-parametric clustering (sd - Chinese Restaurant Process Mixture Model)
-Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Ideally, we could use Similarity-based clustering such as Affinity Propagation or Spectral Clustering, the performance of these methods, however, rely heavily on hyper-parameter tuning. Thus, we choose a variant of the Chinese Resturant Process, namely the **sd-CRP** [2] whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
+### Similarity-based Non-parametric clustering (SPCM - CRP Mixture Model)
+Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Ideally, we could use Similarity-based clustering such as Affinity Propagation or Spectral Clustering, the performance of these methods, however, rely heavily on hyper-parameter tuning. Thus, we choose a variant of the Chinese Resturant Process, namely the **SPCM-CRP** [2] whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
 
 #### sd-CRP steps
 - Initially, we apply an **augmented Spectral Dimenensionality** [1] reduction algorithm, which automatically selects the dimensionality of the Spectral Manifold by applying a SoftMax on the Eigenvalues of the Laplacian of the Similarity matrix:
@@ -54,41 +54,47 @@ Now that we have a good similarity function for our task, we want to derive a cl
   </p>
   Each customer chooses to sit with another customer or alone according to a prior dependent on the **SPCM similarity function**. Table assignments z(c), then emerge from linked customers or cycles, regardless of sequence or ordering. As for any other Non-parametric approach the Posterior of the sd-CRP is intractable (refer to [1] for the math) and thus a Gibbs sampler is implemented for inference.
 
-To run the full SPCM-CRP pipeline, follow the scipt ```demo_sdCRP.m```, for the 3D dataset you should get the following output on your MATLAB terminal:
+To run the full SPCM-CRP pipeline, follow the scipt ```demo_clust_spcmCRP.m```, for the 3D dataset you should get the following output on your MATLAB terminal:
 
 ```
-Clustering via sd-CRP...
+Clustering via SPCM-CRP...
 *** Initialized with 5 clusters out of 5 observations ***
-Iteration 1: Started with 5 clusters --> moved to 3 clusters with logprob = -23.35
-Iteration 2: Started with 3 clusters --> moved to 2 clusters with logprob = -22.03
-Iteration 3: Started with 2 clusters --> moved to 2 clusters with logprob = -22.03
-Iteration 4: Started with 2 clusters --> moved to 2 clusters with logprob = -22.57
-Iteration 5: Started with 2 clusters --> moved to 3 clusters with logprob = -23.91
-Iteration 6: Started with 3 clusters --> moved to 2 clusters with logprob = -22.22
-Iteration 7: Started with 2 clusters --> moved to 2 clusters with logprob = -22.57
-Iteration 8: Started with 2 clusters --> moved to 2 clusters with logprob = -21.68
-Iteration 9: Started with 2 clusters --> moved to 3 clusters with logprob = -23.89
-Iteration 10: Started with 3 clusters --> moved to 2 clusters with logprob = -21.68
-Iteration 11: Started with 2 clusters --> moved to 2 clusters with logprob = -22.25
-Iteration 12: Started with 2 clusters --> moved to 3 clusters with logprob = -23.04
-Iteration 13: Started with 3 clusters --> moved to 2 clusters with logprob = -22.22
-Iteration 14: Started with 2 clusters --> moved to 2 clusters with logprob = -22.59
-Iteration 15: Started with 2 clusters --> moved to 2 clusters with logprob = -22.59
-Iteration 16: Started with 2 clusters --> moved to 2 clusters with logprob = -22.25
-Iteration 17: Started with 2 clusters --> moved to 2 clusters with logprob = -22.03
-Iteration 18: Started with 2 clusters --> moved to 3 clusters with logprob = -23.61
-Iteration 19: Started with 3 clusters --> moved to 2 clusters with logprob = -22.25
-Iteration 20: Started with 2 clusters --> moved to 2 clusters with logprob = -21.68
-Elapsed time is 0.179722 seconds.
-MAP Cluster estimate recovered at iter 8: 2
-sd-CRP LP: -2.168154e+01 and Purity: 1.00, NMI Score: 1.00, F measure: 1.00 
+Running dd-CRP Mixture Sampler... 
+Iteration 1: Started with 5 clusters --> moved to 3 clusters with logprob = -28.06
+Iteration 2: Started with 3 clusters --> moved to 2 clusters with logprob = -20.29
+Iteration 3: Started with 2 clusters --> moved to 2 clusters with logprob = -19.90
+Iteration 4: Started with 2 clusters --> moved to 2 clusters with logprob = -20.29
+Iteration 5: Started with 2 clusters --> moved to 2 clusters with logprob = -20.56
+Iteration 6: Started with 2 clusters --> moved to 2 clusters with logprob = -20.56
+Iteration 7: Started with 2 clusters --> moved to 2 clusters with logprob = -20.17
+Iteration 8: Started with 2 clusters --> moved to 2 clusters with logprob = -20.17
+Iteration 9: Started with 2 clusters --> moved to 2 clusters with logprob = -20.29
+Iteration 10: Started with 2 clusters --> moved to 2 clusters with logprob = -26.15
+Iteration 11: Started with 2 clusters --> moved to 2 clusters with logprob = -20.60
+Iteration 12: Started with 2 clusters --> moved to 2 clusters with logprob = -20.17
+Iteration 13: Started with 2 clusters --> moved to 2 clusters with logprob = -20.32
+Iteration 14: Started with 2 clusters --> moved to 2 clusters with logprob = -20.54
+Iteration 15: Started with 2 clusters --> moved to 2 clusters with logprob = -20.60
+Iteration 16: Started with 2 clusters --> moved to 2 clusters with logprob = -19.90
+Iteration 17: Started with 2 clusters --> moved to 2 clusters with logprob = -20.54
+Iteration 18: Started with 2 clusters --> moved to 1 clusters with logprob = -24.85
+Iteration 19: Started with 1 clusters --> moved to 1 clusters with logprob = -24.14
+Iteration 20: Started with 1 clusters --> moved to 2 clusters with logprob = -23.72
+Elapsed time is 0.162789 seconds.
+*************************************************************
+---spcm-CRP-MM Results---
+ Iter:3, LP: -1.989588e+01, Clusters: 2 with Purity: 1.00, NMI Score: 1.00, F measure: 1.00 
 *************************************************************
 ```
 
 The result is:
 
   <p align="center">
-  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/sdCRP_results.png" width="500">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/convergence-3dtoy.png" width="500">
+  </p>
+  
+  <p align="center">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/results-3dtoy.png" width="500">
   </p>
 
 **without** selecting or optimizing for **ANY** hyper-parameters.
@@ -117,4 +123,4 @@ To run the **comparisons** demo, download the following toolbox and make sure to
 If you're not interested in running comparisons, this step is not needed.
 
 ### References
-[1] Nadia Figueroa and Aude Billard, "Transform-Invariant Clustering of SPD Matrices with Application to Joint Segmentation and Action Discovery." *In preparation for Pattern Recognition*.  
+[1] Nadia Figueroa and Aude Billard, "Transform-Invariant Non-Parametric Clustering of Covariance Matrices and its Application to Unsupervised Joint Segmentation and Action Discovery." *In preparation for Pattern Recognition*.  
