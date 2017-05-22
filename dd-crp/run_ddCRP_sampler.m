@@ -48,6 +48,7 @@ if nargin > 2
 end
 
 %%% Initialize Stats Variabes  %%%
+Psi_Stats.CompTimes    = zeros(1,T);
 Psi_Stats.PostLogProbs = zeros(1,T);
 Psi_Stats.LogLiks      = zeros(1,T);
 Psi_Stats.TotalClust   = zeros(1,T);
@@ -80,8 +81,7 @@ Psi.alpha          = alpha;
 Psi.type           = type;
 Psi.table_members  = table_members;
 Psi.table_logLiks  = table_logLiks;
-Psi.MaxLogProb        = -inf;
-Psi.TableAssign    = zeros(N,T);
+Psi.MaxLogProb     = -inf;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Run Gibbs Sampler for dd-CRP                         %
@@ -93,15 +93,15 @@ for i = 1:T
     fprintf('Iteration %d: Started with %d clusters ', i, max(Psi.Z_C));
     
     %%% Draw Sample dd(SPCM)-CRP %%%
+    tic;
     [Psi.C, Psi.Z_C, Psi.table_members, Psi.table_logLiks] = sample_ddCRPMM(Y, S_alpha, Psi); 
     
-    %%% Compute the Posterior Conditional Probability of current Partition %%%
-%     LogProb = logPr_spcmCRP(Y, S_alpha, Psi); 
-    
+    %%% Compute the Posterior Conditional Probability of current Partition %%%    
     [LogProb data_LogLik] = logPr_spcmCRP(Y, S_alpha, Psi); 
     fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , LogProb);   
     
     %%% Store Stats %%%
+    Psi_Stats.CompTimes(i)     = toc;
     Psi_Stats.PostLogProbs(i)  = LogProb;
     Psi_Stats.LogLiks(i)       = data_LogLik;
     Psi_Stats.TableAssign(:,i) = Psi.Z_C;

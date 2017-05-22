@@ -24,7 +24,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                    --Select a Dataset to Test--                       %%     untitled
+%%                    --Select a Dataset to Test--                       %%    
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
 % This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
@@ -146,9 +146,9 @@ data_path = './data/';  display = 1; dataset_name = 'search';type = 'full'; %ful
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 20; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 % Datasets 1-3:  tau = 1;
-% Datasets 4a/4b tau = 5;
+% Datasets 4a/4b tau = 10;
 % Datasets 4a/4b tau = 5;
 % Dataset 6: tau = 1;
 
@@ -183,30 +183,31 @@ h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
 % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
 options                 = [];
-options.type            = 'full'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
-options.T               = 20;    % Sampler Iterations 
-options.alpha           = 1;    % Concentration parameter
+options.type            = 'full';  % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
+options.T               = 100;     % Sampler Iterations 
+options.alpha           = 1;     % Concentration parameter
 
-% Hyper-parameter setting for Base Distribution
+% Standard Base Distribution Hyper-parameter setting
 if strcmp(options.type,'diag')
     lambda.alpha_0       = M;                    % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
     lambda.beta_0        = sum(diag(cov(Y')))/M; % G(sigma_k^-1|alpha_0,beta_0): (precision)
 end
 if strcmp(options.type,'full')
     lambda.nu_0        = M;                           % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-    lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+%     lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+    lambda.Lambda_0    = diag(diag(cov(Y')));         % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
-
-lambda.mu_0             = 0;      % hyper for N(mu_k|mu_0,kappa_0)
-lambda.kappa_0          = 1;      % hyper for N(mu_k|mu_0,kappa_0)
+% lambda.mu_0             = mean(Y,2);    % hyper for N(mu_k|mu_0,kappa_0)
+lambda.mu_0             = zeros(size(Y(:,1)));    % hyper for N(mu_k|mu_0,kappa_0)
+lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
 
 
 % Run Collapsed Gibbs Sampler
-options.lambda        = lambda;
-[Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);
-est_labels = Psi.Z_C';
+options.lambda    = lambda;
+[Psi Psi_Stats]   = run_ddCRP_sampler(Y, S, options);
+est_labels        = Psi.Z_C';
 
-%%%%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
+%% %%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
 if exist('h1b','var') && isvalid(h1b), delete(h1b);end
 options = [];
 options.dataset      = dataset_name;
