@@ -48,8 +48,9 @@ if nargin > 2
 end
 
 %%% Initialize Stats Variabes  %%%
-Psi_Stats.JointLogProbs = zeros(1,T);
-Psi_Stats.TotalClust    = zeros(1,T);
+Psi_Stats.PostLogProbs = zeros(1,T);
+Psi_Stats.LogLiks      = zeros(1,T);
+Psi_Stats.TotalClust   = zeros(1,T);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %              Define Initial Markov Chain State Psi^{t-1}               %
@@ -79,7 +80,8 @@ Psi.alpha          = alpha;
 Psi.type           = type;
 Psi.table_members  = table_members;
 Psi.table_logLiks  = table_logLiks;
-Psi.LogProb        = -inf;
+Psi.MaxLogProb        = -inf;
+Psi.TableAssign    = zeros(N,T);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Run Gibbs Sampler for dd-CRP                         %
@@ -91,25 +93,30 @@ for i = 1:T
     fprintf('Iteration %d: Started with %d clusters ', i, max(Psi.Z_C));
     
     %%% Draw Sample dd(SPCM)-CRP %%%
-    [Psi.C, Psi.Z_C, Psi.table_members, Psi.table_logLiks] = sample_ddCRPMM(Y, S_alpha, Psi);    
+    [Psi.C, Psi.Z_C, Psi.table_members, Psi.table_logLiks] = sample_ddCRPMM(Y, S_alpha, Psi); 
     
     %%% Compute the Posterior Conditional Probability of current Partition %%%
-    LogProb = logPr_spcmCRP(Y, S_alpha, Psi); %% CHANGE THIS FUNCTION ----->    
-    fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , LogProb);
+%     LogProb = logPr_spcmCRP(Y, S_alpha, Psi); 
+    
+    [LogProb data_LogLik] = logPr_spcmCRP(Y, S_alpha, Psi); 
+    fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , LogProb);   
     
     %%% Store Stats %%%
-    Psi_Stats.JointLogProbs(i) = LogProb;
+    Psi_Stats.PostLogProbs(i)  = LogProb;
+    Psi_Stats.LogLiks(i)       = data_LogLik;
+    Psi_Stats.TableAssign(:,i) = Psi.Z_C;
     Psi_Stats.TotalClust(i)    = max(Psi.Z_C);
     
     %%% If current posterior is higher than previous update MAP estimate %%%
-    if (LogProb > Psi.LogProb)
-        Psi.LogProb = LogProb;
-        Psi.Z_C = Psi.Z_C;
-        Psi.iter = i;
+    if (Psi_Stats.PostLogProbs(i) > Psi.MaxLogProb)
+        Psi.MaxLogProb = Psi_Stats.PostLogProbs(i);
+        Psi.Maxiter = i;
     end    
 end
 
-%%% Re-sample table parameters %%%
+%%% Sample table parameters with MAP estimate%%%
+% Select MAP estimate for table assignments
+Psi.Z_C = Psi_Stats.TableAssign(:,Psi.Maxiter);
 % Eq. 5X in Appendix 
 [Psi.Theta] = sample_TableParams(Y, Psi.Z_C, lambda, type);
 

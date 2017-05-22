@@ -1,4 +1,4 @@
-function [post_LogProb] = logPr_spcmCRP(Y, delta, Psi)
+function [post_LogProb data_LogLik] = logPr_spcmCRP(Y, delta, Psi)
 % Current Markov State
 [~,N] = size(Y);
 C = Psi.C;

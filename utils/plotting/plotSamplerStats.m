@@ -15,19 +15,20 @@ if nargin > 1
     if isfield(options, 'Psi'); Psi = options.Psi ;end
     
     subplot(2,1,1)
-    semilogx(1:length(Psi_Stats.JointLogProbs),Psi_Stats.JointLogProbs,'r-+', 'LineWidth',2);
-    xlabel('Gibbs Iteration'); ylabel('Posterior LogPr p(C|Y,S)')
+    semilogx(1:length(Psi_Stats.PostLogProbs),Psi_Stats.PostLogProbs,'r-*', 'LineWidth',2); hold on;
+    semilogx(1:length(Psi_Stats.LogLiks),Psi_Stats.LogLiks,'b-*', 'LineWidth',2);  hold on;
+    semilogx(Psi.Maxiter,Psi_Stats.PostLogProbs(Psi.Maxiter),'ko','MarkerSize',10);
+    xlabel('Gibbs Iteration','Interpreter','LaTex'); ylabel('LogPr','Interpreter','LaTex')
+    legend({'$p(C|Y,S, \alpha, \lambda)$','$p(Y|\mathbf{Z}(C),\lambda)$'},'Interpreter','LaTex')
+    
     box on;
-    grid on;
-    if strcmp(Psi.type,'diag')
-        title(sprintf('Sampling results on %s Dataset with Hypers: \\alpha=%1.2f, \\mu_0=%1.2f, \\kappa_0=%1.2f, \\Lambda_0=%1.2f, \\nu_0=%1.2f', ...
-            dataset, Psi.alpha, Psi.lambda.mu_0, Psi.lambda.kappa_0, Psi.lambda.beta_0, Psi.lambda.alpha_0))
-    end
+    grid on;   
+    title(sprintf('Sampling results on %s Dataset, optimal K=%d',dataset, Psi_Stats.TotalClust(Psi.Maxiter)), 'Interpreter','LaTex')
     
     subplot(2,1,2)
     stairs(Psi_Stats.TotalClust, 'LineWidth',2);
     set(gca, 'XScale', 'log')
-    xlabel('Gibbs Iteration'); ylabel('\Psi = Estimated K');
+    xlabel('Gibbs Iteration','Interpreter','LaTex'); ylabel('$\Psi$ = Estimated K','Interpreter','LaTex');
     if ~isempty(true_labels)
         hold on;
         plot(1:length(Psi_Stats.TotalClust),length(unique(true_labels))*(ones(1,length(Psi_Stats.TotalClust))),'k-', 'LineWidth',2)

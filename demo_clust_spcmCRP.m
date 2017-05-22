@@ -24,7 +24,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                    --Select a Dataset to Test--                       %%     
+%%                    --Select a Dataset to Test--                       %%     untitled
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
 % This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
@@ -75,7 +75,7 @@ dataset_name = 'Synthetic DT-MRI';
 % This function loads a 3-D Diffusion Tensor Image from a Diffusion
 % Weight MRI Volume of a Rat's Hippocampus, the extracted 3D DTI is used
 % to evaluate this algorithm in Section 8 of the accompanying paper.
-%
+%untitled
 % To load and visualize this dataset, you must download the dataset files 
 % in the  ~/SPCM-CRP/data directory. These are provided in the online 
 % tutorial on Diffusion Tensor MRI in Matlab:
@@ -175,98 +175,6 @@ end
 %%%%%%%% Visualize Spectral Manifold Representation for M=2 or M=3 %%%%%%%%
 if exist('h1','var') && isvalid(h1), delete(h1);end
 h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
-
-%% New method: 
-% 1) Fit a normal or logistic distribution of Laplacian Eigenvalues
-if exist('h2','var') && isvalid(h2), delete(h2);end
-h2 = figure('Color',[1 1 1]);
-clear title xlabel ylabel
-
-d_ = d;
-
-subplot(3,1,1)
-plot(d_','-*r'); hold on
-plot(M, d_(M),'ok','MarkerSize',10);
-xlabel('Eigenvector Index','Interpreter','Latex');
-ylabel('$\lambda$','Interpreter','Latex');
-title('Laplacian EigenValues', 'Interpreter','Latex');
-grid on;
-
-% Alternative.. fit a normal distribution to the eigenvalues
-normal = fitdist(d,'Normal');
-ndist = pdf(normal, d_);
-M_n = sum(ndist <= 1e-2)
-
-if M_n ==0
-    M_n = 1;
-end
-
-subplot(3,1,2)
-plot(d_,ndist,'-k','linewidth',2); hold on;
-plot(d_, 0,'*r','MarkerSize',5); hold on;
-plot(d_(M_n), ndist(M_n),'ok','MarkerSize',10)
-title('Fitted $\mathcal{N}(\lambda;\mu,\sigma)$ on Laplacian Eigenvalues', 'Interpreter','Latex');
-grid on;
-
-% Alternative.. fit a logistic distribution to the eigenvalues
-logis = fitdist(d,'logistic');
-ldist = pdf(logis, d_);
-M_l = sum(ldist <= 1e-4)
-
-if M_l ==0
-    M_l = 1;
-end
-
-subplot(3,1,3)
-plot(d_,ldist,'-k','linewidth',2); hold on;
-plot(d_, 0,'*r','MarkerSize',5); hold on;
-plot(d_(M_l), ldist(M_l),'oK','MarkerSize',10)
-title('Fitted $\log(\lambda;\mu,\sigma)$ on Laplacian Eigenvalues', 'Interpreter','Latex');
-grid on;
-
-
-%% 1) Fit a bi-modal GMM to the distribution of Laplacian Eigenvalues
-% C = 2;
-% 
-% mu_diff = 0.1;
-% iter = 0;
-% min_diff = 0.19;
-% while mu_diff < min_diff
-%     % Estimate params of GMM
-%     [mu_est, sigma_est, w_est, counter, difference] = gaussian_mixture_model(d', C, 1.0e-5);   
-%     % Check the distance between the means
-%     mu_diff = abs(mu_est(1) - mu_est(2))
-%     iter = iter + 1;
-% end
-% 
-% fprintf('%d iterations to repell means\n',iter);
-% 2) Compute the difference of Weighted Gaussians
-% gau_1 = norm_density(d, mu_est(1), sigma_est(1));
-% gau_2 = norm_density(d, mu_est(2), sigma_est(2));
-% weighted_sum  = w_est(1)*gau_1 + w_est(2)*gau_2;
-% weighted_diff = w_est(1)*gau_1 - w_est(2)*gau_2;
-% gauss_diff =  gau_1 - gau_2;
-% 
-% % Optimal Dimensionality is that of the eigenvalues with positive pdf
-% M = sum(weighted_diff >= 0)
-% if M  <= 1
-%     M =2;
-% end
-
-% subplot(3,1,2)
-% plot(d, weighted_sum, 'k', 'linewidth', 2);hold on;
-% plot(d, gau_1 , 'g--', 'linewidth', 1);hold on;
-% plot(d, gau_1,  'b--', 'linewidth', 1);hold on;
-% plot(d, weighted_diff, 'r', 'linewidth', 2);hold on;
-% plot(d, 0,'*r','MarkerSize',5)
-% plot(d(M), weighted_diff(M),'ok','MarkerSize',10)
-% 
-% grid on;
-% legend({'$\sum_{k=1}^{2}\alpha_k\mathcal{N}(\mu_k,\sigma_k)$','$\mathcal{N}(\mu_1,\sigma_1)$', ...
-%     '$\mathcal{N}(\mu_2,\sigma_2)$','$\alpha_1\mathcal{N}(\mu_1,\sigma_1) - \alpha_2\mathcal{N}(\mu_2,\sigma_2)$'},'Interpreter','Latex')
-% title('Bi-Model GMM of Laplacian Eigenvalues', 'Interpreter','Latex');
-
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 3: Discover Clusters with sd-CRP-MM                  %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -275,28 +183,28 @@ grid on;
 
 % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
 options                 = [];
-options.type            = 'full'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
-options.T               = 100;    % Sampler Iterations 
+options.type            = 'diag'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
+options.T               = 200;    % Sampler Iterations 
 options.alpha           = 1;      % Concentration parameter
 lambda.mu_0             = 0;      % hyper for N(mu_k|mu_0,kappa_0)
 lambda.kappa_0          = 1;      % hyper for N(mu_k|mu_0,kappa_0)
 
 % Example Hyper parameter setting
 if strcmp(options.type,'diag')
-    lambda.alpha_0       = M;      % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
-    lambda.beta_0        = M*0.1;  % G(sigma_k^-1|alpha_0,beta_0): (precision)
+    lambda.alpha_0       = M;                    % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
+    lambda.beta_0        = sum(diag(cov(Y')))/M; % G(sigma_k^-1|alpha_0,beta_0): (precision)
 end
 if strcmp(options.type,'full')
-    lambda.nu_0        = M;        % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-    lambda.Lambda_0    = eye(M)*0.1;   % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+    lambda.nu_0        = M;                           % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
+    lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
-options.lambda        = lambda;
 
 % Run Collapsed Gibbs Sampler
+options.lambda        = lambda;
 [Psi Psi_Stats] = run_ddCRP_sampler(Y, S, options);
 est_labels = Psi.Z_C';
 
-%% %%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
+%%%%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
 if exist('h1b','var') && isvalid(h1b), delete(h1b);end
 options = [];
 options.dataset      = dataset_name;
@@ -305,8 +213,8 @@ options.Psi          = Psi;
 [ h1b ] = plotSamplerStats( Psi_Stats, options );
 
 [Purity NMI F] = cluster_metrics(true_labels, est_labels');
-fprintf('---%s Results---\nLP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-'spcm-CRP-MM', Psi.LogProb, Purity, NMI, F);
+fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+'spcm-CRP-MM', Psi.Maxiter, Psi.MaxLogProb, length(unique(est_labels)), Purity, NMI, F);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                     Visualize Clustering Results                      %%

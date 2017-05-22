@@ -8,8 +8,8 @@ function [C, Z_C, table_members, table_logLiks] = sample_ddCRPMM(Y, S_alpha, Psi
 % **Outputs** 
 %   o C:              Customer Assignments
 %   o Z_C:            Table Assignments
-%   o table_members:
-%   o clust_logLiks:
+%   o table_members:  Cluster Members
+%   o table_logLiks:
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)

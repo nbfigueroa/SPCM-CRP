@@ -23,7 +23,7 @@ if strcmp(clust_type, 'spcm-CRP-MM')
     Psi = options.Psi;             
     title_string = sprintf('Clustering from %s K=%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f', clust_type, est_clust, Purity, NMI, F);
     fprintf('MAP Cluster estimate recovered at iter %d: %d\n', Psi.iter, est_clust);
-    fprintf('%s LP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', clust_type, Psi.LogProb, Purity, NMI, F);
+    fprintf('%s LP: %d and Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', clust_type, Psi.MaxLogProb, Purity, NMI, F);
 end
 
 title(title_string, 'FontWeight', 'Bold')
