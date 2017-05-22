@@ -41,18 +41,18 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 ### Similarity-based Non-parametric clustering (SPCM - CRP Mixture Model)
 Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Ideally, we could use Similarity-based clustering such as Affinity Propagation or Spectral Clustering, the performance of these methods, however, rely heavily on hyper-parameter tuning. Thus, we choose a variant of the Chinese Resturant Process, namely the **SPCM-CRP** [2] whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
 
-#### sd-CRP steps
-- Initially, we apply an **augmented Spectral Dimenensionality** [1] reduction algorithm, which automatically selects the dimensionality of the Spectral Manifold by applying a SoftMax on the Eigenvalues of the Laplacian of the Similarity matrix:
+#### SPCM-CRP steps
+- Initially, we apply an **Unsupervised Spectral Embedding** [1] algorithm, which automatically selects the dimensionality of the Spectral Manifold by applying a SoftMax on the Eigenvalues of the Laplacian of the Similarity matrix:
 
   <p align="center">
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/auto-spectral-manifold.png" width="500">
   </p>
 
-- Once we have the points on the Spectral Manifold corresponding to each Covariance Matrix, we apply the **sd-CRP**. Which follows the analogy for seating customers in a Chinese Restaurant with infinite number of tables wrt. a similarity between the customers
+- Once we have the points on the Spectral Manifold corresponding to each Covariance Matrix, we apply the **SPCM-CRP**. Which follows the analogy for seating customers in a Chinese Restaurant with infinite number of tables wrt. a similarity between the customers
   <p align="center">
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/ddcrp.png" width="500">
   </p>
-  Each customer chooses to sit with another customer or alone according to a prior dependent on the **SPCM similarity function**. Table assignments z(c), then emerge from linked customers or cycles, regardless of sequence or ordering. As for any other Non-parametric approach the Posterior of the sd-CRP is intractable (refer to [1] for the math) and thus a Gibbs sampler is implemented for inference.
+  Each customer chooses to sit with another customer or alone according to a prior dependent on the **SPCM similarity function**. Table assignments z(c), then emerge from linked customers, regardless of sequence or ordering. As for any other Non-parametric approach the Posterior of the SPCM-CRP is intractable (refer to [1] for the math) and thus a Gibbs sampler is implemented for inference.
 
 To run the full SPCM-CRP pipeline, follow the scipt ```demo_clust_spcmCRP.m```, for the 3D dataset you should get the following output on your MATLAB terminal:
 
@@ -101,7 +101,7 @@ The result is:
 
 ### Comparisons
 
-- In ```demo_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples are well discriminated with SPCM and B-SPCM:
+- In ```demo_spcm_compare.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples are well discriminated with SPCM and B-SPCM:
  
   <p align="center">
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM_30.png" width="300"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM_30.png" width="300">
