@@ -90,11 +90,11 @@ Elapsed time is 0.162789 seconds.
 The result is:
 
   <p align="center">
-  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/convergence-3dtoy.png" width="500">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/convergence-3dtoy.png" width="700">
   </p>
   
   <p align="center">
-  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/results-3dtoy.png" width="500">
+  <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/results-3dtoy.png" width="700">
   </p>
 
 **without** selecting or optimizing for **ANY** hyper-parameters.
