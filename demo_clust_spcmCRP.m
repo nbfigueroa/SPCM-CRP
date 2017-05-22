@@ -183,13 +183,11 @@ h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
 % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
 options                 = [];
-options.type            = 'diag'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
-options.T               = 200;    % Sampler Iterations 
-options.alpha           = 1;      % Concentration parameter
-lambda.mu_0             = 0;      % hyper for N(mu_k|mu_0,kappa_0)
-lambda.kappa_0          = 1;      % hyper for N(mu_k|mu_0,kappa_0)
+options.type            = 'full'; % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
+options.T               = 20;    % Sampler Iterations 
+options.alpha           = 1;    % Concentration parameter
 
-% Example Hyper parameter setting
+% Hyper-parameter setting for Base Distribution
 if strcmp(options.type,'diag')
     lambda.alpha_0       = M;                    % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
     lambda.beta_0        = sum(diag(cov(Y')))/M; % G(sigma_k^-1|alpha_0,beta_0): (precision)
@@ -198,6 +196,10 @@ if strcmp(options.type,'full')
     lambda.nu_0        = M;                           % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
     lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
+
+lambda.mu_0             = 0;      % hyper for N(mu_k|mu_0,kappa_0)
+lambda.kappa_0          = 1;      % hyper for N(mu_k|mu_0,kappa_0)
+
 
 % Run Collapsed Gibbs Sampler
 options.lambda        = lambda;
