@@ -108,7 +108,7 @@ h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 %%     Run E-M Model Selection for GMM with 10 runs in a range of K     %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Model Selection for GMM
-K_range = [1:5]; repeats = 10; cov_type = 'full';
+K_range = [1:10]; repeats = 10; cov_type = 'full';
 ml_gmm_eval(Y, K_range, repeats, cov_type)
 
 %%  Compute GMM Stats with 'optimal' K
@@ -174,7 +174,6 @@ end
 fprintf('*** CRP Mixture Model (Frank Wood) Results*** \n Clusters: %3.3f +- %3.3f Purity: %3.3f +- %3.3f \n NMI: %3.3f +- %3.3f --- F: %3.3f +- %3.3f \n',[mean(est_clusters) std(est_clusters) ...
     mean(cluster_purity) std(cluster_purity) mean(cluster_NMI) std(cluster_NMI) mean(cluster_F) std(cluster_F)])
 
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        Run Collapsed Gibbs Sampler for SPCM-CRP 10 times              %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -220,6 +219,6 @@ for run=1:T
     [cluster_purity(run) cluster_NMI(run) cluster_F(run)] = cluster_metrics(true_labels, est_labels');
 end
 
-%% Final Stats for SPCM-CRP Mixture Model
+% Final Stats for SPCM-CRP Mixture Model
 fprintf('*** SPCM-CRM Mixture Model Results*** \n Clusters: %3.3f +- %3.3f Purity: %3.3f +- %3.3f \n NMI: %3.3f +- %3.3f --- F: %3.3f +- %3.3f \n',[mean(est_clusters) std(est_clusters) ...
     mean(cluster_purity) std(cluster_purity) mean(cluster_NMI) std(cluster_NMI) mean(cluster_F) std(cluster_F)])
