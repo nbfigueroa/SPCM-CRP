@@ -51,7 +51,7 @@ which are not well recovered by other metrics (RIEM, LERM, KLDM, JBLD):
 - JBLD: Jensen-Bregman LogDet Divergence
 
 ### Similarity-based Non-parametric clustering (SPCM - CRP Mixture Model)
-Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Ideally, we could use Similarity-based clustering such as Affinity Propagation or Spectral Clustering, the performance of these methods, however, rely heavily on hyper-parameter tuning. Thus, we choose a variant of the Chinese Resturant Process, namely the **SPCM-CRP** [2] whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
+Now that we have a good similarity function for our task, we want to derive a clustering mechanism that is free of model selection and robust to intializations. Ideally, we could use Similarity-based clustering such as Affinity Propagation or Spectral Clustering, the performance of these methods, however, rely heavily on hyper-parameter tuning. Thus, we choose a variant of the Chinese Resturant Process, namely the **SPCM-CRP** [1] whose priors for cluster assigment are driven by the similarity values and the data is clustered on the Spectral Manifold of the Similarity matrix of the Dataset.
 
 #### SPCM-CRP steps
 - Initially, we apply an **Unsupervised Spectral Embedding** [1] algorithm, which automatically selects the dimensionality of the Spectral Manifold by applying a SoftMax on the Eigenvalues of the Laplacian of the Similarity matrix:
