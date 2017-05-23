@@ -162,10 +162,12 @@ y = alpha_range;
 z = cluster_F;
 contourf(x,y,z)
 
+
 set(gca,'xscale','log')
 set(gca,'yscale','log')
 set(gca, 'XTick', tau_range)
 set(gca,'XTickLabel', cellstr(num2str(tau_range(:), '%4.2f')))
+set(gca,'XTickLabelRotation',45)
 set(gca, 'YTick', alpha_range)
 set(gca,'YTickLabel', cellstr(num2str(alpha_range(:), '%4.2f')))
 
