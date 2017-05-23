@@ -189,7 +189,7 @@ for run=1:T
     % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
     options                 = [];
     options.type            = 'full';  % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
-    options.T               = 200;     % Sampler Iterations
+    options.T               = 500;     % Sampler Iterations
     options.alpha           = 1;       % Concentration parameter
     
     % Standard Base Distribution Hyper-parameter setting
