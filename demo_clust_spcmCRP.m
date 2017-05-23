@@ -194,11 +194,11 @@ if strcmp(options.type,'diag')
 end
 if strcmp(options.type,'full')
     lambda.nu_0        = M;                           % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-%     lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
-    lambda.Lambda_0    = diag(diag(cov(Y')));         % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+    lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+%     lambda.Lambda_0    = diag(diag(cov(Y')));       % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
-% lambda.mu_0             = mean(Y,2);    % hyper for N(mu_k|mu_0,kappa_0)
-lambda.mu_0             = zeros(size(Y(:,1)));    % hyper for N(mu_k|mu_0,kappa_0)
+lambda.mu_0             = mean(Y,2);    % hyper for N(mu_k|mu_0,kappa_0)
+% lambda.mu_0             = zeros(size(Y(:,1)));    % hyper for N(mu_k|mu_0,kappa_0)
 lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
 
 
