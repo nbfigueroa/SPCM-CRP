@@ -9,7 +9,7 @@ This repo provides code for running the Non-parametric Spectral Clustering algor
 ---
 
 ### Dependencies
-- [LightSpeed Matlab Toolbox](https://github.com/tminka/lightspeed): Tom Minka's lightspeed library which includes highly optimized versions of mathematical functions.
+- [LightSpeed Matlab Toolbox](https://github.com/tminka/lightspeed): Tom Minka's library which includes highly optimized versions of mathematical functions.
 - [ML_toolbox](https://github.com/epfl-lasa/ML_toolbox): Machine learning toolbox containing a plethora of dimensionality reduction, clustering, classification and regression algorithms accompanying the [Advanced Machine Learning](http://lasa.epfl.ch/teaching/lectures/ML_MSc_Advanced/index.php) course imparted at EPFL by Prof. Aude Billard.
 
 To run your own experiments on the High-Dimensional Datasets you must download:
