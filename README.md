@@ -66,7 +66,7 @@ Now that we have a good similarity function for our task, we want to derive a cl
   </p>
   Each customer chooses to sit with another customer or alone according to a prior dependent on the **SPCM similarity function**. Table assignments z(c), then emerge from linked customers, regardless of sequence or ordering. As for any other Non-parametric approach the Posterior of the SPCM-CRP is intractable (refer to [1] for the math) and thus a Gibbs sampler is implemented for inference.
 
-To run the full SPCM-CRP pipeline, follow the scipt ```demo_clust_spcmCRP.m```, for the 3D dataset you should get the following output on your MATLAB terminal:
+To run the full SPCM-CRP pipeline, follow the scipt ``demo_clust_spcmCRP.m``, for the 3D dataset you should get the following output on your MATLAB terminal:
 
 ```
 Clustering via SPCM-CRP...
@@ -112,7 +112,7 @@ The result is:
 
 ### Comparisons
 
-- In ```demo_spcm_compare.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples are well discriminated with SPCM and B-SPCM:
+- In ``run_similarity_comparisons.m`` I provide extensive comparisons between the SPCM similarity function and the 4 other standard Covariance Matrix Similarity functions used in literature for datasets of increasing dimensionality and samples [1], for example a 6D Covariance matrix dataset with 30 samples are well discriminated with SPCM and B-SPCM:
  
   <p align="center">
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/SPCM_30.png" width="300"><img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/BSPCM_30.png" width="300">
