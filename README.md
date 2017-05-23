@@ -5,6 +5,7 @@ Website: https://github.com/nbfigueroa/SPCM-CRP
 Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 
 This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP-MM) introduced in [1]. In a nutshell, **SPCM-CRP-MM** is a similarity-dependent Chinese Restaurant Process Mixture Model. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold induced from the similarity function.
+---
 
 #### Dependencies
 - [LightSpeed Matlab Toolbox](https://github.com/tminka/lightspeed): Tom Minka's lightspeed library which includes highly optimized versions of mathematical functions.
@@ -13,7 +14,7 @@ This repo provides code for running the Non-parametric Spectral Clustering algor
 To run your own experiments on the DTI datasets you must download the following toolbox:
 - [fanDTasia](https://ch.mathworks.com/matlabcentral/fileexchange/26997-fandtasia-toolbox):A Matlab library for Diffusion Weighted MRI (DW-MRI) Processing, Diffusion Tensor (DTI) Estimation, Diffusion Kurtosis (DKI) Estimation, Higher-order Diffusion Tensor Analysis, Tensor ODF estimation, Visualization and more.
 
-
+---
 ### Illustrative Example
 To highlight the power of the proposed method, we consider a dataset of 5 Covariance Matrices of 3-dimensions, which can be illustrated as ellipsoids in 3D space:
 <p align="center">
@@ -94,7 +95,6 @@ Elapsed time is 0.162789 seconds.
  Iter:3, LP: -1.989588e+01, Clusters: 2 with Purity: 1.00, NMI Score: 1.00, F measure: 1.00 
 *************************************************************
 ```
-
 The result is:
 
   <p align="center">
@@ -122,6 +122,7 @@ The result is:
   </p>
 
 - Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
+---
 
 ### References
 [1] Nadia Figueroa and Aude Billard, "Transform-Invariant Non-Parametric Clustering of Covariance Matrices and its Application to Unsupervised Joint Segmentation and Action Discovery." *In preparation for Pattern Recognition*.  
