@@ -89,9 +89,9 @@ for i_tau=1:steps
     S = spcm(:,:,2);
     
     %%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-    if exist('h0','var') && isvalid(h0), delete(h0); end
-    title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
-    h0 = plotSimilarityConfMatrix(S, title_str);
+%     if exist('h0','var') && isvalid(h0), delete(h0); end
+%     title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
+%     h0 = plotSimilarityConfMatrix(S, title_str);
     
     %%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
     M = [];
@@ -102,8 +102,8 @@ for i_tau=1:steps
     end
     
     %%%%%%%% Visualize Spectral Manifold Representation for M=2 or M=3 %%%%%%%%
-    if exist('h1','var') && isvalid(h1), delete(h1);end
-    h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
+%     if exist('h1','var') && isvalid(h1), delete(h1);end
+%     h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
     
     for iter=1:steps
         alpha = alpha_range(iter)
@@ -144,24 +144,24 @@ end
 cluster_purity = zeros(steps,steps);
 cluster_NMI    = zeros(steps,steps);
 cluster_F      = zeros(steps,steps);
+MaxLogProbs    = zeros(steps,steps);
+
 for i_tau=1:steps
     for iter=1:steps
     Psi       = Sampler_Stats(iter,i_tau).Psi;
-    Psi_Stats = Sampler_Stats(iter,i_tau).Psi_Stats;
-    est_labels = Psi.Z_C;
+    est_labels = Psi.Z_C;    
     [cluster_purity(iter,i_tau) cluster_NMI(iter,i_tau) cluster_F(iter,i_tau)] = cluster_metrics(true_labels, est_labels');    
+    MaxLogProbs(iter,i_tau) = Psi.MaxLogProb;
     end
 end
 
 %% %%%%%% Visualize Collapsed Gibbs Sampler Clustering vs Ground Truth %%%%%%%%%%%%%%
-
 figure('Color',[1 1 1]);
 colormap hot;
 x = tau_range;
 y = alpha_range;
 z = cluster_F;
 contourf(x,y,z)
-
 
 set(gca,'xscale','log')
 set(gca,'yscale','log')
@@ -177,3 +177,27 @@ xlabel('Tolerance Parameter ($\tau$)','Interpreter','LaTex','FontSize',20);
 colorbar
 grid off
 axis square
+
+
+figure('Color',[1 1 1]);
+colormap hot;
+x = tau_range;
+y = alpha_range;
+z = MaxLogProbs;
+contourf(x,y,z)
+
+set(gca,'xscale','log')
+set(gca,'yscale','log')
+set(gca, 'XTick', tau_range)
+set(gca,'XTickLabel', cellstr(num2str(tau_range(:), '%4.2f')))
+set(gca,'XTickLabelRotation',45)
+set(gca, 'YTick', alpha_range)
+set(gca,'YTickLabel', cellstr(num2str(alpha_range(:), '%4.2f')))
+
+title({'Max log $p(C|Y,S, \alpha, \lambda)$'},'Interpreter','LaTex','FontSize',20)
+ylabel('Concentration Parameter ($\alpha$)','Interpreter','LaTex','FontSize',20);
+xlabel('Tolerance Parameter ($\tau$)','Interpreter','LaTex','FontSize',20);
+colorbar
+grid off
+axis square
+

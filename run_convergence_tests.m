@@ -145,14 +145,16 @@ end
 %% %%%%%% Visualize Collapsed Gibbs Sampler Convergence %%%%%%%%%%%%%%
 figure('Color',[1 1 1])
 Iterations    = length(Sampler_Stats(1).Psi_Stats.LogLiks);
-T = length(Sampler_Stats)
+T = length(Sampler_Stats);
 cluster_ests  = zeros(1,T);
-for i=1:T    
-    Psi_Stats = Sampler_Stats(i).Psi_Stats;
-    Psi = Sampler_Stats(i).Psi;
+runs = [1 2 3 4 5 9 10 11 12 13 14 15 16 17 18 19 20];
+% runs = [1:20];
+for i=1:length(runs)
+    Psi_Stats = Sampler_Stats(runs(i)).Psi_Stats;
+    Psi = Sampler_Stats(runs(i)).Psi;
     cluster_ests(i) = Psi_Stats.TotalClust(Psi.Maxiter); 
-%     semilogx(1:length(Psi_Stats.PostLogProbs),Psi_Stats.PostLogProbs,'--*', 'LineWidth',2,'Color',[rand rand rand]); hold on;
-    plot(1:length(Psi_Stats.PostLogProbs),Psi_Stats.PostLogProbs,'--*', 'LineWidth',2,'Color',[rand rand rand]); hold on;
+    semilogx(1:length(Psi_Stats.PostLogProbs),Psi_Stats.PostLogProbs,'--*', 'LineWidth',2,'Color',[rand rand rand]); hold on;
+%     plot(1:length(Psi_Stats.PostLogProbs),Psi_Stats.PostLogProbs,'--*', 'LineWidth',2,'Color',[rand rand rand]); hold on;
 end
 xlim([1 Iterations])
 xlabel('Gibbs Iteration','Interpreter','LaTex','Fontsize',20); ylabel('LogPr','Interpreter','LaTex','Fontsize',20)
@@ -174,8 +176,8 @@ end
 
 %% %%%%%% Visualize Collapsed Gibbs Sampler Clustering vs Ground Truth %%%%%%%%%%%%%%
 figure('Color',[1 1 1])
-for i=1:T    
-semilogx(1:length(cluster_purity),cluster_F(i,:),'--*', 'LineWidth',2,'Color',[rand rand rand]); hold on;
+for i=1:length(runs)
+semilogx(1:length(cluster_purity),cluster_NMI(runs(i),:),'--*', 'LineWidth',2,'Color',[rand rand rand]); hold on;
 end
 xlabel('Gibbs Iteration','Interpreter','LaTex','Fontsize',20); ylabel('$\mathcal{F}$-Measure','Interpreter','LaTex','Fontsize',20)
 title ({sprintf('Estimated Clusters vs. Ground Truth over %d runs',[T])}, 'Interpreter','LaTex','Fontsize',20)
