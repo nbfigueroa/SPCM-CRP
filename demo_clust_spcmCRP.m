@@ -137,7 +137,7 @@ data_path = './data/'; dataset = 'YouTube';
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 20; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 % Datasets 1-3:  tau = 1;
 % Datasets 4a/4b tau = 10;
 % Datasets 4a/4b tau = 5;
