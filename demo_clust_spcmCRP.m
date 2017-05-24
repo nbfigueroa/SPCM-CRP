@@ -251,11 +251,3 @@ h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
 if exist('h3','var') && isvalid(h3), delete(h3);end
 title = 'Estimated Cluster Labels of Diffusion Tensors';
 h3 = plotlabelsDTI(est_labels, title);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%%  For Dataset 6: Visualize cluster labels for SS-GMM %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Visualize Search Strategies GMM with Clustered Gaussians
-if exist('h3','var') && isvalid(h3), delete(h3);end
-h3 = plotSearchStrategiesGMM(GMM, est_labels);
