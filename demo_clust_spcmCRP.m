@@ -131,15 +131,6 @@ clc; clear all; close all;
 data_path = './data/'; dataset = 'YouTube';
 [S, true_labels] = loadSimilarityConfMatrix(data_path, dataset);
 
-%% 6) Real 7D dataset, Multi-Model GMM with 137 components
-%% Cluster Distibution is unknown
-% This function loads the 7-D (K=137) GMM describing human search strategies
-% used to evaluate this algorithm in Section 8 of the accompanying paper.
-
-clc; clear all; close all;
-data_path = './data/';  display = 1; dataset_name = 'search';type = 'full'; %full/table
-[ sigmas, true_labels, GMM ] = load_search_dataset(data_path, type, display );
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1: Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

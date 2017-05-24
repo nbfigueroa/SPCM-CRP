@@ -141,6 +141,7 @@ for i_tau=1:steps
 end
 
 %% %%%%%% Compute Collapsed Gibbs Sampler Clustering vs Ground Truth %%%%%%%%%%%%%%
+
 cluster_purity = zeros(steps,steps);
 cluster_NMI    = zeros(steps,steps);
 cluster_F      = zeros(steps,steps);
@@ -149,7 +150,7 @@ MaxLogProbs    = zeros(steps,steps);
 for i_tau=1:steps
     for iter=1:steps
     Psi       = Sampler_Stats(iter,i_tau).Psi;
-    est_labels = Psi.Z_C;    
+    est_labels = Psi.Z_C  ;  
     [cluster_purity(iter,i_tau) cluster_NMI(iter,i_tau) cluster_F(iter,i_tau)] = cluster_metrics(true_labels, est_labels');    
     MaxLogProbs(iter,i_tau) = Psi.MaxLogProb;
     end

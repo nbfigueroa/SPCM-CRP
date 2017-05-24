@@ -91,12 +91,47 @@ data_path = './data/'; type = 'real'; display = 1; randomize = 0;
 dataset_name = 'Real DT-MRI';
 
 
+%% 5a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
+%% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
+% This function loads the 400-D ETH80 Covariance Feature dataset 
+% used to evaluate this algorithm in Section 8 of the accompanying paper.
+%
+%
+% You must download this dataset from the following link: 
+% http://ravitejav.weebly.com/classification-of-manifold-features.html
+% and export it in the ~/SPCM-CRP/data directory
+%
+% Please cite the following paper if you make use of these features:
+% R. Vemulapalli, J. Pillai, and R. Chellappa, “Kernel Learning for Extrinsic 
+% Classification of Manifold Features”, CVPR, 2013. 
+
+clc; clear all; close all;
+data_path = './data/'; split = 1; randomize = 0; 
+[sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
+
+%% 5b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
+%% Cluster Distibution: 47 classes/clusters (each cluster has 9 samples)
+% This function loads the 900-D YouTube Covariance Feature dataset 
+% used to evaluate this algorithm in Section 8 of the accompanying paper.
+%
+% You must download this dataset from the following link: 
+% http://ravitejav.weebly.com/classification-of-manifold-features.html
+% and export it in the ~/SPCM-CRP/data directory
+%
+% Please cite the following paper if you make use of these features:
+% R. Vemulapalli, J. Pillai, and R. Chellappa, “Kernel Learning for Extrinsic 
+% Classification of Manifold Features”, CVPR, 2013.
+
+clc; clear all; close all;
+data_path = './data/'; split = 1; randomize = 0; 
+[sigmas, true_labels] = load_youtube_dataset(data_path, split, randomize);
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Compute Similarity Matrix (S) and Spectral Embedding (Y)      %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 20; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 % Datasets 1-3:  tau = 1;
 % Datasets 4a/4b tau = 5;
 % Datasets 4a/4b tau = 5;
@@ -112,7 +147,7 @@ title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
 %% %%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%
-M = [];
+M = 3;
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
@@ -147,6 +182,10 @@ end
 fprintf('*** Gaussian Mixture Model w/MS Results*** \n Clusters: %d Purity: %3.3f +- %3.3f \n NMI: %3.3f +- %3.3f --- F: %3.3f +- %3.3f \n',[K ...
     mean(cluster_purity) std(cluster_purity) mean(cluster_NMI) std(cluster_NMI) mean(cluster_F) std(cluster_F)])
 
+%%%%%%%% Visualize Spectral Manifold Representation for M=2 or M=3 %%%%%%%%
+if exist('h1','var') && isvalid(h1), delete(h1);end
+h1 = plotSpectralManifold(Y, est_labels, d,thres, s_norm, M);
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%    Run Collapsed Gibbs Sampler for CRP-MM 10 times (Mo Chen's Implementation) %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,9 +204,13 @@ for run=1:T
     [cluster_purity(run) cluster_NMI(run) cluster_F(run)] = cluster_metrics(true_labels, est_labels);    
 end
 
-% Final Stats for CRP Mixture Model
+%% Final Stats for CRP Mixture Model
 fprintf('*** CRP Mixture Model (Mo Chen) Results*** \n Clusters: %3.3f +- %3.3f Purity: %3.3f +- %3.3f \n NMI: %3.3f +- %3.3f --- F: %3.3f +- %3.3f \n',[mean(est_clusters) std(est_clusters) ...
     mean(cluster_purity) std(cluster_purity) mean(cluster_NMI) std(cluster_NMI) mean(cluster_F) std(cluster_F)])
+
+%%%%%%%% Visualize Spectral Manifold Representation for M=2 or M=3 %%%%%%%%
+if exist('h1','var') && isvalid(h1), delete(h1);end
+h1 = plotSpectralManifold(Y, est_labels, d,thres, s_norm, M);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%         Run Sampler for DP-MM 10 times (Frank Wood's Implementation)      %%
@@ -238,10 +281,13 @@ for run=1:T
     [cluster_purity(run) cluster_NMI(run) cluster_F(run)] = cluster_metrics(true_labels, est_labels');
 end
 
-% Final Stats for SPCM-CRP Mixture Model
+%% Final Stats for SPCM-CRP Mixture Model
 fprintf('*** SPCM-CRM Mixture Model Results*** \n Clusters: %3.3f +- %3.3f Purity: %3.3f +- %3.3f \n NMI: %3.3f +- %3.3f --- F: %3.3f +- %3.3f \n',[mean(est_clusters) std(est_clusters) ...
     mean(cluster_purity) std(cluster_purity) mean(cluster_NMI) std(cluster_NMI) mean(cluster_F) std(cluster_F)])
 
+%%%%%%%% Visualize Spectral Manifold Representation for M=2 or M=3 %%%%%%%%
+if exist('h1','var') && isvalid(h1), delete(h1);end
+h1 = plotSpectralManifold(Y, est_labels, d,thres, s_norm, M);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
