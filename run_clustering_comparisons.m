@@ -71,13 +71,32 @@ data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0;
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Synthetic DT-MRI';
 
+%% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
+%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
+% This function loads a 3-D Diffusion Tensor Image from a Diffusion
+% Weight MRI Volume of a Rat's Hippocampus, the extracted 3D DTI is used
+% to evaluate this algorithm in Section 8 of the accompanying paper.
+%untitled
+% To load and visualize this dataset, you must download the dataset files 
+% in the  ~/SPCM-CRP/data directory. These are provided in the online 
+% tutorial on Diffusion Tensor MRI in Matlab:
+% http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
+%
+% One must also download the fanDTasia toolbox in the ~/SPCM-CRP/3rdParty
+% directory, this toolbox is also provided in this link.
+
+% clc; clear all; close all;
+data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
+[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
+dataset_name = 'Real DT-MRI';
+
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Compute Similarity Matrix (S) and Spectral Embedding (Y)      %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 10; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 % Datasets 1-3:  tau = 1;
 % Datasets 4a/4b tau = 5;
 % Datasets 4a/4b tau = 5;
@@ -92,7 +111,7 @@ if exist('h0','var') && isvalid(h0), delete(h0); end
 title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
-%%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
+%% %%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%
 M = [];
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
@@ -108,7 +127,7 @@ h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 %%     Run E-M Model Selection for GMM with 10 runs in a range of K     %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Model Selection for GMM
-K_range = [1:10]; repeats = 10; cov_type = 'full';
+K_range = [1:10]; repeats = 20; cov_type = 'full';
 ml_gmm_eval(Y, K_range, repeats, cov_type)
 
 %%  Compute GMM Stats with 'optimal' K
@@ -138,9 +157,10 @@ cluster_F      = zeros(1,T);
 est_clusters   = zeros(1,T);
 for run=1:T  
     % Fit CRP Mixture Model to Data
+    tic;
     [est_labels, Theta, w, ll] = mixGaussGb(Y);
     est_clusters(run)  = length(unique(est_labels));
-    
+    toc;
     % Compute Metrics
     [cluster_purity(run) cluster_NMI(run) cluster_F(run)] = cluster_metrics(true_labels, est_labels);    
 end
@@ -148,7 +168,6 @@ end
 % Final Stats for CRP Mixture Model
 fprintf('*** CRP Mixture Model (Mo Chen) Results*** \n Clusters: %3.3f +- %3.3f Purity: %3.3f +- %3.3f \n NMI: %3.3f +- %3.3f --- F: %3.3f +- %3.3f \n',[mean(est_clusters) std(est_clusters) ...
     mean(cluster_purity) std(cluster_purity) mean(cluster_NMI) std(cluster_NMI) mean(cluster_F) std(cluster_F)])
-
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%         Run Sampler for DP-MM 10 times (Frank Wood's Implementation)      %%
@@ -162,9 +181,9 @@ for run=1:T
     % Fit CRP Mixture Model to Data
     iterations = 500;
     [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Y, iterations);
-    [val , Maxiter]  = max(lP_record);
-    est_labels     = class_id(:,Maxiter);
-    est_clusters(run)  = length(unique(est_labels));
+    [val , Maxiter]   = max(lP_record);
+    est_labels        = class_id(:,Maxiter);
+    est_clusters(run) = length(unique(est_labels));
     
     % Compute Metrics
     [cluster_purity(run) cluster_NMI(run) cluster_F(run)] = cluster_metrics(true_labels, est_labels);    
@@ -189,7 +208,7 @@ for run=1:T
     % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
     options                 = [];
     options.type            = 'full';  % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
-    options.T               = 500;     % Sampler Iterations
+    options.T               = 200;     % Sampler Iterations
     options.alpha           = 1;       % Concentration parameter
     
     % Standard Base Distribution Hyper-parameter setting
@@ -222,3 +241,13 @@ end
 % Final Stats for SPCM-CRP Mixture Model
 fprintf('*** SPCM-CRM Mixture Model Results*** \n Clusters: %3.3f +- %3.3f Purity: %3.3f +- %3.3f \n NMI: %3.3f +- %3.3f --- F: %3.3f +- %3.3f \n',[mean(est_clusters) std(est_clusters) ...
     mean(cluster_purity) std(cluster_purity) mean(cluster_NMI) std(cluster_NMI) mean(cluster_F) std(cluster_F)])
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Visualize Estimated Cluster Labels as DTI
+if exist('h3','var') && isvalid(h3), delete(h3);end
+title = 'Estimated Cluster Labels of Diffusion Tensors';
+h3 = plotlabelsDTI(est_labels, title);

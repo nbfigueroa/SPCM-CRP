@@ -77,7 +77,7 @@ dataset_name = 'Real DT-MRI';
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 0.5; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  

@@ -45,9 +45,10 @@ switch type
         % Image Title
         dti_title = 'Synthetic DT-MRI';
         
-        % Cluster Step for Fractional Anisotropy
-%         cl_step = 0.075;
-        cl_step = 0.075;
+        % Cluster Step for Fractional Anisotropy        
+        % The lower the more clusters
+%         cl_step = 0.075; %K =7
+        cl_step = 0.125; %K =7
 
         
     case 'real'
@@ -65,6 +66,7 @@ switch type
         dti_title = 'REAL DT-MRI of Rat Hippocampus';  
         
         % Cluster Step for Fractional Anisotropy
+        % The lower the more clusters
         cl_step = 0.25;
         
 end

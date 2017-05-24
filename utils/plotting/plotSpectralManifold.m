@@ -5,9 +5,9 @@ handle = figure('Color',[1 1 1]);
 
 
 % Create Figure Handle
-if (M == 2) || (M == 3)
-    subplot(2,1,1)
-end
+% if (M == 2) || (M == 3)
+%     subplot(2,1,1)
+% end
 plot(s_norm,'-*r'); hold on
 plot(thres*ones(1,length(d)),'--k','LineWidth', 2); hold on
 grid on
@@ -18,7 +18,7 @@ title(tit, 'Interpreter','Latex','FontSize',14)
 
 
 if (M == 2) || (M == 3)
-    subplot(2,1,2)
+    figure('Color',[1 1 1])
     % Plot M-Dimensional Points of Spectral Manifold
     idx_label   = true_labels;
     true_clust = length(unique(true_labels));
