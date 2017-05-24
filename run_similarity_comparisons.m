@@ -71,6 +71,8 @@ clc; clear all; close all;
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Real DT-MRI';
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

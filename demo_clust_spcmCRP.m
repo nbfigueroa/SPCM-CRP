@@ -88,7 +88,7 @@ dataset_name = 'Synthetic DT-MRI';
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Real DT-MRI';
-%% 5a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
+%% 5) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
 %% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
 % This function loads the 400-D ETH80 Covariance Feature dataset 
 % used to evaluate this algorithm in Section 8 of the accompanying paper.
@@ -106,30 +106,6 @@ clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 0; 
 [sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
 
-%% 5b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
-%% Cluster Distibution: 47 classes/clusters (each cluster has 9 samples)
-% This function loads the 900-D YouTube Covariance Feature dataset 
-% used to evaluate this algorithm in Section 8 of the accompanying paper.
-%
-% You must download this dataset from the following link: 
-% http://ravitejav.weebly.com/classification-of-manifold-features.html
-% and export it in the ~/SPCM-CRP/data directory
-%
-% Please cite the following paper if you make use of these features:
-% R. Vemulapalli, J. Pillai, and R. Chellappa, “Kernel Learning for Extrinsic 
-% Classification of Manifold Features”, CVPR, 2013.
-
-clc; clear all; close all;
-data_path = './data/'; split = 1; randomize = 0; 
-[sigmas, true_labels] = load_youtube_dataset(data_path, split, randomize);
-
-%% %%% For Dataset 5b) ONLY! Computing the Similarities takes ages so we %% 
-%%%%%% can load a precomputed Similarity matrix with this command: %% %%%
-
-%%%%%%% Select the YouTube Dataset %%%%%%%%%%%%%%
-clc; clear all; close all;
-data_path = './data/'; dataset = 'YouTube';
-[S, true_labels] = loadSimilarityConfMatrix(data_path, dataset);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1: Compute Similarity Matrix from B-SPCM Function for dataset   %%

@@ -91,7 +91,7 @@ data_path = './data/'; type = 'real'; display = 1; randomize = 0;
 dataset_name = 'Real DT-MRI';
 
 
-%% 5a) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
+%% 5) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
 %% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
 % This function loads the 400-D ETH80 Covariance Feature dataset 
 % used to evaluate this algorithm in Section 8 of the accompanying paper.
@@ -109,33 +109,15 @@ clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 0; 
 [sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
 
-%% 5b) Real 900D dataset, Covariance Features from Youtube Dataset, 423 Samples
-%% Cluster Distibution: 47 classes/clusters (each cluster has 9 samples)
-% This function loads the 900-D YouTube Covariance Feature dataset 
-% used to evaluate this algorithm in Section 8 of the accompanying paper.
-%
-% You must download this dataset from the following link: 
-% http://ravitejav.weebly.com/classification-of-manifold-features.html
-% and export it in the ~/SPCM-CRP/data directory
-%
-% Please cite the following paper if you make use of these features:
-% R. Vemulapalli, J. Pillai, and R. Chellappa, “Kernel Learning for Extrinsic 
-% Classification of Manifold Features”, CVPR, 2013.
-
-clc; clear all; close all;
-data_path = './data/'; split = 1; randomize = 0; 
-[sigmas, true_labels] = load_youtube_dataset(data_path, split, randomize);
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Compute Similarity Matrix (S) and Spectral Embedding (Y)      %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 20; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 % Datasets 1-3:  tau = 1;
 % Datasets 4a/4b tau = 5;
 % Datasets 4a/4b tau = 5;
-% Dataset 6: tau = 1;
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  

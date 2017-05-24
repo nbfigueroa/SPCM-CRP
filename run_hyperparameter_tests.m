@@ -55,23 +55,6 @@ clc; clear all; close all;
 data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)';
 [sigmas, true_labels] = load_task_dataset(data_path, randomize);
 
-%% 4a) Toy 3D dataset, Diffusion Tensors from Synthetic Dataset, 1024 Samples
-%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
-% This function will generate a synthetic DW-MRI (Diffusion Weighted)-MRI
-% This is done following the "Tutorial on Diffusion Tensor MRI using
-% Matlab" by Angelos Barmpoutis, Ph.D. which can be found in the following
-% link: http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
-%
-% To run this function you should download fanDTasia toolbox in the 
-% ~/SPCM-CRP/3rdParty directory, this toolbox is also provided in 
-% the tutorial link.
-
-% clc; clear all; close all;
-data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
-[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-dataset_name = 'Synthetic DT-MRI';
-
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
