@@ -14,7 +14,7 @@ This repo provides code for running the Non-parametric Spectral Clustering algor
 
 To run your own experiments on the High-Dimensional Datasets you must download:
 - [fanDTasia](https://ch.mathworks.com/matlabcentral/fileexchange/26997-fandtasia-toolbox):A Matlab library for Diffusion Weighted MRI (DW-MRI) Processing, Diffusion Tensor (DTI) Estimation, Diffusion Kurtosis (DKI) Estimation, Higher-order Diffusion Tensor Analysis, Tensor ODF estimation, Visualization and more.
-- For the ETH-80 or Youtube Covariance Features you have to request them in the following website:
+- For the ETH-80 Covariance Features you have to request them in the following website:
 http://ravitejav.weebly.com/classification-of-manifold-features.html
 
 ---
