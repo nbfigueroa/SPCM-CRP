@@ -129,7 +129,7 @@ title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
 %% %%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%
-M = 3;
+M = [];
 [Y, d, thres, V] = spectral_DimRed(S, M);
 if isempty(M)
     s_norm = normalize_soft(softmax(d));
