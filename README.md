@@ -15,7 +15,7 @@ This repo provides code for running the Non-parametric Spectral Clustering algor
 - [LightSpeed Matlab Toolbox](https://github.com/tminka/lightspeed): Tom Minka's library which includes highly optimized versions of mathematical functions.
 - [ML_toolbox](https://github.com/epfl-lasa/ML_toolbox): Machine learning toolbox containing a plethora of dimensionality reduction, clustering, classification and regression algorithms accompanying the [Advanced Machine Learning](http://lasa.epfl.ch/teaching/lectures/ML_MSc_Advanced/index.php) course imparted at EPFL by Prof. Aude Billard.
 
-To run your own experiments on the High-Dimensional Datasets you must download:
+To run your own experiments on the High-Dimensional Covariance Matrix Datasets you must download:
 - [fanDTasia](https://ch.mathworks.com/matlabcentral/fileexchange/26997-fandtasia-toolbox):A Matlab library for Diffusion Weighted MRI (DW-MRI) Processing, Diffusion Tensor (DTI) Estimation, Diffusion Kurtosis (DKI) Estimation, Higher-order Diffusion Tensor Analysis, Tensor ODF estimation, Visualization and more.
 - For the ETH-80 Covariance Features you have to request them in the following website:
 http://ravitejav.weebly.com/classification-of-manifold-features.html
