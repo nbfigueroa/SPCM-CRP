@@ -65,7 +65,8 @@ Now that we have a good similarity function for our task, we want to derive a cl
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/ddcrp.png" width="500">
   </p>
   Each customer chooses to sit with another customer or alone according to a prior dependent on the **SPCM similarity function**. Table assignments z(c), then emerge from linked customers, regardless of sequence or ordering. As for any other Non-parametric approach the Posterior of the SPCM-CRP is intractable (refer to [1] for the math) and thus a Gibbs sampler is implemented for inference.
-
+---
+### Run Demo
 To run the full SPCM-CRP pipeline, follow the scipt ``demo_clust_spcmCRP.m``, for the 3D dataset you should get the following output on your MATLAB terminal:
 
 ```
