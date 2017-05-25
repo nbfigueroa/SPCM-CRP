@@ -67,7 +67,7 @@ alpha_range = logspace(log10(0.1),log10(20),steps);
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 for i_tau=1:steps
-    tau = tau_range(i_tau)
+    tau = tau_range(i_tau);
     spcm = ComputeSPCMfunctionMatrix(sigmas, tau);
     S = spcm(:,:,2);
     
@@ -118,13 +118,13 @@ for i_tau=1:steps
         est_labels        = Psi.Z_C';
         
         
-        Sampler_Stats(iter,i_tau).Psi = Psi;
-        Sampler_Stats(iter,i_tau).Psi_Stats = Psi_Stats;
+        Sampler_Stats(i_tau,iter).Psi = Psi;
+        Sampler_Stats(i_tau,iter).Psi_Stats = Psi_Stats;
     end
 end
 
 %% %%%%%% Compute Collapsed Gibbs Sampler Clustering vs Ground Truth %%%%%%%%%%%%%%
-
+steps = 20;
 cluster_purity = zeros(steps,steps);
 cluster_NMI    = zeros(steps,steps);
 cluster_F      = zeros(steps,steps);
@@ -132,32 +132,32 @@ MaxLogProbs    = zeros(steps,steps);
 
 for i_tau=1:steps
     for iter=1:steps
-    Psi       = Sampler_Stats(iter,i_tau).Psi;
+    Psi       = Sampler_Stats(i_tau,iter).Psi;
     est_labels = Psi.Z_C  ;  
-    [cluster_purity(iter,i_tau) cluster_NMI(iter,i_tau) cluster_F(iter,i_tau)] = cluster_metrics(true_labels, est_labels');    
-    MaxLogProbs(iter,i_tau) = Psi.MaxLogProb;
+    [cluster_purity(i_tau,iter) cluster_NMI(i_tau,iter) cluster_F(i_tau,iter)] = cluster_metrics(true_labels, est_labels');    
+    MaxLogProbs(i_tau,iter) = Psi.MaxLogProb;
     end
 end
 
 %% %%%%%% Visualize Collapsed Gibbs Sampler Clustering vs Ground Truth %%%%%%%%%%%%%%
 figure('Color',[1 1 1]);
 colormap hot;
-x = tau_range;
-y = alpha_range;
+x = alpha_range;
+y = tau_range;
 z = cluster_F;
 contourf(x,y,z)
 
 set(gca,'xscale','log')
 set(gca,'yscale','log')
-set(gca, 'XTick', tau_range)
-set(gca,'XTickLabel', cellstr(num2str(tau_range(:), '%4.2f')))
+set(gca, 'XTick', alpha_range)
+set(gca,'XTickLabel', cellstr(num2str(alpha_range(:), '%4.2f')))
 set(gca,'XTickLabelRotation',45)
-set(gca, 'YTick', alpha_range)
-set(gca,'YTickLabel', cellstr(num2str(alpha_range(:), '%4.2f')))
+set(gca, 'YTick', tau_range)
+set(gca,'YTickLabel', cellstr(num2str(tau_range(:), '%4.2f')))
 
 title({'$\mathcal{F}$-Measure'},'Interpreter','LaTex','FontSize',20)
-ylabel('Concentration Parameter ($\alpha$)','Interpreter','LaTex','FontSize',20);
-xlabel('Tolerance Parameter ($\tau$)','Interpreter','LaTex','FontSize',20);
+xlabel('Concentration Parameter ($\alpha$)','Interpreter','LaTex','FontSize',20);
+ylabel('Tolerance Parameter ($\tau$)','Interpreter','LaTex','FontSize',20);
 colorbar
 grid off
 axis square
@@ -165,22 +165,22 @@ axis square
 
 figure('Color',[1 1 1]);
 colormap hot;
-x = tau_range;
-y = alpha_range;
+x = alpha_range;
+y = tau_range;
 z = MaxLogProbs;
 contourf(x,y,z)
 
 set(gca,'xscale','log')
 set(gca,'yscale','log')
-set(gca, 'XTick', tau_range)
-set(gca,'XTickLabel', cellstr(num2str(tau_range(:), '%4.2f')))
+set(gca, 'XTick', alpha_range)
+set(gca,'XTickLabel', cellstr(num2str(alpha_range(:), '%4.2f')))
 set(gca,'XTickLabelRotation',45)
-set(gca, 'YTick', alpha_range)
-set(gca,'YTickLabel', cellstr(num2str(alpha_range(:), '%4.2f')))
+set(gca, 'YTick', tau_range)
+set(gca,'YTickLabel', cellstr(num2str(tau_range(:), '%4.2f')))
 
 title({'Max log $p(C|Y,S, \alpha, \lambda)$'},'Interpreter','LaTex','FontSize',20)
-ylabel('Concentration Parameter ($\alpha$)','Interpreter','LaTex','FontSize',20);
-xlabel('Tolerance Parameter ($\tau$)','Interpreter','LaTex','FontSize',20);
+xlabel('Concentration Parameter ($\alpha$)','Interpreter','LaTex','FontSize',20);
+ylabel('Tolerance Parameter ($\tau$)','Interpreter','LaTex','FontSize',20);
 colorbar
 grid off
 axis square
