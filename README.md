@@ -6,13 +6,16 @@ Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 
 This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP-MM) introduced in [1]. In a nutshell, **SPCM-CRP-MM** is a similarity-dependent Chinese Restaurant Process Mixture Model. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold induced from the similarity function.
 
+#### Reference
+[1] [Nadia Figueroa](http://lasa.epfl.ch/people/member.php?SCIPER=238387) and Aude Billard, "Transform-Invariant Non-Parametric Clustering of Covariance Matrices and its Application to Unsupervised Joint Segmentation and Action Discovery." *In preparation for Pattern Recognition*. 
+
 ---
 
 ### Dependencies
 - [LightSpeed Matlab Toolbox](https://github.com/tminka/lightspeed): Tom Minka's library which includes highly optimized versions of mathematical functions.
 - [ML_toolbox](https://github.com/epfl-lasa/ML_toolbox): Machine learning toolbox containing a plethora of dimensionality reduction, clustering, classification and regression algorithms accompanying the [Advanced Machine Learning](http://lasa.epfl.ch/teaching/lectures/ML_MSc_Advanced/index.php) course imparted at EPFL by Prof. Aude Billard.
 
-To run your own experiments on the High-Dimensional Datasets you must download:
+To run your own experiments on the High-Dimensional Covariance Matrix Datasets you must download:
 - [fanDTasia](https://ch.mathworks.com/matlabcentral/fileexchange/26997-fandtasia-toolbox):A Matlab library for Diffusion Weighted MRI (DW-MRI) Processing, Diffusion Tensor (DTI) Estimation, Diffusion Kurtosis (DKI) Estimation, Higher-order Diffusion Tensor Analysis, Tensor ODF estimation, Visualization and more.
 - For the ETH-80 Covariance Features you have to request them in the following website:
 http://ravitejav.weebly.com/classification-of-manifold-features.html
@@ -65,7 +68,8 @@ Now that we have a good similarity function for our task, we want to derive a cl
   <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/ddcrp.png" width="500">
   </p>
   Each customer chooses to sit with another customer or alone according to a prior dependent on the **SPCM similarity function**. Table assignments z(c), then emerge from linked customers, regardless of sequence or ordering. As for any other Non-parametric approach the Posterior of the SPCM-CRP is intractable (refer to [1] for the math) and thus a Gibbs sampler is implemented for inference.
-
+---
+### Run Demo
 To run the full SPCM-CRP pipeline, follow the scipt ``demo_clust_spcmCRP.m``, for the 3D dataset you should get the following output on your MATLAB terminal:
 
 ```
@@ -125,7 +129,4 @@ The result is:
   </p>
 
 - Also, you can compare the SPCM-CRP to standard Similarity-based clustering algorithms like Affinity Propapgation and Spectral Clustering with k-means [1].
----
 
-### References
-[1] [Nadia Figueroa](http://lasa.epfl.ch/people/member.php?SCIPER=238387) and Aude Billard, "Transform-Invariant Non-Parametric Clustering of Covariance Matrices and its Application to Unsupervised Joint Segmentation and Action Discovery." *In preparation for Pattern Recognition*.  
