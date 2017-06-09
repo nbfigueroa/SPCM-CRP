@@ -18,6 +18,11 @@ if isempty(M)
     s_norm = normalize_soft(softmax(d));
     M = sum(s_norm <= thres);
 end
+
+if size(Y,1) == 1
+    M = 2;
+    [Y, d, thres, V] = spectral_DimRed(S, M);
+end
 %%%%%%%% Non-parametric Clustering on Manifold Data with Sim prior %%%%%%%%
 
 % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)

@@ -171,10 +171,11 @@ lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
 
 % Run Collapsed Gibbs Sampler
 options.lambda    = lambda;
+options.verbose   = 1;
 [Psi Psi_Stats]   = run_ddCRP_sampler(Y, S, options);
 est_labels        = Psi.Z_C';
 
-%% %%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
+%%%%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
 if exist('h1b','var') && isvalid(h1b), delete(h1b);end
 options = [];
 options.dataset      = dataset_name;
@@ -196,7 +197,7 @@ options = [];
 options.clust_type = 'spcm-CRP-MM';
 options.Psi        = Psi; 
 est_labels         = Psi.Z_C';
-[ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options ); %<== Change this function to a prettier representation
+[ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options ); 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% For Datasets 1-3 + 5a/b: Visualize sd-CRP-MM Results on Manifold Data %%

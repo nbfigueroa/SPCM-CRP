@@ -153,7 +153,16 @@ for i=1:N
                         
             %%% Update Table Members %%%
             table_swap = minmax([table_id_curr table_id_sample]);  
-            new_table_members = [table_members{[table_id_curr table_id_sample]}];
+            
+            % Old buggy way
+%             new_table_members = [table_members{[table_id_curr table_id_sample]}];
+                        
+            % New way
+            tab_curr   = table_members{[table_id_curr]};
+            tab_sample = table_members{[table_id_sample]};
+            new_table_members = [tab_curr(:); tab_sample(:)]';
+            
+            % Swap
             table_members{table_swap(1)} = new_table_members;
             table_members(table_swap(2)) = [];
             

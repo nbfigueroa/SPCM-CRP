@@ -59,12 +59,13 @@ if isempty(M)
 
     % Attractive Threshold adaptation
     if (abs(s_norm(M_cut)) < eps_i) || (abs(s_norm(M_cut+1)) < eps_i)
-        if M_cut > 2
+        if M_cut > 2 
             f = [ s_norm(M_cut-2) s_norm(M_cut-1) s_norm(M_cut) s_norm(M_cut+1)];
-        else
+            thres = thres + mean(f);
+        elseif N > 3
             f = [s_norm(M_cut) s_norm(M_cut+1) s_norm(M_cut+1) s_norm(M_cut+2)];
-        end
-        thres = thres + mean(f);
+            thres = thres + mean(f);
+        end        
         M_cut = sum(s_norm < thres);
     end
     
