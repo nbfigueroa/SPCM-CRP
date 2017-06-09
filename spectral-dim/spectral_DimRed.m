@@ -22,8 +22,8 @@ function [Y, d, thres, V] = spectral_DimRed(S , M)
 % S = S - eye(size(S));
 
 
-fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
-tic;
+% fprintf('Computing Spectral Dimensionality Reduction based on SPCM Similarity Function...\n');
+% tic;
 
 [N] = length(S);
 
@@ -92,7 +92,7 @@ Y = V_M;
 Y = Y';
 
 
-toc;
-fprintf('*************************************************************\n');
+% toc;
+% fprintf('*************************************************************\n');
 
 end

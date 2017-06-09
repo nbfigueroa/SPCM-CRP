@@ -72,8 +72,6 @@ for k = 1:K
     table_logLiks(k) = table_logLik(Y(:,Z_C==k), lambda, type);
 end
 
-fprintf('*** Initialized with %d clusters out of %d observations ***\n', K, N)
-
 %%% Load initial variables  %%%
 Psi.C              = C;
 Psi.Z_C            = Z_C;
@@ -87,11 +85,13 @@ Psi.MaxLogProb     = -inf;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Run Gibbs Sampler for dd-CRP                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fprintf('Running dd-CRP Mixture Sampler... \n');
-tic;
-
+if options.verbose == 1
+    fprintf('*** Initialized with %d clusters out of %d observations ***\n', K, N);
+    fprintf('Running dd-CRP Mixture Sampler... \n');
+    tic;
+end
 for i = 1:T
-    fprintf('Iteration %d: Started with %d clusters ', i, max(Psi.Z_C));
+    
     
     %%% Draw Sample dd(SPCM)-CRP %%%
     tic;
@@ -99,8 +99,10 @@ for i = 1:T
     
     %%% Compute the Posterior Conditional Probability of current Partition %%%    
     [LogProb data_LogLik] = logPr_spcmCRP(Y, S_alpha, Psi); 
-    fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , LogProb);   
-    
+    if options.verbose == 1
+        fprintf('Iteration %d: Started with %d clusters ', i, max(Psi.Z_C));
+        fprintf('--> moved to %d clusters with logprob = %4.2f\n', max(Psi.Z_C) , LogProb);
+    end
     %%% Store Stats %%%
     Psi_Stats.CompTimes(i)     = toc;
     Psi_Stats.PostLogProbs(i)  = LogProb;
@@ -121,7 +123,8 @@ Psi.Z_C = Psi_Stats.TableAssign(:,Psi.Maxiter);
 % Eq. 5X in Appendix 
 [Psi.Theta] = sample_TableParams(Y, Psi.Z_C, lambda, type);
 
-toc;
-fprintf('*************************************************************\n');
-
+if options.verbose == 1
+    toc;
+    fprintf('*************************************************************\n');
+end
 end

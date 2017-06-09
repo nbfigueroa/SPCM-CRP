@@ -6,9 +6,9 @@ spcm = zeros(length(behavs_theta),length(behavs_theta),4);
 % Inefficient way
 N = length(behavs_theta);    % Number of Covariance Matrices
 D = size(behavs_theta{1},1); % Dimension of Covariance Matrices
-fprintf('Computing SPCM Similarity Function for %dx%d Covariance Matrices of %dx%d dimensions...\n',N,N,D,D);
+% fprintf('Computing SPCM Similarity Function for %dx%d Covariance Matrices of %dx%d dimensions...\n',N,N,D,D);
 
-tic;
+% tic;
 for i=1:length(behavs_theta)
     for j=1:length(behavs_theta)
         
@@ -21,9 +21,9 @@ for i=1:length(behavs_theta)
         
     end
 end
-toc;
+% toc;
 
-fprintf('*************************************************************\n');
+% fprintf('*************************************************************\n');
 
 
 

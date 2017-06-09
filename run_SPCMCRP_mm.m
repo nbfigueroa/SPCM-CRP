@@ -43,6 +43,8 @@ lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
 % Run Collapsed Gibbs Sampler
 options.lambda     = lambda;
 options.init_clust = clust_options.init_clust;
+if ~isfield(clust_options, 'verbose'); clust_options.verbose = 1;end
+options.verbose    = clust_options.verbose;
 [Psi Psi_Stats]    = run_ddCRP_sampler(Y, S, options);
 est_labels         = Psi.Z_C';
 
