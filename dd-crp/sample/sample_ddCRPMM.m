@@ -152,7 +152,10 @@ for i=1:N
             table_id_sample  = Z_C(c_i_sample);
                         
             %%% Update Table Members %%%
-            table_swap = minmax([table_id_curr table_id_sample]);          
+            table_swap = minmax([table_id_curr table_id_sample]);  
+            table_id_curr
+            table_id_sample
+            table_members{[table_id_curr table_id_sample]}
             new_table_members = [table_members{[table_id_curr table_id_sample]}];
             table_members{table_swap(1)} = new_table_members;
             table_members(table_swap(2)) = [];

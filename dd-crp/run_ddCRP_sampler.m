@@ -39,12 +39,14 @@ lambda.kappa_0   = 1;
 lambda.nu_0      = M;
 lambda.Lambda_0  = eye(M)*M*0.5;
 
+C = 1:N;
 %%%% Parse Sampler Options %%%%
 if nargin > 2
     if isfield(options, 'T');      T = options.T;end
     if isfield(options, 'alpha');  alpha = options.alpha;end          
     if isfield(options, 'type');   type = options.type;end    
     if isfield(options, 'lambda'); clear lambda; lambda = options.lambda;end
+    if isfield(options, 'init_clust'); clear C; C = options.init_clust;end
 end
 
 %%% Initialize Stats Variabes  %%%
@@ -62,9 +64,8 @@ S = S + eye(N)*(alpha-1);
 S_alpha = num2cell(S,2);
 
 %%% Compute Initial Customer/Table Assignments and Likelihoods %%%
-C = 1:N;
 table_members = cell(N,1);
-Z_C   = extract_TableIds(C); %% CHANGE THIS FUNCTION ----->
+Z_C   = extract_TableIds(C);
 K = max(Z_C);
 for k = 1:K
     table_members{k} = find(Z_C==k);    

@@ -43,4 +43,4 @@ grid on; box on;
 
 
 %% Visualize GMM pdf from learnt parameters
-ml_plot_gmm_pdf([], Priors, Mu, Sigma)
+ml_plot_gmm_pdf([], gmm.Priors, gmm.Mu, gmm.Sigma)
