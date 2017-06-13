@@ -80,7 +80,7 @@ if strcmp(type, '3d') || strcmp(type, '4d')
             grid off
             axis off
             xlabel('x'); ylabel('y'); zlabel('z'); 
-            title('Toy 3D Covariance Matrices Dataset','FontSize', 20)
+            title('Toy 3D Covariance Matrices Dataset','FontSize', 20, 'Interpreter','LaTex')
         end
         
         sigmas = behavs_theta;
