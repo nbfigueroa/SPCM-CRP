@@ -79,7 +79,7 @@ dataset_name = 'Real DT-MRI';
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 0.5; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
@@ -129,7 +129,7 @@ S_jbld = compute_cov_sim( sigmas, 'JBLD' );
 toc;
 
 %%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-if exist('h4','var') && isvalid(h3), delete(h3);end
+if exist('h4','var') && isvalid(h4), delete(h4);end
 title_str = 'Jensen-Bregman LogDet Divergence (JBLD)';
 h4 = plotSimilarityConfMatrix(S_jbld, title_str);
 

@@ -33,26 +33,26 @@ subplot(2,1,1)
 legendinfo = {};
 for i=1:length(dim)
     plot(S,b_spcm(i,:),'LineWidth', 2, 'Color',[rand rand rand])    
-    legendinfo{i} = sprintf('d=%d',dim(i));
+    legendinfo{i} = sprintf('$N$=%d',dim(i));
     hold on
 end
-legend(legendinfo)
-ylabel('B-SPCM value f(\Delta_{ij},1)','FontSize', 20)
-xlabel('SPCM value \Delta_{ij}','FontSize', 20)
-title('Effect of dimensionality on f(\Delta_{ij},\tau) with \tau=1','FontSize', 20)
+legend(legendinfo,'Interpreter','LaTex', 'FontSize', 10)
+ylabel('$f(\Delta_{ij},1)$','Interpreter','LaTex', 'FontSize', 18)
+xlabel('SPCM value $\Delta_{ij}$','Interpreter','LaTex', 'FontSize', 18)
+title('Effect of dimensionality on $f(\Delta_{ij},\tau)$ with $\tau=1$','Interpreter','LaTex', 'FontSize', 20)
 grid on
 
 subplot(2,1,2)
 legendinfo_ = {};
 for i=1:length(alpha)
-    plot(dim,alpha(i,:),'LineWidth', 2, 'Color',[rand rand rand])    
-    legendinfo_{i} = sprintf('tau=%d',tau(i));
+    plot(dim,alpha(i,:),'-','LineWidth', 2, 'Color',[rand rand rand])    
+    legendinfo_{i} = sprintf('$\\tau$=%d',tau(i));
     hold on
 end
-legend(legendinfo_,'Interpreter','latex')
-ylabel('Scaling function \upsilon(\tau)','FontSize', 20)
-xlabel('Dimensionality d','FontSize', 20)
-title('Effect of dimensionality on \upsilon(\tau)','FontSize', 20)
+legend(legendinfo_,'Interpreter','LaTex', 'FontSize', 10)
+ylabel('$\upsilon(\tau)$','Interpreter','LaTex', 'FontSize', 18)
+xlabel('Dimensionality $N$','Interpreter','LaTex', 'FontSize', 18)
+title('Effect of dimensionality on $\upsilon(\tau)$','Interpreter','LaTex', 'FontSize', 20)
 grid on
 
 %% Plot of Bounded function from spcm full
@@ -84,11 +84,17 @@ for k=1:1:length(dim)
     hold on
 end
 
-alpha(.8)
-ylabel('SPCM similarity value \Delta_{ij}','FontSize', 20)
-xlabel('Similarity Tolerance \tau','FontSize', 20)
-zlabel('f(\Delta_{ij},\tau)','FontSize', 20)
-title('Bounded-SPCM for d=6 in \Sigma \in R^{dxd}','FontSize', 20)
-colormap(hot)
+% alpha(.9)
+ylabel('SPCM similarity value $\Delta_{ij}$','Interpreter','LaTex', 'FontSize', 20)
+xlabel('Similarity Tolerance $\tau$','Interpreter','LaTex', 'FontSize', 20)
+zlabel('$f(\Delta_{ij},\tau)$','Interpreter','LaTex', 'FontSize', 20)
+title({'Bounded-SPCM for $N=6$ in $\Sigma \in \mathcal{S}^{N}_{++}$'},'Interpreter','LaTex', 'FontSize', 20);
+
+level = 20; n = ceil(level/2);
+cmap1 = [linspace(1, 1, n); linspace(0, 1, n); linspace(0, 1, n)]';
+cmap2 = [linspace(1, 0, n); linspace(1, 0, n); linspace(1, 1, n)]';
+cmap = [cmap1; cmap2(2:end, :)];
+
+colormap(vivid(cmap, [.75, .75]));
 shading interp
 colorbar
