@@ -124,7 +124,7 @@ spcm = ComputeSPCMfunctionMatrix(sigmas, tau);
 S = spcm(:,:,2);
 
 %%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-if exist('h0','var') && isvalid(h0), delete(h0); end
+% if exist('h0','var') && isvalid(h0), delete(h0); end
 title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
@@ -165,7 +165,6 @@ if strcmp(options.type,'full')
 %     lambda.Lambda_0    = diag(diag(cov(Y')));       % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
 lambda.mu_0             = mean(Y,2);    % hyper for N(mu_k|mu_0,kappa_0)
-% lambda.mu_0             = zeros(size(Y(:,1)));    % hyper for N(mu_k|mu_0,kappa_0)
 lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
 
 
