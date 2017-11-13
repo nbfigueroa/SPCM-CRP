@@ -4,6 +4,8 @@ SPCM-CRP-MM : Transform Invariant Chinese Restaurant Process Mixture Model for C
 Website: https://github.com/nbfigueroa/SPCM-CRP  
 Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 
+***NOTE:*** If you are interested in the application of these methods to time-series segmentation and action discovery introduced in [1] you must go to [https://github.com/nbfigueroa/ICSC-HMM.git](https://github.com/nbfigueroa/ICSC-HMM.git)
+
 This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP-MM) introduced in [1]. In a nutshell, **SPCM-CRP-MM** is a similarity-dependent Chinese Restaurant Process Mixture Model. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold induced from the similarity function.
 
 #### Reference
