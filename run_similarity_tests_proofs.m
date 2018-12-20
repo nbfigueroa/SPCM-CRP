@@ -10,15 +10,13 @@ clc;  clear all; close all
 %% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
 % This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
 % and 5 from Section 4 and the results in Section 7 in the accompanying paper.
-
 clc; clear all; close all;
 display = 0; randomize = 0; dataset_name = 'Toy 3D';
 [sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
 
-%% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
+%% 2)  Toy 6D dataset, 30 Samples, 3 clusters (c1:10, c2:20, c3: 10)
 % This function loads the 6-D ellipsoid dataset used to generate Fig. 6 and 
 % from Section 4 and the results in Section 8 in the accompanying paper.
-
 clc; clear all; close all;
 display = 0; randomize = 0; dataset_name = 'Toy 6D';
 [sigmas, true_labels] = load_toy_dataset('6d', display, randomize);
@@ -51,6 +49,7 @@ clc; clear all; close all;
 data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Synthetic DT-MRI';
+
 %% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
 %% Cluster Distibution: 4 clusters (each cluster has 10 samples)
 % This function loads a 3-D Diffusion Tensor Image from a Diffusion
@@ -70,11 +69,9 @@ data_path = './data/'; type = 'real'; display = 1; randomize = 0;
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Real DT-MRI';
 
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Compute Similarity Matrix from B-SPCM Function for dataset   %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Compute Similarity Matrices with different measures   %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
 tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
@@ -82,26 +79,20 @@ tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
 S_spcm   = spcm(:,:,1);
-S_bspcm  = spcm(:,:,2);
-
-%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-if exist('h0_a','var') && isvalid(h0_a), delete(h0_a);end
+if exist('h0','var') && isvalid(h0), delete(h0);end
 title_str = 'SPCM Similarity Function';
-h0_a = plotSimilarityConfMatrix(S_spcm, title_str);
+h0 = plotSimilarityConfMatrix(S_spcm, title_str);
 
+%%%%%%%%%%%%%%% Bounded - SPCM function %%%%%%%%%%%%%%%
+S_b_spcm  = spcm(:,:,2);
 if exist('h0_b','var') && isvalid(h0_b), delete(h0_b);end
-title_str = 'Bounded SPCM (B-SPCM) Similarity Function';
-h0_b = plotSimilarityConfMatrix(S_bspcm, title_str);
+title_str = 'Bounded SPCM Similarity Function';
+h0_b = plotSimilarityConfMatrix(S_b_spcm, title_str);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%          Compute other Similarity Functions for Comparison          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%% Affine Invariant Riemannian Metric %%%%%%%%%%%%%%%
 tic;
 S_riem = compute_cov_sim( sigmas, 'RIEM' );
 toc;
-
-%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 if exist('h1','var') && isvalid(h1), delete(h1);end
 title_str = 'Affine Invariant Riemannian Metric (RIEM)';
 h1 = plotSimilarityConfMatrix(S_riem, title_str);
@@ -110,8 +101,6 @@ h1 = plotSimilarityConfMatrix(S_riem, title_str);
 tic;
 S_lerm = compute_cov_sim( sigmas, 'LERM' );
 toc;
-
-%%%%%%% Visualize Similarity Confusion Matrix %%%%%%%%%%%%%%
 if exist('h2','var') && isvalid(h2), delete(h2);end
 title_str = 'Log-Euclidean Riemannian Metric (LERM)';
 h2 = plotSimilarityConfMatrix(S_lerm, title_str);
@@ -120,8 +109,6 @@ h2 = plotSimilarityConfMatrix(S_lerm, title_str);
 tic;
 S_kldm = compute_cov_sim( sigmas, 'KLDM' );
 toc;
-
-%%%%%%% Visualize Similarity Confusion Matrix %%%%%%%%%%%%%%
 if exist('h3','var') && isvalid(h3), delete(h3);end
 title_str = 'Kullback-Liebler Divergence Metric (KLDM)';
 h3 = plotSimilarityConfMatrix(S_kldm, title_str);
@@ -130,11 +117,156 @@ h3 = plotSimilarityConfMatrix(S_kldm, title_str);
 tic;
 S_jbld = compute_cov_sim( sigmas, 'JBLD' );
 toc;
-
-%%%%%%% Visualize Similarity Confusion Matrix %%%%%%%%%%%%%%
 if exist('h4','var') && isvalid(h4), delete(h4);end
 title_str = 'Jensen-Bregman LogDet Divergence (JBLD)';
 h4 = plotSimilarityConfMatrix(S_jbld, title_str);
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Dim. Red Option 1: Vector space repr. of SPD matrices using log-Euclidean framework 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+N     = length(sigmas{1});
+d_log = N*(N+1)/2;
+vec_sigmas = zeros(d_log,length(sigmas));
+for s=1:length(sigmas)
+    sigma     = sigmas{s};
+    log_sigma = logm(sigma);   
+    
+    % logged-SPD to Vector
+    vec_sigmas(:,s) = symMat2Vec(log_sigma);
+end
+
+[ V, L, Mu ] = my_pca( vec_sigmas );
+figure('Color',[1 1 1]);
+plot(diag(L),'Color',[1 0 0]); grid on;
+title('Eigenvalues of PCA on log-vector space')
+[ p ] = explained_variance( L, 0.90 );
+[A_p, Y] = project_pca(vec_sigmas, Mu, V, p);
+fprintf('Vector-space dim (%d) - lower dimension (%d)\n',d_log,p);
+
+%% %%%%%% Visualize Lower-D Embedding %%%%%%%%
+plot_options        = [];
+plot_options.labels = true_labels;
+plot_options.title  = 'PCA on log-vector space'; 
+ml_plot_data(Y',plot_options);
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Dim. Red Option 2: Principal Geodesic Analysis on Riemannian Manifold 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+N     = length(sigmas{1});
+d_log = N*(N+1)/2;
+
+% Compute Instrinsic Mean of Set of SPD matrices
+Sigma_bar = intrinsicMean_mat(sigmas, 1e-1, 100)
+
+% [ V, L, Mu ] = my_pca( vec_sigmas );
+% figure('Color',[1 1 1]);
+% plot(diag(L),'Color',[1 0 0]); grid on;
+% title('Eigenvalues of PGA on Riemannian Manifold')
+% [ p ] = explained_variance( L, 0.90 );
+% [A_p, Y] = project_pca(vec_sigmas, Mu, V, p);
+% fprintf('Vector-space dim (%d) - lower dimension (%d)\n',d_log,p);
+
+%% %%%%%% Visualize Lower-D Embedding %%%%%%%%
+plot_options        = [];
+plot_options.labels = true_labels;
+plot_options.title  = 'PGA on Riemannian Manifold'; 
+ml_plot_data(Y',plot_options);
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       Discover Cluster with different GMM Variants        %%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1: GMM-EM Model Selection via BIC
+% 2: CRP-GMM (Collapsed Gibbs Sampler)
+est_options = [];
+est_options.type             = 1;   % GMM Estimation Algorithm Type   
+
+% If algo 1 selected:
+est_options.maxK             = 15;  % Maximum Gaussians for Type 1
+est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
+
+% If algo 0 or 2 selected:
+est_options.samplerIter      = 500;  % Maximum Sampler Iterations
+                                     % For type 2: >100 iter are needed
+                                    
+est_options.do_plots         = 1;   % Plot Estimation Statistics
+est_options.sub_sample       = 1;   % Size of sub-sampling of trajectories
+
+% Fit GMM to Trajectory Data
+tic;
+clear Priors Mu Sigma
+[Priors, Mu, Sigma] = fitgmm(Y, est_options);
+toc;
+% Extract Cluster Labels
+est_K           = length(Priors);
+[~, est_labels] = my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
+[Purity NMI F]  = cluster_metrics(true_labels, est_labels);
+K = length(unique(true_labels));
+fprintf('Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K,K, Purity, NMI, F);
+
+%% Frank Wood's Implementation
+ samplerIter = 500;
+ tic;
+[class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Y, samplerIter);
+[val , Maxiter]  = max(lP_record);
+est_labels       = class_id(:,Maxiter);
+toc;
+%% Mo chen's Implementation
+
+% DP-GMM (Mo-Chen's implementation) -- better mixing sometimes, slower
+% (sometimes)
+tic;
+[est_labels, Theta, w, ll] = mixGaussGb(Y);
+Priors = w;
+est_K = length(Priors);
+
+
+%% %%%%%% Euclidean Distances in l-dimensional space %%%%%%%%%%
+l_sensitivity = 2;
+[~, mode_hist_D, mean_D] = computePairwiseDistances(Y',1);
+sigma = sqrt(mode_hist_D/l_sensitivity);
+l = 1/(2*sigma^2);
+d_Y   = L2_distance(Y,Y);
+title_str = 'L-2 Distance on PCA log-vector space';
+plotSimilarityConfMatrix(d_Y, title_str);
+sim_Y = exp(-l*d_Y)
+title_str = 'L-2 Similarity (Kernel) on PCA log-vector space';
+plotSimilarityConfMatrix(sim_Y, title_str);
+
+%% %%%%%% Compute Spectral Embedding on SPCM Similarities %%%%%%%%%%%%%%%%%%
+M = [];
+[Y_s, d, thres, V] = spectral_DimRed(S_spcm, M);
+if isempty(M)
+    s_norm = normalize_soft(softmax(d));
+    M = sum(s_norm <= thres);
+end
+figure('Color',[1 1 1]);
+plot(d,'Color',[1 0 0]);
+title('Eigenvalues of SPCM Similarity matrix')
+grid on;
+
+%% %%%%%% Visualize Lower-D Embedding %%%%%%%%
+plot_options        = [];
+plot_options.labels = true_labels;
+plot_options.title  = 'SPCM Spectral Manifold'; 
+h1 = ml_plot_data(Y_s',plot_options)
+
+%% %%%%%% Compute Spectral Embedding on B-SPCM Similarities %%%%%%%%%%%%%%%%%%
+M = [];
+[Y_bs, d, thres, V] = spectral_DimRed(S_b_spcm, M);
+if isempty(M)
+    s_norm = normalize_soft(softmax(d));
+    M = sum(s_norm <= thres);
+end
+figure('Color',[1 1 1]);
+plot(d,'Color',[1 0 0]);
+title('Eigenvalues of B-SPCM Similarity matrix')
+grid on;
+
+%% %%%%%% Visualize Lower-D Embedding %%%%%%%%
+plot_options        = [];
+plot_options.labels = true_labels;
+plot_options.title  = 'Bounded SPCM Spectral Manifold'; 
+h1 = ml_plot_data(Y_bs',plot_options)
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Apply Standard Similarity-based Clustering Algorithms on Similarity Matrices
@@ -142,106 +274,18 @@ h4 = plotSimilarityConfMatrix(S_jbld, title_str);
 
 %%% Choose Similarity Metric (SPCM, RIEM, LERM, KLDM, JBLD ) %%%
 % S_type = {'RIEM', 'LERM', 'KLDM', 'JBLD', 'B-SPCM'};
-S_type = {'B-SPCM'};
+S_type = {'LERM'};
 
 %%% Choose Clustering Algorithm %%%
 % 'affinity': Affinity Propagation
 % 'spectral': Spectral Clustering w/k-means
-C_type = 'Affinity';
-% C_type = 'Spectral';
+% C_type = 'Affinity';
+C_type = 'Spectral';
 
 %%% Selection of M-dimensional Spectral Manifold (for Spectral Clustering) %%%
-% mani = 'auto';
-mani = 'known';
 
-%%%%%%%%% Compute clusters from Similarity Matrices %%%%%%%%%
-clc;
-runs = 10;
-Purities = zeros(length(S_type),runs);
-NMIs     = zeros(length(S_type),runs);
-F1s      = zeros(length(S_type),runs);
-Ks       = zeros(length(S_type),runs);
-for j =1:runs
-for i=1:length(S_type)
-        
-    s_type = S_type{i};
-    
-    switch s_type 
-        case 'B-SPCM' 
-            S = S_spcm;
-        case 'RIEM' 
-            S = S_riem;
-        case 'LERM'
-            S = S_lerm;
-        case 'KLDM'
-            S = S_kldm;
-        case 'JBLD'
-            S = S_jbld;
-    end
-    
-    switch C_type
-        case 'Affinity'            
-            fprintf('Clustering %s similarities via Affinity Propagation...\n', s_type);
-            tic;                       
-            % Hacks such that AP works
-            max_sim =  max(max(S));
-            if strcmp(s_type,'B-SPCM')                
-                if (strcmp(dataset_name,'Toy 6D') || strcmp(dataset_name,'Synthetic DT-MRI') || strcmp(dataset_name,'Real DT-MRI'))
-                    D_aff = -(S + eye(size(S)));
-                else
-                    D_aff = (S - eye(size(S)));
-                end
-            else
-                D_aff = (S - 2*eye(size(S))*max_sim);
-            end           
-            damp = 0.5;
-            [E K labels idx] = affinitypropagation(D_aff, damp);
-            toc;
-            clus_method = 'Affinity Propagation';
-            
-        case 'Spectral'
-            fprintf('Clustering %s similarities via Spectral Clustering...\n', s_type);
-            tic;
-            
-            % Project point to spectral manifold from Similarity Matrix
-            % Choose known M for the spectral manifold dimension
-            
-            switch mani
-                case 'auto'
-                    % Automatically discover M from the Eigenvalue of the Laplacian
-                    [Y, d, thres] = spectral_DimRed(S,[]);
-                    s_norm = normalize_soft(softmax(d));    
-                    M = sum(s_norm <= thres);                    
-                    
-                case 'known'
-                    % Use M = true # clusters
-                    M = length(unique(true_labels));            
-                    [Y, d, thres] = spectral_DimRed(S, M);    
-            end
-            
-            % K-means 
-            cluster_options             = [];
-            cluster_options.method_name = 'kmeans';
-            cluster_options.K           = M;
-            result                      = ml_clustering(Y',cluster_options,'Distance','sqeuclidean','MaxIter',500);  
-            labels = result.labels;
-            clus_method = 'Spectral Clustering';
-            toc;
-    end
-    
-    [Purity NMI F] = cluster_metrics(true_labels, labels');
-    K = length(unique(labels));
-    
-    Purities(i,j) = Purity;
-    NMIs(i,j)     = NMI;
-    F1s(i,j)      = F;
-    Ks(i,j)       = K;
-    
-    fprintf('Number of clusters: %d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',K, Purity, NMI, F);
-    fprintf('*************************************************************\n');
 
-end
-end
+
 
 %% Compute Stats for Paper
 clc;

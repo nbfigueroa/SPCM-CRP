@@ -4,7 +4,7 @@ function [ S ] = compute_cov_sim( Sigmas, type )
 %           type   (Type of similarity function to compute, default:
 %           'KLDM')
 %               'RIEM': Affine Invariant Riemannian Metric
-%               'LERM': Log-Euclidean Riemannina Metric
+%               'LERM': Log-Euclidean Riemannian Metric
 %               'KLDM': Kullback-Liebler Divergence Metric
 %               'JBLD': Jensen-Bregman LogDet Divergence
 % Output:   S (NxN dimensional similarity matrix)
@@ -16,7 +16,7 @@ function [ S ] = compute_cov_sim( Sigmas, type )
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
 % July 2016; Last revision: 
-
+%% TODO: Need to compute this matrix in an efficient way.. check how the dimreduction toolbox is doing it
 
 if isempty(type)
     type = 'KLDM';
@@ -31,8 +31,7 @@ for i=1:N
         
         X = Sigmas{i};
         Y = Sigmas{j};
-        
-        
+                
         switch type
             case 'RIEM'
                 % Affine Invariant Riemannian Metric

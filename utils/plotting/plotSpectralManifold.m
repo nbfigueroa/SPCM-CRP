@@ -25,7 +25,7 @@ if (M == 2) || (M == 3)
     if M==2    
         for jj=1:true_clust
             clust_color = [rand rand rand];
-            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 50, clust_color, 'filled');hold on                      
+            scatter(Y(1,idx_label==jj),Y(2,idx_label==jj), 100, clust_color, 'filled');hold on                      
         end   
         grid on
         xlabel('$y_1$', 'Interpreter','Latex','FontSize',14);
@@ -36,7 +36,7 @@ if (M == 2) || (M == 3)
     if M==3
         for jj=1:true_clust
             clust_color = [rand rand rand];
-            scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 50, clust_color, 'filled');hold on        
+            scatter3(Y(1,idx_label==jj),Y(2,idx_label==jj),Y(3,idx_label==jj), 100, clust_color, 'filled');hold on        
         end
         xlabel('$y_1$', 'Interpreter','Latex','FontSize',14);
         ylabel('$y_2$', 'Interpreter','Latex','FontSize',14);

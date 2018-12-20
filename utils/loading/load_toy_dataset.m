@@ -185,7 +185,7 @@ if strcmp(type,'6d')
     behavs_theta6toy = [];
     
     
-    tot_1=20;tot_2=20;tot_3=20;
+    tot_1=30;tot_2=30;tot_3=30;
     
     tot = tot_1;
     rows = floor(sqrt(tot));

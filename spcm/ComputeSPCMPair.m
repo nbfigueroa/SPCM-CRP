@@ -47,12 +47,12 @@ function [f_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
         H = heavy(delta_ij);
         spcm = H*var(hom_fact_ij) + (1-H)*var(hom_fact_ji);
                 
-        % Scaling function (Eq.5 from [1])
-        alpha = 10^(tau*exp(-dim));
+        % Scaling function (Eq.9 from [1])
+        upsilon = 10^(tau*exp(-dim));
 
         % B-SPCM f(delta_ij,tau) = 
-        % 1/( 1 + s(Sigma_i,Sigma_j)*alpha(tau,dim))
-        f_sim = 1/(1+spcm*alpha);
+        % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
+        f_sim = 1/(1+spcm*upsilon);
         
 end
 
