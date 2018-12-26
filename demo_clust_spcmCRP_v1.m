@@ -31,7 +31,7 @@
 % and 5 from Section 4 and the results in Section 7 in the accompanying paper.
 
 clc; clear all; close all;
-display = 1; randomize = 0; dataset_name = 'Toy 3D';
+display = 0; randomize = 0; dataset_name = 'Toy 3D';
 [sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
 
 %% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
@@ -121,43 +121,57 @@ tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data
 
 % %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
-S = spcm(:,:,2);
+D    = spcm(:,:,1);
+S    = spcm(:,:,2);
 
 %%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 if exist('h0','var') && isvalid(h0), delete(h0); end
-title_str = 'Bounded Similarity Function (B-SPCM) Matrix';
+title_str = 'Bounded Similarity (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
-if exist('h1','var') && isvalid(h1), delete(h1); end
-title_str = 'Un-Bounded Similarity Function (SPCM) Matrix';
-h1 = plotSimilarityConfMatrix(spcm(:,:,1), title_str);
+% if exist('h1','var') && isvalid(h1), delete(h1); end
+% title_str = 'Un-Bounded (Dis)-Similarity Function (SPCM) Matrix';
+% h1 = plotSimilarityConfMatrix(D, title_str);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%        Step 2: Run Automatic Spectral Dimensionality Reduction        %%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%% Automatic Discovery of Dimensionality on M Manifold %%%%%%%%%%%
-M = [];
-[Y, d, thres, V] = spectral_DimRed(S, M);
-if isempty(M)
-    s_norm = normalize_soft(softmax(d));
-    M = sum(s_norm <= thres);
+% Compute Negative Eigenfraction of similarity matrix (NEF)
+lambda_S = eig(S);
+NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S))
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%        Step 2: Run Automatic Eucliden Embedding and Dimensionality Reduction  %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%%%%%%
+show_emb = 0;
+[x_emb, x_emb_apprx] = graphEuclidean_Embedding(S);
+
+%%%%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
+plot_options        = [];
+plot_options.labels = true_labels;
+plot_options.title  = 'Approximate Graph Embedding to Euclidean Space'; 
+ml_plot_data(x_emb_apprx',plot_options);
+
+%%%%%%%% Visualize Full Euclidean Embedding %%%%%%%%
+if show_emb
+    plot_options        = [];
+    plot_options.labels = true_labels;
+    plot_options.title  = 'Graph Embedding to Euclidean Space';
+    ml_plot_data(x_emb',plot_options);
 end
-
-%%%%%%%% Visualize Spectral Manifold Representation for M=2 or M=3 %%%%%%%%
-if exist('h1','var') && isvalid(h1), delete(h1);end
-h1 = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 3: Discover Clusters with sd-CRP-MM                  %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%% Non-parametric Clustering on Manifold Data with Sim prior %%%%%%%%
+% Approximated Embedded data
+Y = x_emb_apprx;
+M = size(Y,1);
 
 % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
 options                 = [];
 options.type            = 'full';  % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
-options.T               = 100;     % Sampler Iterations 
-options.alpha           = 1;     % Concentration parameter
+options.T               = 200;     % Sampler Iterations 
+options.alpha           = 1;     % Concentration parameter [0 - 2]
 
 % Standard Base Distribution Hyper-parameter setting
 if strcmp(options.type,'diag')
@@ -166,8 +180,8 @@ if strcmp(options.type,'diag')
 end
 if strcmp(options.type,'full')
     lambda.nu_0        = M;                           % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-    lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
-%     lambda.Lambda_0    = diag(diag(cov(Y')));       % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+%     lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+    lambda.Lambda_0    = diag(diag(cov(Y')));       % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 end
 lambda.mu_0             = mean(Y,2);    % hyper for N(mu_k|mu_0,kappa_0)
 lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
@@ -176,10 +190,10 @@ lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
 % Run Collapsed Gibbs Sampler
 options.lambda    = lambda;
 options.verbose   = 1;
-[Psi Psi_Stats]   = run_ddCRP_sampler(Y, S, options);
+[Psi, Psi_Stats]   = run_ddCRP_sampler(Y, S, options);
 est_labels        = Psi.Z_C';
 
-%%%%%%%% Visualize Collapsed Gibbs Sampler Stats and Cluster Metrics %%%%%%%%%%%%%%
+%%%%%%%% Visualize Collapsed Gibbs Sampler Stats %%%%%%%%%%%%%%
 if exist('h1b','var') && isvalid(h1b), delete(h1b);end
 options = [];
 options.dataset      = dataset_name;
@@ -187,6 +201,36 @@ options.true_labels  = true_labels;
 options.Psi          = Psi;
 [ h1b ] = plotSamplerStats( Psi_Stats, options );
 
+%%%%%%%%%% Extract Learned GMM models %%%%%%%%%%%%%
+N = length(sigmas);
+unique_labels = unique(est_labels);
+est_K      = length(unique_labels);
+Priors     = zeros(1, est_K);
+singletons = zeros(1, est_K);
+for k=1:est_K
+    assigned_k = sum(est_labels==unique_labels(k));
+    Priors(k) = assigned_k/N;
+    singletons(k) = assigned_k < round(N*0.01);
+end
+Mu     = Psi.Theta.Mu(:,unique_labels);
+Sigma  = Psi.Theta.Sigma(:,:,unique_labels);
+
+if any(singletons)
+    [~, est_labels] =  my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
+    unique_labels = unique(est_labels);
+    singleton_idx = find(singletons == 1);
+    Mu(:,singleton_idx) = [];
+    Sigma(:,:,singleton_idx) = [];
+    unique_labels(singleton_idx) = [];
+    Priors  = [];
+    est_K = length(Mu);
+    for k=1:est_K
+        assigned_k = sum(est_labels==unique_labels(k));
+        Priors(k) = assigned_k/N;
+    end
+end
+
+%%%%%%%%%% Compute Cluster Metrics %%%%%%%%%%%%%
 [Purity NMI F] = cluster_metrics(true_labels, est_labels');
 fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
 'spcm-CRP-MM', Psi.Maxiter, Psi.MaxLogProb, length(unique(est_labels)), Purity, NMI, F);
@@ -196,24 +240,16 @@ fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d with Purity: %1.2f, NM
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%% Plot Clustering Results against True Labels %%%%%%%%%%%%%%%
-if exist('h2','var') && isvalid(h2), delete(h2);end
-options = [];
-options.clust_type = 'spcm-CRP-MM';
-options.Psi        = Psi; 
-est_labels         = Psi.Z_C';
-[ Purity NMI F h2 ] = plotClusterResults( true_labels, est_labels, options ); 
+% if exist('h','var') && isvalid(h), delete(h);end
+% [accuracy, est_labels_arr, CM] = calculateAccuracy(est_labels', true_labels);
+% h = plotConfMat(CM);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% For Datasets 1-3 + 5a/b: Visualize sd-CRP-MM Results on Manifold Data %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Extract Learnt cluster parameters
-Mu = Psi.Theta.Mu;
-Sigma = Psi.Theta.Sigma;
-      
-% Visualize Cluster Parameters on Manifold Data
-if exist('h3','var') && isvalid(h3), delete(h3);end
-h3 = plotClusterParameters( Y, est_labels, Mu, Sigma );
+% Visualize Estimated Parameters
+if M < 4
+    est_options = [];
+    est_options.type = 0;        
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%

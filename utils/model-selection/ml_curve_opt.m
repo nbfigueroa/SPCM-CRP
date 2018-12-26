@@ -32,8 +32,13 @@ switch(method)
         [~, ids] = sort(dd_vals,'descend');
 
         % Return first 2 values with significant change
-        opt_vals = curve(ids(1:2));  % Maximum values of the second derivative
-        opt_ids  = idx(ids(1:2));     % Indices of those maximum values  
+        if length(ids) > 1
+            opt_vals = curve(ids(1:2));  % Maximum values of the second derivative
+            opt_ids  = idx(ids(1:2));    % Indices of those maximum values
+        else                        
+            opt_vals = curve(ids(1));
+            opt_ids  = idx(ids(1));     
+        end
 
    % %%%% Using distance to line
     case 'line'

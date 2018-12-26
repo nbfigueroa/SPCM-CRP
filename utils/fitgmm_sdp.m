@@ -1,4 +1,4 @@
-function [Priors, Mu, Sigma] = fitgmm(Xi_ref, est_options)
+function [Priors, Mu, Sigma] = fitgmm_sdp(Xi_ref, est_options)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Copyright (C) 2018 Learning Algorithms and Systems Laboratory,          %
 % EPFL, Switzerland                                                       %
@@ -56,25 +56,37 @@ switch est_type
     case 1
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%% Option2: Cluster Trajectories with GMM-EM + BIC Model Selection %%%%%%%
+        %%%%%%% Option 1: Cluster SDP matrices with GMM-EM + BIC Model Selection %%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        em_type = 'nadia';
         if fixed_K == 0
-            em_type = 'nadia'; repetitions = 10;
-            size(Xi_ref)
-            [bic_scores, k] = fit_gmm_bic(Xi_ref,max_gaussians, repetitions, em_type, do_plots);
+            repetitions = 10;
+            [bic_scores, k] = fit_gmm_bic(Xi_ref, max_gaussians, repetitions, em_type, do_plots);
         else
             k = fixed_K;
         end
-        % Train GMM with Optimal k
-        warning('off', 'all'); % there are a lot of really annoying warnings when fitting GMMs
-        %fit a GMM to our data
-        GMM_full = fitgmdist([Xi_ref]', k, 'Start', 'plus', 'CovarianceType','full', 'Regularize', .000001, 'Replicates', 10); 
-        warning('on', 'all');
         
-        % Extract Model Parameters
-        Priors = GMM_full.ComponentProportion;
-        Mu = transpose(GMM_full.mu);
-        Sigma = GMM_full.Sigma;                
+        switch em_type
+            case 'matlab'
+                % Train GMM with Optimal k
+                warning('off', 'all'); % there are a lot of really annoying warnings when fitting GMMs
+                %fit a GMM to our data
+                GMM_full = fitgmdist([Xi_ref]', k, 'Start', 'plus', 'CovarianceType','full', 'Regularize', .000001, 'Replicates', 10);
+                warning('on', 'all');
+                
+                % Extract Model Parameters
+                Priors = GMM_full.ComponentProportion;
+                Mu = transpose(GMM_full.mu);
+                Sigma = GMM_full.Sigma;
+                
+            case 'nadia'
+                
+                cov_type = 'full';  Max_iter = 500;
+                [Priors0, Mu0, ~, Sigma0] = my_gmmInit(Xi_ref, k, cov_type);
+                [Priors, Mu, Sigma, ~]    = my_gmmEM(Xi_ref, k, cov_type, Priors0, Mu0, Sigma0, Max_iter);
+                
+        end
+
 
     case 2
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,7 +95,7 @@ switch est_type
         
         % CRP-GMM (Frank-Wood's implementation) -- faster (does not mix
         % well sometimes)
-        do_fw = 0;
+        do_fw = 1;
         if do_fw
             [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Xi_ref, samplerIter);
             [val , Maxiter]  = max(lP_record);
@@ -118,6 +130,22 @@ switch est_type
             end
             Mu    = mean_record {Maxiter};
             Sigma = covariance_record{Maxiter};
+            
+            % Remove Singleton Clusters
+            if any(singletons)
+                [~, est_labels] =  my_gmm_cluster(Xi_ref, Priors, Mu, Sigma, 'hard', []);
+                unique_labels = unique(est_labels);
+                est_K         = length(unique_labels);
+                Mu    = Mu(:,unique_labels);
+                Sigma = Sigma(:,:,unique_labels);
+                Priors  = [];
+                for k=1:est_K
+                    assigned_k = sum(est_labels==unique_labels(k));
+                    Priors(k) = assigned_k/N;
+                end
+            end
+            
+            
         else
             % DP-GMM (Mo-Chen's implementation) -- better mixing sometimes, slower (
             tic;
@@ -127,20 +155,7 @@ switch est_type
             
             toc;
         end
-        % Remove Singleton Clusters
-        if any(singletons)
-            [~, est_labels] =  my_gmm_cluster(Xi_ref, Priors, Mu, Sigma, 'hard', []);
-            unique_labels = unique(est_labels);                                
-            est_K         = length(unique_labels);
-            Mu    = Mu(:,unique_labels);
-            Sigma = Sigma(:,:,unique_labels);
-            Priors  = [];
-            for k=1:est_K
-                assigned_k = sum(est_labels==unique_labels(k));
-                Priors(k) = assigned_k/N;               
-            end
-        end
-        
+
 
 end
 

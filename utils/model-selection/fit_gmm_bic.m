@@ -21,7 +21,7 @@ for j = 1:max_gaussians
             bic_tmp = GMM_BIC(X, ones(size(X,2), 1), Priors_tmp, Mu_tmp, Sigma_tmp, 'full');
             
         case 'nadia'
-            rng(randi(10));
+%             rng(randi(10));
             cov_type = 'full';  Max_iter = 500;
             bic_min = inf;
             for r=1:repetitions

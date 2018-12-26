@@ -1,13 +1,16 @@
 function [handle] = plotSpectralManifold(Y, true_labels, d,thres, s_norm, M)
 
 % Create Figure Handle
+handle0 = figure('Color',[1 1 1]);
+
+plot(d,'-*r'); hold on
+grid on
+xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
+ylabel('$\mathbf{\lambda}_i$ of $\mathcal{L}$','Interpreter','Latex','FontSize',14)
+tit = strcat('Eigenvalues Laplacian ');
+title(tit, 'Interpreter','Latex','FontSize',14)
+
 handle = figure('Color',[1 1 1]);
-
-
-% Create Figure Handle
-% if (M == 2) || (M == 3)
-%     subplot(2,1,1)
-% end
 plot(s_norm,'-*r'); hold on
 plot(thres*ones(1,length(d)),'--k','LineWidth', 2); hold on
 grid on
@@ -45,6 +48,7 @@ if (M == 2) || (M == 3)
         grid on
         title('$\Sigma_i$ Represented in 3-d Spectral space','Interpreter','Latex','FontSize',14)
     end
+    axis equal
 elseif M > 3
     
     % Plot result of Laplacian Eigenmaps Projection

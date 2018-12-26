@@ -35,8 +35,12 @@ L = D - S;
 
 % Compute Symmetric Normalized Laplacian
 L_sym = D^(-1/2)*L*D^(-1/2);
-plotSimilarityConfMatrix(L_sym, 'Symmetric Normalized Laplacian');
 
+% Check rank of Laplacian
+rank_L     = rank(L_sym);
+L_pseudo   = pinv(L_sym);
+h1 = plotSimilarityConfMatrix(spcm(:,:,1), title_str);
+d_l_pseudo = eig(L_pseudo) 
 
 % Compute Eigen Decomposition of L_sym
 [V,D] = eig(L_sym);
@@ -46,7 +50,7 @@ D_sort = diag(sort(diag(D),'ascend')); % make diagonal matrix out of sorted diag
 V_sort=V(:,ind); % arrange the columns in this order
 
 % Vectorize eigenvalues
-d = real(diag(D_sort))
+d = real(diag(D_sort));
 
 % If M is not given, find optimal threshold using softmax + attractive
 % adaptation
@@ -97,6 +101,5 @@ Y = Y';
 
 % toc;
 % fprintf('*************************************************************\n');
-
 
 end

@@ -39,13 +39,14 @@ function [f_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
         % Homothetic mean factor 
         mean_fact = mean(hom_fact);
                
-        % Spectral similarity value  (Eq.8 from [1])  +++ if-else way +++
-        spcm = var(hom_fact);
-
+        % Pure similarity value; either variance or coeff of variation
+        spcm_val = var(hom_fact);
+%         spcm_val = getCV(hom_fact);
+        
         % Spectral similarity value  (Eq.8 from [1])  +++ function way +++
         delta_ij = mean_ij - mean_ji;
         H = heavy(delta_ij);
-        spcm = H*var(hom_fact_ij) + (1-H)*var(hom_fact_ji);
+        spcm = H*spcm_val + (1-H)*spcm_val;
                 
         % Scaling function (Eq.9 from [1])
         upsilon = 10^(tau*exp(-dim));
