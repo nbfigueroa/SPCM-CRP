@@ -14,8 +14,9 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         behavs_theta{1,1} = Cov;
         [V1,D1] = eig(Cov);
         CoordRot = rotx(-angle);
-        [x,y,z] = created3DgaussianEllipsoid(mu,V1,D1^1/2);        
+        
         if display==1
+            [x,y,z] = created3DgaussianEllipsoid(mu,V1,D1^1/2,1);        
             mesh(x,y,z,'EdgeColor','blue','Edgealpha',0.2);
             hidden off
             hold on;
@@ -28,8 +29,9 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         behavs_theta{1,2} = Covs2;
         [V2,D2] = eig(Covs2);
         mu = [1 0 0]';
-        [x,y,z] = created3DgaussianEllipsoid(mu,V2,D2^1/2);
+        
         if display==1
+            [x,y,z] = created3DgaussianEllipsoid(mu,V2,D2^1/2, 1);
             mesh(x,y,z,'EdgeColor','blue','Edgealpha',0.2);
             hidden off
             hold on;
@@ -42,8 +44,9 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         behavs_theta{1,3} = Covs3;
         [V3,D3] = eig(Covs3);
         mu = [2 0 0]';
-        [x,y,z] = created3DgaussianEllipsoid(mu,V3,D3^1/2);
+        
         if display==1
+            [x,y,z] = created3DgaussianEllipsoid(mu,V3,D3^1/2,1);
             mesh(x,y,z,'EdgeColor','blue','Edgealpha',0.2);
             hidden off
             hold on;
@@ -55,9 +58,9 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         Cov = Q*(D)*Q';
         behavs_theta{1,4} = Cov;
         [V4,D4] = eig(behavs_theta{1,4});
-        mu = [4 0 0]';
-        [x,y,z] = created3DgaussianEllipsoid(mu,V4,D4^1/2);
+        mu = [4 0 0]';        
         if display == 1
+            [x,y,z] = created3DgaussianEllipsoid(mu,V4,D4^1/2,1);
             mesh(x,y,z,'EdgeColor','red','Edgealpha',0.2);
             hidden off
             hold on;
@@ -69,8 +72,9 @@ if strcmp(type, '3d') || strcmp(type, '4d')
         behavs_theta{1,5} = (Q2)*(D)*(Q2)';
         [V5,D5] = eig(behavs_theta{1,5});
         mu = [6 0 0]';
-        [x,y,z] = created3DgaussianEllipsoid(mu,V5,D5^1/2);
+        
         if display == 1
+            [x,y,z] = created3DgaussianEllipsoid(mu,V5,D5^1/2,1);
             mesh(x,y,z,'EdgeColor','red','Edgealpha',0.2);
             hidden off
             hold on;

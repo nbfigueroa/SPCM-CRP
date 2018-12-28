@@ -29,15 +29,13 @@
 %% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
 % This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
 % and 5 from Section 4 and the results in Section 7 in the accompanying paper.
-
 clc; clear all; close all;
-display = 0; randomize = 0; dataset_name = 'Toy 3D';
+display = 1; randomize = 0; dataset_name = 'Toy 3D';
 [sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
 
 %% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
 % This function loads the 6-D ellipsoid dataset used to generate Fig. 6 and 
 % from Section 4 and the results in Section 8 in the accompanying paper.
-
 clc; clear all; close all;
 display = 0; randomize = 0; dataset_name = 'Toy 6D';
 [sigmas, true_labels] = load_toy_dataset('6d', display, randomize);
@@ -70,6 +68,7 @@ data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)'
 data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Synthetic DT-MRI';
+
 %% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
 %% Cluster Distibution: 4 clusters (each cluster has 10 samples)
 % This function loads a 3-D Diffusion Tensor Image from a Diffusion
@@ -88,6 +87,8 @@ dataset_name = 'Synthetic DT-MRI';
 data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
 [sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
 dataset_name = 'Real DT-MRI';
+
+%% TODO: REDO THIS DATASET WITH THE ROTATED IMAGE CLUSTERS and 18x18 Cov.Matrx
 %% 5) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
 %% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
 % This function loads the 400-D ETH80 Covariance Feature dataset 
@@ -105,7 +106,6 @@ dataset_name = 'Real DT-MRI';
 clc; clear all; close all;
 data_path = './data/'; split = 1; randomize = 0; 
 [sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
-
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1: Compute Similarity Matrix from B-SPCM Function for dataset   %%
@@ -137,7 +137,7 @@ NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S))
 %%        Step 2: Run Automatic Eucliden Embedding and Dimensionality Reduction  %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%%%%%%
-show_emb = 0; show_plots = 1;
+show_emb = 0; show_plots = 0;
 [x_emb, Y] = graphEuclidean_Embedding(S, show_plots);
 M = size(Y,1);
 
@@ -145,7 +145,7 @@ M = size(Y,1);
 plot_options        = [];
 plot_options.labels = true_labels;
 plot_options.title  = 'Approximate Graph Embedding to Euclidean Space'; 
-ml_plot_data(x_emb_apprx',plot_options);
+ml_plot_data(Y',plot_options);
 
 %%%%%%%% Visualize Full Euclidean Embedding %%%%%%%%
 if show_emb
@@ -156,7 +156,7 @@ if show_emb
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%             Step 3: Discover Clusters with sd-CRP-MM                  %%
+%%             Step 3: Discover Clusters of Covariance Matrices          %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,39 +165,52 @@ end
 % 0: sim-CRP-MM on Preferred Embedding
 % 1: GMM-EM Model Selection via BIC on Preferred Embedding
 % 2: CRP-GMM (Collapsed Gibbs Sampler) on Preferred Embedding
-% 3: CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices
-% 4: SPCM-CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices
+% 3: CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices (TODO)
+% 4: SPCM-CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices (TODO)
 
 est_options = [];
-est_options.type             = 0;   % Clustering Estimation Algorithm Type   
+est_options.type             = 2;   % Clustering Estimation Algorithm Type   
 
 % If algo 1 selected:
 est_options.maxK             = 15;  % Maximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
-est_options.samplerIter      = 1000;  % Maximum Sampler Iterations
-                                      % For type 2: >100 iter are needed
-                                    
-est_options.do_plots         = 1;   % Plot Estimation Statistics
-est_options.sub_sample       = 1;   % Size of sub-sampling of trajectories
+est_options.samplerIter      = 2000;   % Maximum Sampler Iterations
+                                      % For type 0: 50-200 iter are needed
+                                      % For type 2: 200-1000 iter are needed
+
+% Plotting options
+est_options.do_plots         = 1;              % Plot Estimation Stats
+est_options.dataset_name     = dataset_name;   % Dataset name
+est_options.true_labels      = true_labels;    % To plot against estimates
 
 % Fit GMM to Trajectory Data
 tic;
 clear Priors Mu Sigma
-[Priors, Mu, Sigma, est_labels] = fitgmm_sdp(S, Y, est_options);
+[Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(S, Y, est_options);
 toc;
 
 %%%%%%%%%% Compute Cluster Metrics %%%%%%%%%%%%%
-K = length(unique(true_labels));
-[Purity NMI F] = cluster_metrics(true_labels, est_labels');
-fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-'spcm-CRP-MM', Psi.Maxiter, Psi.MaxLogProb, length(unique(est_labels)), K,  Purity, NMI, F);
+[Purity, NMI, F] = cluster_metrics(true_labels, est_labels');
+if exist('true_labels', 'var')
+    K = length(unique(true_labels));
+end
+switch est_options.type
+    case 0
+        fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+            'spcm-CRP-MM (Gibbs)', stats.Psi.Maxiter, stats.Psi.MaxLogProb, length(unique(est_labels)), K,  Purity, NMI, F);
+    case 1
+        fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+            'Finite-GMM (MS-BIC)', length(unique(est_labels)), K,  Purity, NMI, F);
+    case 2
+        fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+            'CRP-GMM (Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
+end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                     Visualize Clustering Results                      %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %%%%%%%%%%%%%%% Plot Clustering Results against True Labels %%%%%%%%%%%%%%%
 % if exist('h','var') && isvalid(h), delete(h);end
 % [accuracy, est_labels_arr, CM] = calculateAccuracy(est_labels', true_labels);
@@ -210,11 +223,14 @@ if M < 4
     [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
 end
 
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                  Compute/Show GMM-Oracle Results                      %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % GMM-Oracle Estimation
 [Priors0, Mu0, Sigma0] = gmmOracle(Y, true_labels);
-[~, est_labels0] = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
-[Purity NMI F]  = cluster_metrics(true_labels, est_labels0);
-est_K0 = length(unique(est_labels0));
+[~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
+est_K0                 = length(unique(est_labels0));
+[Purity NMI F]         = cluster_metrics(true_labels, est_labels0);
 fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, F);
 if M < 4
     est_options = [];
@@ -224,7 +240,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Visualize Estimated Cluster Labels as DTI
 % if exist('h3','var') && isvalid(h3), delete(h3);end
 title = 'Estimated Cluster Labels of Diffusion Tensors';

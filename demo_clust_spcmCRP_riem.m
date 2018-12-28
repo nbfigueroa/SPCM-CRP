@@ -159,18 +159,19 @@ plot_options.labels = true_labels;
 plot_options.title  = 'PGA on Riemannian Manifold'; 
 ml_plot_data(Y',plot_options);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%       Discover Clusters with different GMM Variants        %%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       Discover Clusters with different GMM-based Clustering Variants        %%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 0: SPCM-CRP-MM on Preferred Embedding
 % 1: GMM-EM Model Selection via BIC on Preferred Embedding
 % 2: CRP-GMM (Collapsed Gibbs Sampler) on Preferred Embedding
+
 est_options = [];
 est_options.type             = 1;   % GMM Estimation Algorithm Type   
 
 % If algo 1 selected:
 est_options.maxK             = 15;  % Maximum Gaussians for Type 1
-est_options.fixed_K          = 3;  % Fix K and estimate with EM for Type 1
+est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
 est_options.samplerIter      = 1000;  % Maximum Sampler Iterations
@@ -192,7 +193,7 @@ K = length(unique(true_labels));
 fprintf('Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K,K, Purity, NMI, F);
 
 %% Frank Wood's Implementation
- samplerIter = 1000;
+samplerIter = 1000;
 tic;
 [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Y, samplerIter);
 [val , Maxiter]  = max(lP_record);
@@ -209,6 +210,7 @@ fprintf('Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F
 % (sometimes)
 tic;
 [est_labels, Theta, w, ll] = mixGaussGb(Y);
+toc;
 Priors = w;
 est_K = length(Priors);
 [Purity NMI F]  = cluster_metrics(true_labels, est_labels);
@@ -277,8 +279,6 @@ S_type = {'LERM'};
 C_type = 'Spectral';
 
 %%% Selection of M-dimensional Spectral Manifold (for Spectral Clustering) %%%
-
-
 
 
 %% Compute Stats for Paper

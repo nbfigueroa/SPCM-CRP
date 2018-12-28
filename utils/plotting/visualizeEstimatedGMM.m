@@ -5,6 +5,8 @@ if M == 2
     [h_gmm] = plotGMMParameters( Xi_ref, est_labels, Mu, Sigma);
     limits = axis;
     switch est_options.type
+        case -1
+            title('GMM-Oracle on graph Euclidean Embedding','Interpreter','LaTex', 'FontSize',15);
         case 0
             title('SPCM-CRP-MM on graph Euclidean Embedding','Interpreter','LaTex', 'FontSize',15);
         case 1
@@ -16,8 +18,10 @@ if M == 2
     % Visualize PDF of fitted GMM
     ml_plot_gmm_pdf(Xi_ref, Priors, Mu, Sigma, limits);
     switch est_options.type
+        case -1
+            title('GMM-Oracle on graph Euclidean Embedding','Interpreter','LaTex', 'FontSize',15);
         case 0
-            title('Physically-Consistent Gaussian Mixture Model','Interpreter','LaTex', 'FontSize',15);
+            title('SPCM-CRP-MM on graph Euclidean Embedding','Interpreter','LaTex', 'FontSize',15);
         case 1
             title('Best fit GMM with EM-based BIC Model Selection','Interpreter','LaTex', 'FontSize',15);
         case 2
@@ -29,6 +33,8 @@ elseif M == 3
     GMM.Priors = Priors; GMM.Mu = Mu; GMM.Sigma = Sigma;
     [h_gmm] = plot3DGMMParameters(Xi_ref, GMM, est_labels);
     switch est_options.type
+        case -1
+            title('GMM-Oracle on graph Euclidean Embedding','Interpreter','LaTex', 'FontSize',15);
         case 0
             title('SPCM-CRP-MM on graph Euclidean Embedding','Interpreter','LaTex', 'FontSize',15);
         case 1
@@ -37,7 +43,7 @@ elseif M == 3
             title('Bayesian Non-Parametric Mixture Model (CRP-GMM)','Interpreter','LaTex', 'FontSize',15);
     end
     view(-120, 30);
-    axis equal
+%     axis equal
     h_pdf = [];
 end
 

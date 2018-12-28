@@ -1,4 +1,4 @@
-function [x_emb, x_emb_apprx] = graphEuclidean_Embedding(S)
+function [x_emb, x_emb_apprx] = graphEuclidean_Embedding(S, show_plots)
 % This algorithm maps the data into M-dimensional spectral space from
 % similarity matrix S using the method from (On Spectral Clustering: Analysis and an algorithm. Andrew Ng.)
 % Implementation of Algorithm 1. from Socher11a paper (Spectral Chinese Restaurant Processes)
@@ -45,7 +45,9 @@ d = real(diag(D_sort));
 
 % Compute Pseudo-Inverse of Symmetric Normalized Laplacian
 L_pseudo      = pinv(L_sym);
-plotSimilarityConfMatrix(L_pseudo, 'Laplacian Pseudo-Inverse'); 
+if show_plots
+    plotSimilarityConfMatrix(L_pseudo, 'Laplacian Pseudo-Inverse');
+end
 
 % Compute Eigen Decomposition of L_sym
 [V_pseudo,D_pseudo] = eig(L_pseudo);
@@ -110,36 +112,39 @@ for i=1:n
     for j=1:n
         N_approx(i,j) = Vol_graph * (x_emb_apprx(:,i)-x_emb_apprx(:,j))'*(x_emb_apprx(:,i)-x_emb_apprx(:,j));
     end
-end 
-plotSimilarityConfMatrix(N_approx, '$\tilde{N}$ = Approximate Resistance Distance'); 
+end
 
+if show_plots
+    plotSimilarityConfMatrix(N_approx, '$\tilde{N}$ = Approximate Resistance Distance');
+end
 
 % Plot eigenvalues of matrices
-figure('Color',[1 1 1]);
-subplot(1,3,1);
-plot(d,'-*r'); hold on
-grid on
-xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
-ylabel('Eigenvalues of $\mathcal{L}_{sym}$','Interpreter','Latex','FontSize',14)
-tit = strcat('Eigenvalues of Symmetric Normalized Laplacian');
-title(tit, 'Interpreter','Latex','FontSize',14)
-
-subplot(1,3,2);
-plot(d_pseudo,'-*r'); hold on
-grid on
-xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
-ylabel('Eigenvalues of $\mathcal{L}_{sym}^{+}$','Interpreter','Latex','FontSize',14)
-tit = strcat('Eigenvalues Laplacian PseudoInverse');
-title(tit, 'Interpreter','Latex','FontSize',14)
-
-subplot(1,3,3);
-plot(d_L_pow,'-*r'); hold on
-grid on
-xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
-ylabel('Eigenvalues of ${\mathcal{L}_{sym}^{+}}^{(4)}$','Interpreter','Latex','FontSize',14)
-tit = strcat('Eigenvalues Laplacian PseudoInverse Powered(4)');
-title(tit, 'Interpreter','Latex','FontSize',14)
-
+if show_plots
+    figure('Color',[1 1 1]);
+    subplot(1,3,1);
+    plot(d,'-*r'); hold on
+    grid on
+    xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
+    ylabel('Eigenvalues of $\mathcal{L}_{sym}$','Interpreter','Latex','FontSize',14)
+    tit = strcat('Eigenvalues of Symmetric Normalized Laplacian');
+    title(tit, 'Interpreter','Latex','FontSize',14)
+    
+    subplot(1,3,2);
+    plot(d_pseudo,'-*r'); hold on
+    grid on
+    xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
+    ylabel('Eigenvalues of $\mathcal{L}_{sym}^{+}$','Interpreter','Latex','FontSize',14)
+    tit = strcat('Eigenvalues Laplacian PseudoInverse');
+    title(tit, 'Interpreter','Latex','FontSize',14)
+    
+    subplot(1,3,3);
+    plot(d_L_pow,'-*r'); hold on
+    grid on
+    xlabel('Eigenvalue Index $\lambda_i$','Interpreter','Latex','FontSize',14)
+    ylabel('Eigenvalues of ${\mathcal{L}_{sym}^{+}}^{(4)}$','Interpreter','Latex','FontSize',14)
+    tit = strcat('Eigenvalues Laplacian PseudoInverse Powered(4)');
+    title(tit, 'Interpreter','Latex','FontSize',14)
+end
 
 
 end

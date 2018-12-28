@@ -1,4 +1,4 @@
-function [Priors, Mu, Sigma] = fitgmm_sdp(Xi_ref, est_options)
+function [Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(S, Y, est_options)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Copyright (C) 2018 Learning Algorithms and Systems Laboratory,          %
 % EPFL, Switzerland                                                       %
@@ -18,25 +18,19 @@ function [Priors, Mu, Sigma] = fitgmm_sdp(Xi_ref, est_options)
 % Public License for more details                                         %
 %                                                                         %
 % If you use this code in your research please cite:                      %
-% "A Physically-Consistent Bayesian Non-Parametric Mixture Model for      %
-%   Dynamical System Learning."; N. Figueroa and A. Billard; CoRL 2018    %
+% ""     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Parse Options
 est_type         = est_options.type;
 max_gaussians    = est_options.maxK;
 do_plots         = est_options.do_plots;
-[M,N]            = size(Xi_ref);
+[M,N]            = size(Y);
 
 if isempty(est_options.fixed_K)
     fixed_K        = 0;
 else
     fixed_K = est_options.fixed_K;
-end
-
-if ~isempty(est_options.sub_sample)
-    sub_sample       = est_options.sub_sample;
-    Xi_ref     = Xi_ref(:,1:sub_sample:end);
 end
 
 if est_type ~= 1    
@@ -47,23 +41,105 @@ if est_type ~= 1
         if est_type == 2
             samplerIter = 200;
         end
+        dataset_name = 'Test data';
     else
         samplerIter = est_options.samplerIter;
+        dataset_name = est_options.dataset_name;
     end
 end
+
+if isempty(est_options.true_labels)
+    true_labels        = [];
+else
+    true_labels = est_options.true_labels;
+end
+
 switch est_type
-               
-    case 1
+    
+    case 0
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%% Option 0: Cluster SDP matrices with SPCM-CRP-MM  %%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Setting sampler/model options (i.e. hyper-parameters, alpha, Covariance matrix)
+        options                 = [];
+        options.type            = 'full';          % Type of Covariance Matrix: 'full' = NIW or 'Diag' = NIG
+        options.T               = samplerIter;     % Sampler Iterations
+        options.alpha           = 1;               % Concentration parameter [0 - 2]
         
+        % Standard Base Distribution Hyper-parameter setting
+        if strcmp(options.type,'diag')
+            lambda.alpha_0       = M;                    % G(sigma_k^-1|alpha_0,beta_0): (degrees of freedom)
+            lambda.beta_0        = sum(diag(cov(Y')))/M; % G(sigma_k^-1|alpha_0,beta_0): (precision)
+        end
+        if strcmp(options.type,'full')
+            lambda.nu_0        = M;                             % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
+            %     lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M; % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+            lambda.Lambda_0    = diag(diag(cov(Y')));           % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+        end
+        lambda.mu_0             = mean(Y,2);    % hyper for N(mu_k|mu_0,kappa_0)
+        lambda.kappa_0          = 1;            % hyper for N(mu_k|mu_0,kappa_0)
+        
+        
+        % Run Collapsed Gibbs Sampler
+        options.lambda    = lambda;
+        options.verbose   = 1;
+        [Psi, Psi_Stats]  = run_ddCRP_sampler(Y, S, options);
+        est_labels        = Psi.Z_C';
+        
+        %%%%%%%% Visualize Collapsed Gibbs Sampler Stats %%%%%%%%%%%%%%
+        if do_plots
+            if exist('h1b','var') && isvalid(h1b), delete(h1b);end
+            options = [];
+            options.dataset      = dataset_name;
+            options.true_labels  = true_labels;
+            options.Psi          = Psi;
+            [ h1b ] = plotSamplerStats( Psi_Stats, options );
+        end
+        
+        %%%%%%%%%% Extract Learned GMM models %%%%%%%%%%%%%
+        est_labels        = Psi.Z_C';
+        N = size(Y,2);
+        unique_labels = unique(est_labels);
+        est_K      = length(unique_labels);
+        Priors     = zeros(1, est_K);
+        singletons = zeros(1, est_K);
+        for k=1:est_K
+            assigned_k = sum(est_labels==unique_labels(k));
+            Priors(k) = assigned_k/N;
+            singletons(k) = assigned_k < round(N*0.01);
+        end
+        Mu     = Psi.Theta.Mu(:,unique_labels);
+        Sigma  = Psi.Theta.Sigma(:,:,unique_labels);
+        
+        if any(singletons)
+            singleton_idx = find(singletons == 1);
+            Mu(:,singleton_idx) = [];
+            Sigma(:,:,singleton_idx) = [];
+            unique_labels(singleton_idx) = [];
+            Priors  = [];
+            est_K = length(Mu);
+            for k=1:est_K
+                assigned_k = sum(est_labels==unique_labels(k));
+                Priors(k) = assigned_k/N;
+            end            
+        end
+        clear stats 
+        stats.Psi       = Psi;
+        stats.Psi_Stats = Psi_Stats;
+        
+    case 1        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%% Option 1: Cluster SDP matrices with GMM-EM + BIC Model Selection %%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%% Option 1: Cluster SDP matrices with GMM-EM + BIC Model Selection %%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         em_type = 'nadia';
         if fixed_K == 0
             repetitions = 10;
-            [bic_scores, k] = fit_gmm_bic(Xi_ref, max_gaussians, repetitions, em_type, do_plots);
+            [bic_scores, k] = fit_gmm_bic(Y, max_gaussians, repetitions, em_type, do_plots);
+            stats.bic_scores = bic_scores;
+            stats.best_k = k;
         else
             k = fixed_K;
+            stats.best_k = k;
         end
         
         switch em_type
@@ -71,7 +147,7 @@ switch est_type
                 % Train GMM with Optimal k
                 warning('off', 'all'); % there are a lot of really annoying warnings when fitting GMMs
                 %fit a GMM to our data
-                GMM_full = fitgmdist([Xi_ref]', k, 'Start', 'plus', 'CovarianceType','full', 'Regularize', .000001, 'Replicates', 10);
+                GMM_full = fitgmdist([Y]', k, 'Start', 'plus', 'CovarianceType','full', 'Regularize', .000001, 'Replicates', 10);
                 warning('on', 'all');
                 
                 % Extract Model Parameters
@@ -79,38 +155,44 @@ switch est_type
                 Mu = transpose(GMM_full.mu);
                 Sigma = GMM_full.Sigma;
                 
-            case 'nadia'
-                
+            case 'nadia'                
                 cov_type = 'full';  Max_iter = 500;
-                [Priors0, Mu0, ~, Sigma0] = my_gmmInit(Xi_ref, k, cov_type);
-                [Priors, Mu, Sigma, ~]    = my_gmmEM(Xi_ref, k, cov_type, Priors0, Mu0, Sigma0, Max_iter);
-                
+                [Priors0, Mu0, ~, Sigma0] = my_gmmInit(Y, k, cov_type);
+                [Priors, Mu, Sigma, ~]    = my_gmmEM(Y, k, cov_type, Priors0, Mu0, Sigma0, Max_iter);                
         end
-
 
     case 2
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%% Option3: Cluster Trajectories with Chinese Restaurant Process MM sampler (CRP-GMM) %%%%%
+        %%%%%%% Option 2: Cluster Trajectories with Chinese Restaurant Process MM sampler (CRP-GMM) %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % CRP-GMM (Frank-Wood's implementation) -- faster (does not mix
-        % well sometimes)
-        do_fw = 1;
-        if do_fw
-            [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Xi_ref, samplerIter);
-            [val , Maxiter]  = max(lP_record);
-            est_labels       = class_id(:,Maxiter);
+        % CRP-GMM (Frank-Wood's implementation)
+            samplerIter
+            [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Y, samplerIter);
+            [max_val, max_id] = max(lP_record);
+            est_K             = K_record(max_id);
+            est_labels        = class_id(:,max_id);
+            samplerIter       = length(lP_record)
+            
+            % Gather Stats
+            clear stats
+            stats.lP_record      = lP_record;
+            stats.K_record       = K_record;
+            stats.Mu_record      = mean_record;
+            stats.Sigma_record   = covariance_record;            
+            stats.samplerIter    = samplerIter;
+            
             % Visualization and plotting options
             if do_plots
                 figure('Color',[1 1 1])
                 subplot(2,1,1)
                 semilogx(1:samplerIter, lP_record'); hold on;
-                semilogx(Maxiter,lP_record(Maxiter),'ko','MarkerSize',10);
+                semilogx(max_id, lP_record(max_id),'ko','MarkerSize',10);
                 grid on
                 xlabel('Gibbs Iteration','Interpreter','LaTex','Fontsize',20); ylabel('LogPr','Interpreter','LaTex','Fontsize',20)
                 xlim([1 samplerIter])
                 legend({'$p(Z|Y, \alpha, \lambda)$'},'Interpreter','LaTex','Fontsize',14)
-                title(sprintf('CRP-GMM Sampling results, optimal K=%d at iter=%d', length(unique(est_labels)), Maxiter), 'Interpreter','LaTex','Fontsize',20)
+                title(sprintf('CRP-GMM Sampling results, optimal K=%d at iter=%d', est_K, max_id), 'Interpreter','LaTex','Fontsize',20)
                 subplot(2,1,2)
                 stairs(K_record, 'LineWidth',2);
                 set(gca, 'XScale', 'log')
@@ -128,12 +210,12 @@ switch est_type
                 Priors(k) = assigned_k/N;
                 singletons(k) = assigned_k < 2;
             end
-            Mu    = mean_record {Maxiter};
-            Sigma = covariance_record{Maxiter};
+            Mu    = mean_record {max_id};
+            Sigma = covariance_record{max_id};
             
             % Remove Singleton Clusters
             if any(singletons)
-                [~, est_labels] =  my_gmm_cluster(Xi_ref, Priors, Mu, Sigma, 'hard', []);
+                [~, est_labels] =  my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
                 unique_labels = unique(est_labels);
                 est_K         = length(unique_labels);
                 Mu    = Mu(:,unique_labels);
@@ -145,19 +227,9 @@ switch est_type
                 end
             end
             
-            
-        else
-            % DP-GMM (Mo-Chen's implementation) -- better mixing sometimes, slower (
-            tic;
-            [est_labels, Theta, w, ll] = mixGaussGb(Xi_ref);
-            Priors = w;
-            est_K = length(Priors);
-            
-            toc;
-        end
-
-
 end
+
+[~, est_labels] =  my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
 
 
 end
