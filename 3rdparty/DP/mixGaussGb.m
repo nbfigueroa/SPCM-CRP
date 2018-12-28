@@ -1,4 +1,4 @@
-function [label, Theta, w, llh] = mixGaussGb(X, opt)
+function [label, Theta, w, llh, k_s] = mixGaussGb(X,  maxIter, opt)
 % Collapsed Gibbs sampling for Dirichlet process (infinite) Gaussian mixture model (a.k.a. DPGM). 
 % This is a wrapper function which calls underlying Dirichlet process mixture model.
 % Input: 
@@ -14,11 +14,12 @@ function [label, Theta, w, llh] = mixGaussGb(X, opt)
 mu = mean(X,2);
 Xo = bsxfun(@minus,X,mu);
 s = sum(Xo(:).^2)/(d*n);
-if nargin == 1
+if nargin == 2
     kappa0 = 1;
     m0 = mean(X,2);
     nu0 = d;
-    S0 = s*eye(d);
+%     S0 = s*eye(d);
+    S0 = diag(diag(cov(Xo')));
     alpha0 = 1;
 else
     kappa0 = opt.kappa;
@@ -28,4 +29,4 @@ else
     alpha0 = opt.alpha;
 end
 prior = GaussWishart(kappa0,m0,nu0,S0);
-[label, Theta, w, llh] = mixDpGb(X,alpha0,prior);
+[label, Theta, w, llh, k_s] = mixDpGb(X,alpha0,prior,maxIter);

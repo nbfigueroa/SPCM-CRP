@@ -4,13 +4,13 @@
 %
 % N. Figueroa and A. Billard, “Transform-Invariant Clustering of SPD Matrices 
 % and its Application on Joint Segmentation and Action Discovery}”
-% Arxiv, 2017. 
+% Arxiv, 2019. 
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% November 2016; Last revision: 23-May-2017
+% 23-May-2017; Last revision: 28-Dec-2018;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -162,9 +162,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Discover Clusters with different GMM-based Clustering Variants on Embedding %%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 0: sim-CRP-MM on Preferred Embedding
+% 0: sim-CRP-MM (Collapsed Gibbs Sampler) on Preferred Embedding
 % 1: GMM-EM Model Selection via BIC on Preferred Embedding
-% 2: CRP-GMM (Collapsed Gibbs Sampler) on Preferred Embedding
+% 2: CRP-GMM (Gibbs Sampler/Collapsed) on Preferred Embedding
 % 3: CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices (TODO)
 % 4: SPCM-CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices (TODO)
 
@@ -176,7 +176,7 @@ est_options.maxK             = 15;  % Maximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
-est_options.samplerIter      = 2000;   % Maximum Sampler Iterations
+est_options.samplerIter      = 1000;   % Maximum Sampler Iterations
                                       % For type 0: 50-200 iter are needed
                                       % For type 2: 200-1000 iter are needed
 

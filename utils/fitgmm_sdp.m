@@ -166,7 +166,7 @@ switch est_type
         %%%%%%% Option 2: Cluster Trajectories with Chinese Restaurant Process MM sampler (CRP-GMM) %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % CRP-GMM (Frank-Wood's implementation)
+        % CRP-GMM (Frank-Wood's implementation) which is a Gibbs Sampler
             samplerIter
             [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Y, samplerIter);
             [max_val, max_id] = max(lP_record);
@@ -225,6 +225,12 @@ switch est_type
                     assigned_k = sum(est_labels==unique_labels(k));
                     Priors(k) = assigned_k/N;
                 end
+            end
+            
+            % CRP-GMM (Mo-Chens's implementation) which is a COLLAPSED Gibbs Sampler
+            if est_K == 1
+                fprintf(2, 'It seems that the Gibbs Sampler did not converge.. trying Collapsed Gibbs Sampler...\n');
+                
             end
             
 end

@@ -191,24 +191,16 @@ est_K           = length(Priors);
 K = length(unique(true_labels));
 fprintf('Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K,K, Purity, NMI, F);
 
-%% Frank Wood's Implementation
-samplerIter = 1000;
-tic;
-[class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Y, samplerIter);
-[val , Maxiter]  = max(lP_record);
-est_labels       = class_id(:,Maxiter);
-toc;
-est_K = length(unique(est_labels));
-% TODO: Add some comments here!
-[Purity NMI F]  = cluster_metrics(true_labels, est_labels);
-fprintf('Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K,K, Purity, NMI, F);
 
 %% Mo chen's Implementation
 
 % DP-GMM (Mo-Chen's implementation) -- better mixing sometimes, slower
 % (sometimes)
 tic;
-[est_labels, Theta, w, ll] = mixGaussGb(Y);
+maxIter = 1000;
+[est_labels, Theta, w, ll, k_s] = mixGaussGb(Y, maxIter);
+
+
 toc;
 Priors = w;
 est_K = length(Priors);

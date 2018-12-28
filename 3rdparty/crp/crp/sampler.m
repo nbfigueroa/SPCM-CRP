@@ -47,19 +47,25 @@ end
 
 % show trace plots and current clustering (2D)?
 GRAPHICS = 0;
+verbose = 1;
+
+[M,~] = size(training_data);
 
 % set normal inverse wishart hyper parameters
 if(nargin < 5)
-    mu_0 = zeros(size(training_data(:,1)));
+%     mu_0 = zeros(size(training_data(:,1)));
+    mu_0 = mean(training_data,2);
 end
 if(nargin < 6)
     k_0 = 1;
 end
 if(nargin < 7)
-    v_0 = size(training_data(:,1),1);
+%     v_0 = size(training_data(:,1),1);
+    v_0 = M;
 end
 if(nargin < 8)
-    lambda_0 = eye(size(training_data(:,1),1))*.3;
+%     lambda_0 = eye(size(training_data(:,1),1))*.3;
+    lambda_0 = diag(diag(cov(training_data')));
 end
 
 % set alpha gamma prior parameters
@@ -117,8 +123,8 @@ lP_record(1) = lp;
 
 % run the Gibbs sampler
 for(sweep = 2:num_sweeps)
-    %disp(['Sweep ' num2str(sweep) '/' num2str(num_sweeps)])
-    %     phi{sweep} = phi{sweep-1};
+%     disp(['Sweep ' num2str(sweep) '/' num2str(num_sweeps)])
+%          phi{sweep} = phi{sweep-1};
     mean_record{sweep} = mean_record{sweep-1};
     covariance_record{sweep} = covariance_record{sweep-1};
     inv_covariance_record{sweep} = inv_covariance_record{sweep-1};
@@ -307,7 +313,7 @@ for(sweep = 2:num_sweeps)
     end
 
     % record the current parameters values
-    K_record(sweep) = length(temp);
+    K_record(sweep) = size(mean_record{sweep},2);
     alpha_record(sweep) = alpha;
     lP_record(sweep) = lp;
     if (lP_record(sweep) > max_lP)
@@ -315,7 +321,7 @@ for(sweep = 2:num_sweeps)
         break_counter = 0;
     else
         break_counter = break_counter + 1;
-        if break_counter >= 500
+        if break_counter >= 2000
             alpha_record(sweep+1:end) = [];
             class_id(:,sweep+1:end) = [];
             covariance_record(sweep+1:end) = [];
@@ -324,6 +330,11 @@ for(sweep = 2:num_sweeps)
             mean_record(sweep+1:end) = [];
             break
         end
+    end
+    
+    if verbose && mod(sweep,10)==0
+        fprintf('Iteration %d: Started with %d clusters ', sweep, K_record(sweep-1));
+        fprintf('--> moved to %d clusters with logprob = %4.2f\n', K_record(sweep) , lP_record(sweep));
     end
     
     if(GRAPHICS)

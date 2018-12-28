@@ -38,7 +38,7 @@ title('Training Data', 'Interpreter','LaTex', 'FontSize',20)
 
 %% run the CRP sampler to generate the posterior distribution over model 
 % parameters
-iterations = 200;
+iterations = 500;
 [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(training_data, iterations);
 [val , Maxiter]  = max(lP_record);
 est_labels       = class_id(:,Maxiter);

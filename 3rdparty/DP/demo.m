@@ -8,7 +8,7 @@ plotClass(X,label);
 
 %% Collapse Gibbs sampling for Dirichelt process gaussian mixture model
 tic;
-[y,Theta,w,ll] = mixGaussGb(X);
+[y,Theta,w,ll] = mixGaussGb(X,100);
 toc;
 figure
 plotClass(X,y);
