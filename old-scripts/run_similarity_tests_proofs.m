@@ -196,16 +196,11 @@ fprintf('Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F
 
 % DP-GMM (Mo-Chen's implementation) -- better mixing sometimes, slower
 % (sometimes)
-tic;
-maxIter = 1000;
-[est_labels, Theta, w, ll, k_s] = mixGaussGb(Y, maxIter);
 
-
-toc;
-Priors = w;
 est_K = length(Priors);
-[Purity NMI F]  = cluster_metrics(true_labels, est_labels);
-fprintf('Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K,K, Purity, NMI, F);
+fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+            'CRP-GMM (Collapsed Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
+
 
 %% %%%%%% Euclidean Distances in l-dimensional space %%%%%%%%%%
 l_sensitivity = 2;

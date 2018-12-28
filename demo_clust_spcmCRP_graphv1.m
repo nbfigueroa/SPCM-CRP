@@ -131,7 +131,7 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 
 % Compute Negative Eigenfraction of similarity matrix (NEF)
 lambda_S = eig(S);
-NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S))
+NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        Step 2: Run Automatic Eucliden Embedding and Dimensionality Reduction  %%
@@ -165,8 +165,6 @@ end
 % 0: sim-CRP-MM (Collapsed Gibbs Sampler) on Preferred Embedding
 % 1: GMM-EM Model Selection via BIC on Preferred Embedding
 % 2: CRP-GMM (Gibbs Sampler/Collapsed) on Preferred Embedding
-% 3: CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices (TODO)
-% 4: SPCM-CRP-WIW-MM (Collapsed Gibbs Sampler) directly on SDP matrices (TODO)
 
 est_options = [];
 est_options.type             = 2;   % Clustering Estimation Algorithm Type   
@@ -208,20 +206,14 @@ switch est_options.type
             'CRP-GMM (Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
 end
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                     Visualize Clustering Results                      %%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%% Plot Clustering Results against True Labels %%%%%%%%%%%%%%%
-% if exist('h','var') && isvalid(h), delete(h);end
-% [accuracy, est_labels_arr, CM] = calculateAccuracy(est_labels', true_labels);
-% h = plotConfMat(CM);
-
-% Visualize Estimated Parameters
-if M < 4
-    est_options = [];
-    est_options.type = 0;        
+%% Visualize Estimated Parameters
+if M < 4      
     [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
 end
+
+% TODO: Need to re-implement this function/has some problems when |k|>|c|
+% [accuracy, est_labels_arr, CM] = calculateAccuracy(est_labels', true_labels);
+% h = plotConfMat(CM);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  Compute/Show GMM-Oracle Results                      %%

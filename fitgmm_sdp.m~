@@ -126,7 +126,6 @@ switch est_type
         clear stats 
         stats.Psi       = Psi;
         stats.Psi_Stats = Psi_Stats;
-        [~, est_labels] =  my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%% Option 1: Cluster SDP matrices with GMM-EM + BIC Model Selection %%%%%%
@@ -162,13 +161,14 @@ switch est_type
                 [Priors0, Mu0, ~, Sigma0] = my_gmmInit(Y, k, cov_type);
                 [Priors, Mu, Sigma, ~]    = my_gmmEM(Y, k, cov_type, Priors0, Mu0, Sigma0, Max_iter);                
         end
-        [~, est_labels] =  my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%% Option 2: Cluster SDP matrices CRP MM sampler (CRP-GMM) %%%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    case 2       
-        % CRP-GMM (Frank-Wood's implementation) which is a Gibbs Sampler       
+    case 2
+       
+        % CRP-GMM (Frank-Wood's implementation) which is a Gibbs Sampler
+            samplerIter
             [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(Y, samplerIter);
             [max_val, max_id] = max(lP_record);
             est_K             = K_record(max_id);
@@ -227,7 +227,6 @@ switch est_type
                     Priors(k) = assigned_k/N;
                 end
             end
-            [~, est_labels] =  my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
             
             % CRP-GMM (Mo-Chens's implementation) which is a COLLAPSED Gibbs Sampler
             if est_K == 1
@@ -257,7 +256,11 @@ switch est_type
                     xlabel('Collapsed Gibbs Iteration','Interpreter','LaTex','Fontsize',20); ylabel('$\Psi$ = Estimated K','Interpreter','LaTex','Fontsize',20);
                 end
             end
+                
+            
 end
+
+[~, est_labels] =  my_gmm_cluster(Y, Priors, Mu, Sigma, 'hard', []);
 
 
 end
