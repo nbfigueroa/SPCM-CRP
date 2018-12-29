@@ -1,5 +1,97 @@
 function [Sigmas, True_Labels] = load_toy_dataset(type, display, randomize)
 
+
+
+if strcmp(type, '3d_v2')
+    N = 9; K = 3;
+    Sigma = zeros(3,3,N);
+    
+    rand_vals  = randn(1,20);
+    rand_vals  = rand_vals(abs(rand_vals) > 0.5);
+    base_randn = abs(randsample(rand_vals,1));
+    V_1  = eye(3);
+    
+    % Linear Ellipsoid Cluster (2 linears)
+    Lambda      = zeros(3); 
+    Lambda(3,3) = 2*base_randn;
+    Lambda(2,2) = Lambda(3,3); 
+    Lambda(1,1) = 5*Lambda(2,2);     
+    Sigma(:,:,1) = V_1*Lambda*V_1';
+    roll = -0.7854; pitch = -0.7854; yaw= 0;
+    R_2 = eul2rotm([yaw,pitch,roll]);
+    V_2 = R_2*V_1;
+    Sigma(:,:,2) = V_2*(1.25*Lambda)*V_2';
+    roll = 0.7854; pitch = -0.7854; yaw= 1.5484;
+    R_3 = eul2rotm([yaw,pitch,roll]);
+    V_3 = R_3*V_1;
+    Sigma(:,:,3) = V_3*(0.5*Lambda)*V_3';
+    
+    % Sperical Ellipsoid Cluster (3 spheres)
+    lambda    = 3*base_randn;
+    Lambda      = lambda*eye(3);     
+    Sigma(:,:,4) = V_1*Lambda*V_1';    
+    Sigma(:,:,5) = V_1*(2*Lambda)*V_1';
+    Sigma(:,:,6) = V_1*(0.5*Lambda)*V_1';    
+    
+    
+    % Planar Ellipsoid Cluster (1 planars)
+    Lambda      = zeros(3); 
+    Lambda(1,1) = 2*base_randn;
+    Lambda(2,2) = 5*Lambda(1,1); 
+    Lambda(3,3) = Lambda(2,2);   
+    Sigma(:,:,7) = V_1*Lambda*V_1';    
+    roll = 0; pitch = 1.578; yaw= 0;
+    R_2 = eul2rotm([yaw,pitch,roll]);
+    V_2 = R_2*V_1;
+    Sigma(:,:,8) = V_2*(0.75*Lambda)*V_2';
+    roll = 0.7854; pitch = -0.7854; yaw= 1.5484;
+    R_3 = eul2rotm([yaw,pitch,roll]);
+    V_3 = R_3*V_1;
+    Sigma(:,:,9) = V_3*(1.25*Lambda)*V_3';
+    
+    % Data structures
+    true_labels = [1 1 1 2 2 2 3 3 3];
+    for k=1:N
+        sigmas{k}   = Sigma(:,:,k);
+    end
+        
+    if display == 1
+        Mu      = zeros(3,N);
+        Mu(1,:) = [-5 -5 -5  20 20 20 50 50 50 ];
+        Mu(2,:) = [0 -20 20  0 -20 20 0 -20 20];
+        
+        % Clustered Sigmas GMM
+        colors = jet(K);
+        
+        figure('Color',[1 1 1])
+        for k=1:N
+            [V,D]=eig(Sigma(:,:,k));
+            scale = 1;
+            [x,y,z] = created3DgaussianEllipsoid(Mu(:,k),V,D, scale); hold on;
+            
+            % Draw frame
+            H = eye(4);
+            H(1:3,1:3) = eye(3);
+            H(1:3,4)   = Mu(:,k);            
+            
+            % Draw World Reference Frame
+            drawframe(H,2.5); hold on;
+            
+            % This makes the ellipsoids beautiful
+            surf(x, y, z,'FaceColor',colors(true_labels(k),:),'FaceAlpha', 0.25, 'FaceLighting','phong','EdgeColor','none');
+            camlight
+        end
+        axis equal;
+        grid on;
+        xlabel('$x_1$', 'Interpreter', 'LaTex', 'FontSize',15);
+        ylabel('$x_2$', 'Interpreter', 'LaTex','FontSize',15);
+        zlabel('$x_3$', 'Interpreter', 'LaTex','FontSize',15);
+        set(gca,'FontSize',16);
+        title('Toy 3D Covariance Matrices Dataset','FontSize', 20, 'Interpreter','LaTex')
+    end    
+end
+
+
 if strcmp(type, '3d') || strcmp(type, '4d')  
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%

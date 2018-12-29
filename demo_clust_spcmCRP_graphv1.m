@@ -14,101 +14,37 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Step 1 (DATA LOADING): Load Datasets %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+close all; clear all; clc
+%%%%%%%%%%%%%%%%%%%%%%%%% Select a Dataset %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1:  Toy Ellipsoid Dataset        (3D) / (9 Samples   c1:3,  c2:3,  c2:3)
+% 2:  Toy Ellipsoid Dataset        (6D) / (60 Samples  c1:20, c2:20, c2:20)
+% 3:  Real 6D Task-Ellipsoids      (6D) / (105 Samples c1:63, c2:21, c3:21)
+% 4:  Synthetic Diffusion Tensors  (3D) / (1024 Samples 4 classes)
+% 5:  Real Diffusion Tensors (Rat) (3D) / (1024 Samples 5 classes)
+% ...
+% 6:  ETH-80 Object Dataset Feats. (18D)  ... TODO (Rotated Objects)
+% 7 : HMM Emission Models - Task1  (13D)  ... TODO (Polishing)
+% 8 : HMM Emission Models - Task2  (7D)   ... TODO (Grating)
+% 9 : HMM Emission Models - Task3  (13D)  ... TODO (Rolling)
+% 10: HMM Emission Models - Task4  (26D)  ... TODO (Peeling)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%% Data Loading Parameter Description %%%%%%%%%%%%%%%%%%%%%%
 % display:   [0,1]  -- Display Covariance matrices in their own format
 % randomize: [0,1]  -- Randomize the Covariance Matrices indices
-% split:     [1,10] -- Selected Data Split from ETH80 or Youtube Dataset
-% type:      {'real', 'synthetic'} -- Type for DT-MRI Dataset
-% data_path:  {'./data/'} -- Path to data folder
+% pkg_dir:  {'./data/'} -- Path to data folder
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                    --Select a Dataset to Test--                       %%    
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 1) Toy 3D dataset, 5 Samples, 2 clusters (c1:3, c2:2)
-% This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
-% and 5 from Section 4 and the results in Section 7 in the accompanying paper.
-clc; clear all; close all;
-display = 1; randomize = 0; dataset_name = 'Toy 3D';
-[sigmas, true_labels] = load_toy_dataset('3d', display, randomize);
-
-%% 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
-% This function loads the 6-D ellipsoid dataset used to generate Fig. 6 and 
-% from Section 4 and the results in Section 8 in the accompanying paper.
-clc; clear all; close all;
-display = 0; randomize = 0; dataset_name = 'Toy 6D';
-[sigmas, true_labels] = load_toy_dataset('6d', display, randomize);
-
-%% 3) Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters 
-%% Cluster Distibution: (c1:63, c2:21, c3: 21)
-% This function loads the 6-D task-ellipsoid dataset used to evaluate this 
-% algorithm in Section 8 of the accompanying paper.
-%
-% Please cite the following paper if you make use of this data:
-% El-Khoury, S., de Souza, R. L. and Billard, A. (2014) On Computing 
-% Task-Oriented Grasps. Robotics and Autonomous Systems. 2015 
-
-clc; clear all; close all;
-data_path = './data/'; randomize = 0; dataset_name = 'Real 6D (Task-Ellipsoids)';
-[sigmas, true_labels] = load_task_dataset(data_path, randomize);
-
-%% 4a) Toy 3D dataset, Diffusion Tensors from Synthetic Dataset, 1024 Samples
-%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
-% This function will generate a synthetic DW-MRI (Diffusion Weighted)-MRI
-% This is done following the "Tutorial on Diffusion Tensor MRI using
-% Matlab" by Angelos Barmpoutis, Ph.D. which can be found in the following
-% link: http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
-%
-% To run this function you should download fanDTasia toolbox in the 
-% ~/SPCM-CRP/3rdParty directory, this toolbox is also provided in 
-% the tutorial link.
-
-% clc; clear all; close all;
-data_path = './data/'; type = 'synthetic'; display = 1; randomize = 0; 
-[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-dataset_name = 'Synthetic DT-MRI';
-
-%% 4b) Real 3D dataset, Diffusion Tensors from fanTDasia Dataset, 1024 Samples
-%% Cluster Distibution: 4 clusters (each cluster has 10 samples)
-% This function loads a 3-D Diffusion Tensor Image from a Diffusion
-% Weight MRI Volume of a Rat's Hippocampus, the extracted 3D DTI is used
-% to evaluate this algorithm in Section 8 of the accompanying paper.
-%untitled
-% To load and visualize this dataset, you must download the dataset files 
-% in the  ~/SPCM-CRP/data directory. These are provided in the online 
-% tutorial on Diffusion Tensor MRI in Matlab:
-% http://www.cise.ufl.edu/~abarmpou/lab/fanDTasia/tutorial.php
-%
-% One must also download the fanDTasia toolbox in the ~/SPCM-CRP/3rdParty
-% directory, this toolbox is also provided in this link.
-
-% clc; clear all; close all;
-data_path = './data/'; type = 'real'; display = 1; randomize = 0; 
-[sigmas, true_labels] = load_dtmri_dataset( data_path, type, display, randomize );
-dataset_name = 'Real DT-MRI';
-
-%% TODO: REDO THIS DATASET WITH THE ROTATED IMAGE CLUSTERS and 18x18 Cov.Matrx
-%% 5) Real 400D dataset, Covariance Features from ETH80 Dataset, 40 Samples
-%% Cluster Distibution: 8 classes/clusters (each cluster has 10 samples)
-% This function loads the 400-D ETH80 Covariance Feature dataset 
-% used to evaluate this algorithm in Section 8 of the accompanying paper.
-%
-%
-% You must download this dataset from the following link: 
-% http://ravitejav.weebly.com/classification-of-manifold-features.html
-% and export it in the ~/SPCM-CRP/data directory
-%
-% Please cite the following paper if you make use of these features:
-% R. Vemulapalli, J. Pillai, and R. Chellappa, “Kernel Learning for Extrinsic 
-% Classification of Manifold Features”, CVPR, 2013. 
-
-clc; clear all; close all;
-data_path = './data/'; split = 1; randomize = 0; 
-[sigmas, true_labels] = load_eth80_dataset(data_path, split, randomize);
+pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
+display = 0;  randomize = 0;
+choosen_dataset = 4;
+[sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Step 1: Compute Similarity Matrix from B-SPCM Function for dataset   %%
+%%  Step 2: Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
@@ -133,11 +69,11 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 lambda_S = eig(S);
 NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%        Step 2: Run Automatic Eucliden Embedding and Dimensionality Reduction  %%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%%%%%%
-show_emb = 0; show_plots = 0;
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%   Step 3: Run Automatic Eucliden Embedding and Dimensionality Reduction  %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%
+show_emb = 0; show_plots = 1;
 [x_emb, Y] = graphEuclidean_Embedding(S, show_plots);
 M = size(Y,1);
 
@@ -146,6 +82,7 @@ plot_options        = [];
 plot_options.labels = true_labels;
 plot_options.title  = 'Approximate Graph Embedding to Euclidean Space'; 
 ml_plot_data(Y',plot_options);
+axis equal
 
 %%%%%%%% Visualize Full Euclidean Embedding %%%%%%%%
 if show_emb
@@ -156,9 +93,8 @@ if show_emb
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%             Step 3: Discover Clusters of Covariance Matrices          %%
+%%             Step 4: Discover Clusters of Covariance Matrices          %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Discover Clusters with different GMM-based Clustering Variants on Embedding %%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -167,10 +103,10 @@ end
 % 2: CRP-GMM (Gibbs Sampler/Collapsed) on Preferred Embedding
 
 est_options = [];
-est_options.type             = 2;   % Clustering Estimation Algorithm Type   
+est_options.type             = 0;   % Clustering Estimation Algorithm Type   
 
 % If algo 1 selected:
-est_options.maxK             = 15;  % Maximum Gaussians for Type 1
+est_options.maxK             = 9;  % Maximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
@@ -197,18 +133,25 @@ end
 switch est_options.type
     case 0
         fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-            'spcm-CRP-MM (Gibbs)', stats.Psi.Maxiter, stats.Psi.MaxLogProb, length(unique(est_labels)), K,  Purity, NMI, F);
+            'spcm-CRP-MM (Collapsed-Gibbs)', stats.Psi.Maxiter, stats.Psi.MaxLogProb, length(unique(est_labels)), K,  Purity, NMI, F);
     case 1
         fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
             'Finite-GMM (MS-BIC)', length(unique(est_labels)), K,  Purity, NMI, F);
     case 2
-        fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-            'CRP-GMM (Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
+        
+        if isfield(stats,'collapsed')
+            fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+                'CRP-GMM (Collapsed-Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
+        else
+            fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
+                'CRP-GMM (Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
+        end
 end
 
 %% Visualize Estimated Parameters
 if M < 4      
     [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
+    axis equal
 end
 
 % TODO: Need to re-implement this function/has some problems when |k|>|c|
@@ -228,6 +171,7 @@ if M < 4
     est_options = [];
     est_options.type = -1;        
     [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
+    axis equal
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
