@@ -61,10 +61,6 @@ if exist('h0','var') && isvalid(h0), delete(h0); end
 title_str = 'Bounded Similarity (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
-% if exist('h1','var') && isvalid(h1), delete(h1); end
-% title_str = 'Un-Bounded (Dis)-Similarity Function (SPCM) Matrix';
-% h1 = plotSimilarityConfMatrix(D, title_str);
-
 % Compute Negative Eigenfraction of similarity matrix (NEF)
 lambda_S = eig(S);
 NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));

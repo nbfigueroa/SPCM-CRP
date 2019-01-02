@@ -39,7 +39,7 @@ close all; clear all; clc
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
 display = 0;  randomize = 0;
-choosen_dataset = 2;
+choosen_dataset = 5;
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,40 +60,52 @@ choosen_distance = 0;  % -2: Euclidean
 if exist('h0','var') && isvalid(h0), delete(h0); end
 h0 = plotSimilarityConfMatrix(D, distance_name);
 
-%%%%%%%%%%% Construct similarity/kernel matrix from distances %%%%%%%%%%%
-perplexity = ceil(length(sigmas)/10);
-[~,~,eps]   = d2p(D,perplexity);
-
-% Contruct Kernel Matrix
-N = length(sigmas);
-K = exp(-(1/2*(eps(1)^2))*D.^2);
-
-if exist('h1','var') && isvalid(h1), delete(h1); end
-title_str = strcat('Kernel of ',{' '}, distance_name);
-h1 = plotSimilarityConfMatrix(K, title_str);
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%   Step 3: Run Automatic Euclidean Embedding and Dimensionality Reduction  %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%
-show_emb = 0; show_plots = 1; norm_K = 1; pow_eigen = 5;
-[x_emb, Y_kpca] = graphKernelPCA_Embedding(S, show_plots, norm_K, pow_eigen);
-M = size(Y_kpca,1);
+emb_options = [];
+emb_options.l_sensitivity = 1; % This changes the embedding/results ALOT!
+emb_options.norm_K        = 1;
+emb_options.pow_eigen     = 5;
+emb_options.show_plots    = 1; 
+emb_options.distance_name = distance_name;
+
+[x_emb, Y, K, l] = distKernelPCA_Embedding(D, emb_options);
+l
+M = size(Y,1);
+show_emb = 0; 
+emb_name = strcat('Kernel PCA on ',{' '}, distance_name);
 
 %%%%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
 plot_options        = [];
 plot_options.labels = true_labels;
-plot_options.title  = 'Kernel PCA Embedding of the Graph'; 
-ml_plot_data(Y_kpca',plot_options);
+plot_options.title  = emb_name{1}; 
+ml_plot_data(Y',plot_options);
 axis equal;
 
 %%%%%%%% Visualize Full Euclidean Embedding %%%%%%%%
 if show_emb
     plot_options        = [];
     plot_options.labels = true_labels;
-    plot_options.title  = 'Kernel PCA Embedding of the Graph';
+    plot_options.title  = emb_name{1};
     ml_plot_data(x_emb',plot_options);
 end
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  (Optional) Compute Similarity Matrix from B-SPCM Function for dataset %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
+% Tolerance for SPCM decay function 
+tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+
+%%%%%%%%%%%%%%%%%%% Compute SPCM Similarities %%%%%%%%%%%%%%%%%%
+spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
+K    = spcm(:,:,2);
+if exist('h0','var') && isvalid(h0), delete(h0); end
+h0 = plotSimilarityConfMatrix(K, 'B-SCPM Similarity function');
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 4: Discover Clusters of Covariance Matrices          %%
@@ -106,14 +118,13 @@ end
 % 2: CRP-GMM (Gibbs Sampler/Collapsed) on Preferred Embedding
 
 est_options = [];
-est_options.type             = 0;   % Clustering Estimation Algorithm Type   
-
+est_options.type             = 0;
 % If algo 1 selected:
-est_options.maxK             = 9;  % Maximum Gaussians for Type 1
+est_options.maxK             = 10;  % Maximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
-est_options.samplerIter      = 1000;   % Maximum Sampler Iterations
+est_options.samplerIter      = 100;   % Maximum Sampler Iterations
                                       % For type 0: 50-200 iter are needed
                                       % For type 2: 200-1000 iter are needed
 
@@ -125,7 +136,7 @@ est_options.true_labels      = true_labels;    % To plot against estimates
 % Fit GMM to Trajectory Data
 tic;
 clear Priors Mu Sigma
-[Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(S, Y_kpca, est_options);
+[Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(K, Y, est_options);
 toc;
 
 %%%%%%%%%% Compute Cluster Metrics %%%%%%%%%%%%%
@@ -153,7 +164,8 @@ end
 
 %% Visualize Estimated Parameters
 if M < 4      
-    [h_gmm]  = visualizeEstimatedGMM(Y_kpca,  Priors, Mu, Sigma, est_labels, est_options);
+    est_options.emb_name = emb_name{1};
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
     axis equal
 end
 
@@ -165,15 +177,18 @@ end
 %%                  Compute/Show GMM-Oracle Results                      %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % GMM-Oracle Estimation
-[Priors0, Mu0, Sigma0] = gmmOracle(Y_kpca, true_labels);
-[~, est_labels0]       = my_gmm_cluster(Y_kpca, Priors0, Mu0, Sigma0, 'hard', []);
+[Priors0, Mu0, Sigma0] = gmmOracle(Y, true_labels);
+[~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
 est_K0                 = length(unique(est_labels0));
 [Purity NMI F]         = cluster_metrics(true_labels, est_labels0);
 fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, F);
+
+%% Visualize GMM-Oracle
 if M < 4
     est_options = [];
     est_options.type = -1;        
-    [h_gmm]  = visualizeEstimatedGMM(Y_kpca,  Priors0, Mu0, Sigma0, est_labels0, est_options);
+    est_options.emb_name = emb_name{1};
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
     axis equal
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
