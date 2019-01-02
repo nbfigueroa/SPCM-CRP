@@ -69,12 +69,12 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 lambda_S = eig(S);
 NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%   Step 3: Run Automatic Eucliden Embedding and Dimensionality Reduction  %%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%   Step 3: Run Automatic Euclidean Embedding and Dimensionality Reduction  %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%
-show_emb = 0; show_plots = 1;
-[x_emb, Y] = graphEuclidean_Embedding(S, show_plots);
+show_emb = 0; show_plots = 1; pow_eigen = 5;
+[x_emb, Y] = graphEuclidean_Embedding(S, show_plots, pow_eigen);
 M = size(Y,1);
 
 %%%%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
@@ -82,7 +82,7 @@ plot_options        = [];
 plot_options.labels = true_labels;
 plot_options.title  = 'Approximate Graph Embedding to Euclidean Space'; 
 ml_plot_data(Y',plot_options);
-axis equal
+axis equal;
 
 %%%%%%%% Visualize Full Euclidean Embedding %%%%%%%%
 if show_emb
