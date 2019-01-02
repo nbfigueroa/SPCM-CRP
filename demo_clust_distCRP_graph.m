@@ -4,16 +4,15 @@
 %
 % N. Figueroa and A. Billard, “Transform-Invariant Clustering of SPD Matrices 
 % and its Application on Joint Segmentation and Action Discovery}”
-% Arxiv, 2019. 
+% Arxiv, 2017. 
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% 23-May-2017; Last revision: 28-Dec-2018;
+% November 2016; Last revision: 23-May-2017
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1 (DATA LOADING): Load Datasets %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,55 +39,59 @@ close all; clear all; clc
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
 display = 0;  randomize = 0;
-choosen_dataset = 5;
+choosen_dataset = 2;
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%  Step 2: Compute Similarity Matrix from B-SPCM Function for dataset   %%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Step 2: Compute Similarity Matrix from SPD-Distances for dataset   %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
-% Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
-
-% %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
-spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
-D    = spcm(:,:,1);
-S    = spcm(:,:,2);
-
-%%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% Choose SDP distance %%%%%%%%%%%%%%%%%%%%%%%%
+choosen_distance = 0;  % -2: Euclidean
+                       % -1: Cholesky-Euclidean
+                       %  0: Affine-Invariant Riemannian Distance (RIEM)
+                       %  1: Log-Euclidean Riemannian Distance (LERM)
+                       %  2: KL-Divergence (KLDM)
+                       %  3: LogDet-Divergence (JBLD)
+                     
+[D, distance_name] = computeSDP_distances(sigmas, choosen_distance);
+      
+%%%%%%% Visualize Bounded Distance (dis-similarity) Matrix %%%%%%%%%%%%%%
 if exist('h0','var') && isvalid(h0), delete(h0); end
-title_str = 'Bounded Similarity (B-SPCM) Matrix';
-h0 = plotSimilarityConfMatrix(S, title_str);
+h0 = plotSimilarityConfMatrix(D, distance_name);
 
-% if exist('h1','var') && isvalid(h1), delete(h1); end
-% title_str = 'Un-Bounded (Dis)-Similarity Function (SPCM) Matrix';
-% h1 = plotSimilarityConfMatrix(D, title_str);
+%%%%%%%%%%% Construct similarity/kernel matrix from distances %%%%%%%%%%%
+perplexity = ceil(length(sigmas)/10);
+[~,~,eps]   = d2p(D,perplexity);
 
-% Compute Negative Eigenfraction of similarity matrix (NEF)
-lambda_S = eig(S);
-NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
+% Contruct Kernel Matrix
+N = length(sigmas);
+K = exp(-(1/2*(eps(1)^2))*D.^2);
+
+if exist('h1','var') && isvalid(h1), delete(h1); end
+title_str = strcat('Kernel of ',{' '}, distance_name);
+h1 = plotSimilarityConfMatrix(K, title_str);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%   Step 3: Run Automatic Euclidean Embedding and Dimensionality Reduction  %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%
-show_emb = 0; show_plots = 1; pow_eigen = 5;
-[x_emb, Y] = graphEuclidean_Embedding(S, show_plots, pow_eigen);
-M = size(Y,1);
+show_emb = 0; show_plots = 1; norm_K = 1; pow_eigen = 5;
+[x_emb, Y_kpca] = graphKernelPCA_Embedding(S, show_plots, norm_K, pow_eigen);
+M = size(Y_kpca,1);
 
 %%%%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
 plot_options        = [];
 plot_options.labels = true_labels;
-plot_options.title  = 'Approximate Graph Embedding to Euclidean Space'; 
-ml_plot_data(Y',plot_options);
+plot_options.title  = 'Kernel PCA Embedding of the Graph'; 
+ml_plot_data(Y_kpca',plot_options);
 axis equal;
 
 %%%%%%%% Visualize Full Euclidean Embedding %%%%%%%%
 if show_emb
     plot_options        = [];
     plot_options.labels = true_labels;
-    plot_options.title  = 'Graph Embedding to Euclidean Space';
+    plot_options.title  = 'Kernel PCA Embedding of the Graph';
     ml_plot_data(x_emb',plot_options);
 end
 
@@ -122,7 +125,7 @@ est_options.true_labels      = true_labels;    % To plot against estimates
 % Fit GMM to Trajectory Data
 tic;
 clear Priors Mu Sigma
-[Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(S, Y, est_options);
+[Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(S, Y_kpca, est_options);
 toc;
 
 %%%%%%%%%% Compute Cluster Metrics %%%%%%%%%%%%%
@@ -150,7 +153,7 @@ end
 
 %% Visualize Estimated Parameters
 if M < 4      
-    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
+    [h_gmm]  = visualizeEstimatedGMM(Y_kpca,  Priors, Mu, Sigma, est_labels, est_options);
     axis equal
 end
 
@@ -162,15 +165,15 @@ end
 %%                  Compute/Show GMM-Oracle Results                      %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % GMM-Oracle Estimation
-[Priors0, Mu0, Sigma0] = gmmOracle(Y, true_labels);
-[~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
+[Priors0, Mu0, Sigma0] = gmmOracle(Y_kpca, true_labels);
+[~, est_labels0]       = my_gmm_cluster(Y_kpca, Priors0, Mu0, Sigma0, 'hard', []);
 est_K0                 = length(unique(est_labels0));
 [Purity NMI F]         = cluster_metrics(true_labels, est_labels0);
 fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, F);
 if M < 4
     est_options = [];
     est_options.type = -1;        
-    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
+    [h_gmm]  = visualizeEstimatedGMM(Y_kpca,  Priors0, Mu0, Sigma0, est_labels0, est_options);
     axis equal
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

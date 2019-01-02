@@ -1,4 +1,4 @@
-function [P, beta] = d2p(D, u, tol)
+function [P, beta, sigmas] = d2p(D, u, tol)
 %D2P Identifies appropriate sigma's to get kk NNs up to some tolerance 
 %
 %   [P, beta] = d2p(D, kk, tol)
@@ -83,6 +83,11 @@ function [P, beta] = d2p(D, u, tol)
     disp(['Mean value of sigma: ' num2str(mean(sqrt(1 ./ beta)))]);
     disp(['Minimum value of sigma: ' num2str(min(sqrt(1 ./ beta)))]);
     disp(['Maximum value of sigma: ' num2str(max(sqrt(1 ./ beta)))]);
+    sigmas(1) = mean(sqrt(1 ./ beta));
+    sigmas(2) = min(sqrt(1 ./ beta));
+    sigmas(3) = max(sqrt(1 ./ beta));
+    
+    
 end
     
 

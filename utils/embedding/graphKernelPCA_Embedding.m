@@ -104,13 +104,13 @@ x_emb = invsqrtL * V_full' * K;
 %%%%%% Computing the reduced embedding %%%%%%
 
 % Vectorize eigenvalues
-d_pseudo    = real(L)
+d_pseudo    = real(L);
 
 % Find the optimal number of dimensions using the power heuristic
 pow = pow_eigen;
 [~, D_pow] = eig(mpower(K,pow));
 D_sort_pow    = real(diag(sort(diag(D_pow),'descend'))); % make diagonal matrix out of sorted diagonal values of input D
-d_L_pow = diag(D_sort_pow)
+d_L_pow = diag(D_sort_pow);
 [~, opt_ids_der]  = ml_curve_opt(d_L_pow','derivatives');
 [~, opt_ids_line] = ml_curve_opt(d_L_pow','line');
 k_options = sort([opt_ids_der opt_ids_line],'ascend');

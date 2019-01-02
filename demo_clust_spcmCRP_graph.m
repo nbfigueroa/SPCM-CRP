@@ -4,15 +4,16 @@
 %
 % N. Figueroa and A. Billard, “Transform-Invariant Clustering of SPD Matrices 
 % and its Application on Joint Segmentation and Action Discovery}”
-% Arxiv, 2017. 
+% Arxiv, 2019. 
 %
 % Author: Nadia Figueroa, PhD Student., Robotics
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% November 2016; Last revision: 23-May-2017
+% 23-May-2017; Last revision: 28-Dec-2018;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1 (DATA LOADING): Load Datasets %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,7 +40,7 @@ close all; clear all; clc
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
 display = 0;  randomize = 0;
-choosen_dataset = 1;
+choosen_dataset = 2;
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,26 +69,41 @@ h0 = plotSimilarityConfMatrix(S, title_str);
 lambda_S = eig(S);
 NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%   Step 3: Run Automatic Euclidean Embedding and Dimensionality Reduction  %%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%
-show_emb = 0; show_plots = 1; norm_K = 1; pow_eigen = 5;
-[x_emb, Y_kpca] = graphKernelPCA_Embedding(S, show_plots, norm_K, pow_eigen);
-M = size(Y_kpca,1);
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%   Step 3: Embed SDP Matrices in Approximate Euclidean Space  %%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
+% Choose Embedding implementation
+show_plots = 0;          % Show plot of similarity matrices+eigenvalues   
+pow_eigen  = 5;          % (L^+)^(pow_eigen) for dimensionality selection 
+emb_type   = 1;          % 0: Graph-Subspace Projection
+                         % 1: Kernel-PCA on L^+
+switch emb_type
+    case 0        
+        [x_emb, Y] = graphEuclidean_Embedding(S, show_plots, pow_eigen);
+        emb_name = 'Graph-Subspace Projection';
+        
+    case 1        
+        norm_K = 1; % Choose to normalize K, ends up being unneccesary for L^+
+        [x_emb, Y] = graphKernelPCA_Embedding(S, show_plots, norm_K, pow_eigen);
+        emb_name = 'Graph Kernel PCA Projection';
+end
+
+M = size(Y,1);
+show_emb = 0;
 
 %%%%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
 plot_options        = [];
 plot_options.labels = true_labels;
-plot_options.title  = 'Kernel PCA Embedding of the Graph'; 
-ml_plot_data(Y_kpca',plot_options);
+plot_options.title  = emb_name; 
+ml_plot_data(Y',plot_options);
 axis equal;
 
 %%%%%%%% Visualize Full Euclidean Embedding %%%%%%%%
 if show_emb
     plot_options        = [];
     plot_options.labels = true_labels;
-    plot_options.title  = 'Kernel PCA Embedding of the Graph';
+    plot_options.title  = emb_name;
     ml_plot_data(x_emb',plot_options);
 end
 
@@ -121,7 +137,7 @@ est_options.true_labels      = true_labels;    % To plot against estimates
 % Fit GMM to Trajectory Data
 tic;
 clear Priors Mu Sigma
-[Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(S, Y_kpca, est_options);
+[Priors, Mu, Sigma, est_labels, stats] = fitgmm_sdp(S, Y, est_options);
 toc;
 
 %%%%%%%%%% Compute Cluster Metrics %%%%%%%%%%%%%
@@ -148,8 +164,9 @@ switch est_options.type
 end
 
 %% Visualize Estimated Parameters
-if M < 4      
-    [h_gmm]  = visualizeEstimatedGMM(Y_kpca,  Priors, Mu, Sigma, est_labels, est_options);
+if M < 4     
+    est_options.emb_name = emb_name;
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
     axis equal
 end
 
@@ -161,15 +178,15 @@ end
 %%                  Compute/Show GMM-Oracle Results                      %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % GMM-Oracle Estimation
-[Priors0, Mu0, Sigma0] = gmmOracle(Y_kpca, true_labels);
-[~, est_labels0]       = my_gmm_cluster(Y_kpca, Priors0, Mu0, Sigma0, 'hard', []);
+[Priors0, Mu0, Sigma0] = gmmOracle(Y, true_labels);
+[~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
 est_K0                 = length(unique(est_labels0));
 [Purity NMI F]         = cluster_metrics(true_labels, est_labels0);
 fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, F);
 if M < 4
     est_options = [];
     est_options.type = -1;        
-    [h_gmm]  = visualizeEstimatedGMM(Y_kpca,  Priors0, Mu0, Sigma0, est_labels0, est_options);
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
     axis equal
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
