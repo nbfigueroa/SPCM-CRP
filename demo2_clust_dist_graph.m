@@ -38,16 +38,18 @@ close all; clear all; clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
-display = 0;  randomize = 0;
-choosen_dataset = 5;
-[sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize);
+display      = 0;       % display SDP matrices (if applicable)
+randomize    = 0;       % randomize idx
+dataset      = 2;       % choosen dataset from index above
+sample_ratio = 1;      % sub-sample dataset [0.0 - 1]
+[sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize, sample_ratio);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 2: Compute Similarity Matrix from SPD-Distances for dataset   %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%% Choose SDP distance %%%%%%%%%%%%%%%%%%%%%%%%
-choosen_distance = 0;  % -2: Euclidean
+choosen_distance = 3;  % -2: Euclidean
                        % -1: Cholesky-Euclidean
                        %  0: Affine-Invariant Riemannian Distance (RIEM)
                        %  1: Log-Euclidean Riemannian Distance (LERM)
@@ -56,7 +58,7 @@ choosen_distance = 0;  % -2: Euclidean
                      
 [D, distance_name] = computeSDP_distances(sigmas, choosen_distance);
       
-%%%%%%% Visualize Bounded Distance (dis-similarity) Matrix %%%%%%%%%%%%%%
+%% %%%%% Visualize Bounded Distance (dis-similarity) Matrix %%%%%%%%%%%%%%
 if exist('h0','var') && isvalid(h0), delete(h0); end
 h0 = plotSimilarityConfMatrix(D, distance_name);
 
@@ -67,16 +69,30 @@ h0 = plotSimilarityConfMatrix(D, distance_name);
 %%%% Embed Objects (Covariance Matrices) in Approximate Euclidean Space %%%%%%
 emb_options = [];
 emb_options.l_sensitivity = 1; % This changes the embedding/results ALOT!
-emb_options.norm_K        = 1;
-emb_options.pow_eigen     = 5;
-emb_options.show_plots    = 1; 
 emb_options.distance_name = distance_name;
+emb_options.norm_K        = 1;   % Normalize the Kernel Matrix
+emb_options.pow_eigen     = 2;   % K^(pow_eigen) for dimensionality selection
+emb_options.show_plots    = 1;   % 0/1 display plots
+emb_options.emb_type      = 1;   % 0: Kernel-PCA from Distances 
+                                 % 1: Diffusion Maps with Distances 
+switch emb_options.emb_type
+    case 0
 
-[x_emb, Y, K, l] = distKernelPCA_Embedding(D, emb_options);
-l
+        [x_emb, Y, K, l] = distKernelPCA_Embedding(D, emb_options);
+        emb_name = strcat('Kernel PCA on ',{' '}, distance_name);
+        
+    case 1
+        % Time-steps for diffusion process
+        emb_options.t              = 4;
+        % Markov Chain Probability Matrix Construction Style (see function)
+        emb_options.markov_constr  = 1;
+        [x_emb, Y, K, l] = diffusionMap_Embedding(D, emb_options);
+        eps = 1/l
+        emb_name = strcat('Diffusion Maps on ',{' '}, distance_name);
+end
+
 M = size(Y,1);
 show_emb = 0; 
-emb_name = strcat('Kernel PCA on ',{' '}, distance_name);
 
 %%%%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
 plot_options        = [];
@@ -90,7 +106,7 @@ if show_emb
     plot_options        = [];
     plot_options.labels = true_labels;
     plot_options.title  = emb_name{1};
-    ml_plot_data(x_emb',plot_options);
+    ml_plot_data(x_emb(1:8,:)',plot_options);
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +136,7 @@ h0 = plotSimilarityConfMatrix(K, 'B-SCPM Similarity function');
 est_options = [];
 est_options.type             = 0;
 % If algo 1 selected:
-est_options.maxK             = 10;  % Maximum Gaussians for Type 1
+est_options.maxK             = 10;  % Ma ximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:

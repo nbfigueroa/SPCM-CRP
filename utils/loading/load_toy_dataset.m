@@ -281,14 +281,14 @@ if strcmp(type,'6d')
     behavs_theta6toy = [];
     
     
-    tot_1=30;tot_2=30;tot_3=30;
+    tot_1=100;tot_2=100;tot_3=100;
     
     tot = tot_1;
     rows = floor(sqrt(tot));
     cols = ceil(tot/rows);
     if display == 1, figure('Color',[1 1 1]); suptitle('Toy 6D Covariance Matrices Dataset pt.1'); end    
     for i=1:tot
-        D = diag(abs(diag(eye(6))*randn));
+        D = diag(abs(diag(eye(6))*randn*100));
         [Q R] = qr(randn(6,6));
         behavs_theta6toy{i} = Q*(D)*Q';
         if display == 1
@@ -301,14 +301,14 @@ if strcmp(type,'6d')
     end
  
     
-    lambda = [1 10 10 10 1 1];
+    lambda = [10 10 10 1 1 1];
     if display == 1, figure('Color',[1 1 1]);suptitle('Toy 6D Covariance Matrices Dataset pt.2'); end
     iter = 1;
     tot = tot_2;
     rows = floor(sqrt(tot));
     cols = ceil(tot/rows);
     for i=tot+1:2*tot
-        D = diag(abs(lambda*randn)*0.5);
+        D = diag(abs(lambda*randn)*5);
         [Q R] = qr(randn(6,6));
         behavs_theta6toy{i} = Q*(D)*Q';
         if display == 1

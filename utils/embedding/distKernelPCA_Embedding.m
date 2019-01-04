@@ -21,7 +21,7 @@ function [x_emb, x_emb_apprx, S, l] = distKernelPCA_Embedding(D, emb_options)
 l_sensitivity = emb_options.l_sensitivity;
 norm_K        = emb_options.norm_K;
 pow_eigen     = emb_options.pow_eigen;
-show_plots    = emb_options.show_plots 
+show_plots    = emb_options.show_plots; 
 distance_name = emb_options.distance_name;
 
 % Contruct Kernel Matrix
@@ -56,8 +56,6 @@ K(isinf(K)) = 0;
 
 % Compute first no_dims eigenvectors and store these in V, store corresponding eigenvalues in L
 disp('Eigenanalysis of kernel matrix...');
-K(isnan(K)) = 0;
-K(isinf(K)) = 0;
 [V, L] = eig(K);
 
 % Sort eigenvalues and eigenvectors in descending order

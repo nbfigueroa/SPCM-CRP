@@ -39,9 +39,11 @@ close all; clear all; clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
-display = 0;  randomize = 0;
-choosen_dataset = 2;
-[sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize);
+display      = 1;       % display SDP matrices (if applicable)
+randomize    = 0;       % randomize idx
+dataset      = 1;       % choosen dataset from index above
+sample_ratio = 1;       % sub-sample dataset [0.0 - 1]
+[sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize, sample_ratio);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 2: Compute Similarity Matrix from B-SPCM Function for dataset   %%
@@ -61,6 +63,11 @@ if exist('h0','var') && isvalid(h0), delete(h0); end
 title_str = 'Bounded Similarity (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
+if exist('h1','var') && isvalid(h1), delete(h1); end
+title_str = 'SPCM Dis-similarity Matrix';
+h1 = plotSimilarityConfMatrix(D, title_str);
+
+
 % Compute Negative Eigenfraction of similarity matrix (NEF)
 lambda_S = eig(S);
 NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
@@ -72,17 +79,17 @@ NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
 % Choose Embedding implementation
 show_plots = 0;          % Show plot of similarity matrices+eigenvalues   
 pow_eigen  = 5;          % (L^+)^(pow_eigen) for dimensionality selection 
-emb_type   = 1;          % 0: Graph-Subspace Projection
+emb_type   = 0;          % 0: Graph-Subspace Projection
                          % 1: Kernel-PCA on L^+
 switch emb_type
     case 0        
         [x_emb, Y] = graphEuclidean_Embedding(S, show_plots, pow_eigen);
-        emb_name = 'Graph-Subspace Projection';
+        emb_name = '(SPCM) Graph-Subspace Projection';
         
     case 1        
         norm_K = 1; % Choose to normalize K, ends up being unneccesary for L^+
         [x_emb, Y] = graphKernelPCA_Embedding(S, show_plots, norm_K, pow_eigen);
-        emb_name = 'Graph Kernel PCA Projection';
+        emb_name = '(SPCM) SPCM Graph Kernel PCA Projection';
 end
 
 M = size(Y,1);
@@ -121,7 +128,7 @@ est_options.maxK             = 9;  % Maximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
-est_options.samplerIter      = 1000;   % Maximum Sampler Iterations
+est_options.samplerIter      = 100;   % Maximum Sampler Iterations
                                       % For type 0: 50-200 iter are needed
                                       % For type 2: 200-1000 iter are needed
 

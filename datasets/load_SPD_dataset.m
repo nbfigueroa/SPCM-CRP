@@ -1,4 +1,4 @@
-function[sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize)
+function[sigmas, true_labels, dataset_name] = load_SPD_dataset(choosen_dataset, pkg_dir, display, randomize, varargin)
 
 data_path = strcat(pkg_dir,'/datasets/');      
 switch choosen_dataset
@@ -86,5 +86,31 @@ switch choosen_dataset
         
 end
         
+if nargin == 5    
+    % input
+    sample_ratio = varargin{1};
+    
+    % sampling
+    classes         = unique(true_labels);
+    idx_per_class   = [];
+    new_true_labels = [];
+    for c=1:length(classes)
+        idx_per_class{c} = find(true_labels == classes(c));
+        new_idx_class{c} = randsample(idx_per_class{c},ceil(length(idx_per_class{c})*sample_ratio));
+        new_true_labels = [new_true_labels ones(1,length(new_idx_class{c}))*classes(c)];
+    end
+    new_sigmas = []; idx = 1;
+    for c=1:length(new_idx_class)
+        new_idx = new_idx_class{c};
+        for i=1:length(new_idx)
+            new_sigmas{1,idx} = sigmas{new_idx(i)};
+            idx = idx + 1;
+        end
+    end
+    
+    % output
+    true_labels = new_true_labels;
+    sigmas = new_sigmas;
+end
 
 end
