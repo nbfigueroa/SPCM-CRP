@@ -1,4 +1,4 @@
-function [spcm] = ComputeSPCMfunctionMatrix(Sigmas, tau)
+function [spcm] = ComputeSPCMfunctionMatrix(Sigmas, tau, dis_type)
 
 
 n    = length(Sigmas);
@@ -9,7 +9,7 @@ tic;
 % Upper triangular
 for i=1:n
     for j=i:n
-        [b_sim s hom_fact dir] = ComputeSPCMPair(Sigmas{i},Sigmas{j}, tau);
+        [b_sim s hom_fact dir] = ComputeSPCMPair(Sigmas{i},Sigmas{j}, tau, dis_type);
         
         spcm(i,j,1) = s;
         spcm(i,j,2) = b_sim;
@@ -26,7 +26,7 @@ end
 
 % Diagonal
 for i=1:n
-        [b_sim s hom_fact dir] = ComputeSPCMPair(Sigmas{i},Sigmas{i}, tau);
+        [b_sim s hom_fact dir] = ComputeSPCMPair(Sigmas{i},Sigmas{i}, tau, dis_type);
         spcm(i,i,1) = s;
         spcm(i,i,2) = b_sim;
         spcm(i,i,3) = hom_fact;

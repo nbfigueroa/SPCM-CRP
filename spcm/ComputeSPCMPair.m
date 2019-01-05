@@ -1,4 +1,4 @@
-function [f_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
+function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, dis_type)
        
         dim = size(Sigma_i,1);
         
@@ -17,8 +17,8 @@ function [f_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
         for k=1:length(Dj)
             eig_i(k,1) = norm(Xi(:,k));
             eig_j(k,1) = norm(Xj(:,k));
-        end
-        
+        end   
+
         %Homothetic factors and means
         hom_fact_ij = eig_i./eig_j;
         mean_ij = mean(hom_fact_ij);
@@ -38,22 +38,39 @@ function [f_sim spcm mean_fact dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau)
                         
         % Homothetic mean factor 
         mean_fact = mean(hom_fact);
-               
-        % Pure similarity value; either variance or coeff of variation
-        spcm_val = var(hom_fact);
-%         spcm_val = getCV(hom_fact);
-        
-        % Spectral similarity value  (Eq.8 from [1])  +++ function way +++
-        delta_ij = mean_ij - mean_ji;
-        H = heavy(delta_ij);
-        spcm = H*spcm_val + (1-H)*spcm_val;
+        switch dis_type
+            case 1
+                % Pure similarity value, using the variance
+                spcm_val = var(hom_fact);
                 
-        % Scaling function (Eq.9 from [1])
-        upsilon = 10^(tau*exp(-dim));
+                % Spectral similarity value  (Eq.8 from [1])  +++ function way +++
+                delta_ij = mean_ij - mean_ji;
+                H = heavy(delta_ij);
+                spcm = H*spcm_val + (1-H)*spcm_val;
+                
+                % Scaling function (Eq.9 from [1])
+                upsilon = 10^(tau*exp(-dim));
+                
+                % B-SPCM f(delta_ij,tau) =
+                % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
+                f_sim = 1/(1+spcm*upsilon);
 
-        % B-SPCM f(delta_ij,tau) = 
-        % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
-        f_sim = 1/(1+spcm*upsilon);
+            
+            case 2
+                % Pure dis-similarity value, using the coeff of variation
+                spcm_val = getCV(hom_fact);
+
+                % Spectral similarity value  (Eq.8 from [1])  +++ function way +++
+                delta_ij = mean_ij - mean_ji;
+                H = heavy(delta_ij);
+                spcm = H*spcm_val + (1-H)*spcm_val;
+                
+                % B-SPCM f(delta_ij,tau) =
+                % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
+                f_sim = exp(-(dim/2)*spcm);    
+            
+        end
+
         
 end
 

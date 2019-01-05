@@ -7,14 +7,14 @@ switch choosen_dataset
         % This function loads the 3-D ellipsoid dataset used to generate Fig. 3, 4 
         % and 5 from Section 4 and the results in Section 7 in the accompanying paper.
          dataset_name = 'Toy 3D';
-        [sigmas, true_labels] = load_toy_dataset('3d_v2', display, randomize);
+        [sigmas, true_labels] = load_toy_dataset(0, display, randomize);
         
     case 2
         % 2)  Toy 6D dataset, 60 Samples, 3 clusters (c1:20, c2:20, c3: 20)
         % This function loads the 6-D ellipsoid dataset used to generate Fig. 6 and 
         % from Section 4 and the results in Section 8 in the accompanying paper.
         dataset_name = 'Toy 6D';
-        [sigmas, true_labels] = load_toy_dataset('6d', display, randomize);
+        [sigmas, true_labels] = load_toy_dataset(1, display, randomize);
         
     case 3
         % 3) Real 6D dataset, task-ellipsoids, 105 Samples, 3 clusters 

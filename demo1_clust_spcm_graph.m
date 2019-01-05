@@ -39,31 +39,33 @@ close all; clear all; clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
-display      = 1;       % display SDP matrices (if applicable)
+display      = 0;       % display SDP matrices (if applicable)
 randomize    = 0;       % randomize idx
-dataset      = 1;       % choosen dataset from index above
-sample_ratio = 1;       % sub-sample dataset [0.0 - 1]
+dataset      = 4;       % choosen dataset from index above
+sample_ratio = 1;       % sub-sample dataset [0.01 - 1]
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize, sample_ratio);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 2: Compute Similarity Matrix from B-SPCM Function for dataset   %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+dis_type = 1; % Choose dis-similarity type 
+              % 1:'var' use the variance of homothetic ratios
+              % 2:'cv'  use the coefficient of variation of homo. ratios
 
-% %%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%%%
-spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
+% %%%%%%%%%%%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%
+spcm = ComputeSPCMfunctionMatrix(sigmas, 1, dis_type);  
 D    = spcm(:,:,1);
 S    = spcm(:,:,2);
 
 %%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
-if exist('h0','var') && isvalid(h0), delete(h0); end
+% if exist('h0','var') && isvalid(h0), delete(h0); end
 title_str = 'Bounded Similarity (B-SPCM) Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
-if exist('h1','var') && isvalid(h1), delete(h1); end
+% if exist('h1','var') && isvalid(h1), delete(h1); end
 title_str = 'SPCM Dis-similarity Matrix';
 h1 = plotSimilarityConfMatrix(D, title_str);
 
@@ -78,7 +80,7 @@ NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
    
 % Choose Embedding implementation
 show_plots = 0;          % Show plot of similarity matrices+eigenvalues   
-pow_eigen  = 5;          % (L^+)^(pow_eigen) for dimensionality selection 
+pow_eigen  = 2;          % (L^+)^(pow_eigen) for dimensionality selection 
 emb_type   = 0;          % 0: Graph-Subspace Projection
                          % 1: Kernel-PCA on L^+
 switch emb_type
@@ -113,9 +115,10 @@ end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 4: Discover Clusters of Covariance Matrices          %%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Discover Clusters with different GMM-based Clustering Variants on Embedding %%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Discover Clusters with GMM-based Clustering Variants on Embedding %%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 0: sim-CRP-MM (Collapsed Gibbs Sampler) on Preferred Embedding
 % 1: GMM-EM Model Selection via BIC on Preferred Embedding
 % 2: CRP-GMM (Gibbs Sampler/Collapsed) on Preferred Embedding
@@ -124,7 +127,7 @@ est_options = [];
 est_options.type             = 0;   % Clustering Estimation Algorithm Type   
 
 % If algo 1 selected:
-est_options.maxK             = 9;  % Maximum Gaussians for Type 1
+est_options.maxK             = 9;   % Maximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
@@ -170,7 +173,7 @@ end
 if M < 4     
     est_options.emb_name = emb_name;
     [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
-    axis equal
+    axis equal;
 end
 
 % TODO: Need to re-implement this function/has some problems when |k|>|c|
@@ -187,12 +190,14 @@ est_K0                 = length(unique(est_labels0));
 [Purity NMI F]         = cluster_metrics(true_labels, est_labels0);
 fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, F);
 if M < 4
-    est_options = [];
-    est_options.type = -1;        
-    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
+    oracle_options = [];
+    oracle_options.type = -1;        
+    oracle_options.emb_name = emb_name;
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, oracle_options);
     axis equal
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Visualize Estimated Cluster Labels as DTI

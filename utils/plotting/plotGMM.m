@@ -1,4 +1,4 @@
-function [h_gauss, h_ctr] = plotGMM(Mu, Sigma, color, display_mode, varargin);
+function [h_gauss, h_ctr] = plotGMM(Mu, Sigma, color, display_mode, varargin)
 %
 % This function plots a representation of the components (means and 
 % covariance amtrices) of a Gaussian Mixture Model (GMM) or a
