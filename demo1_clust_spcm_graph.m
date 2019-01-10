@@ -41,7 +41,7 @@ close all; clear all; clc
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
 display      = 0;       % display SDP matrices (if applicable)
 randomize    = 0;       % randomize idx
-dataset      = 4;       % choosen dataset from index above
+dataset      = 1;       % choosen dataset from index above
 sample_ratio = 1;       % sub-sample dataset [0.01 - 1]
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize, sample_ratio);
 
