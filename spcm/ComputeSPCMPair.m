@@ -68,6 +68,21 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
                 % B-SPCM f(delta_ij,tau) =
                 % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
                 f_sim = exp(-(dim/2)*spcm);    
+
+            case 3
+                % Pure dis-similarity value, using the coeff of variation
+                % unbiased estimator
+                spcm_val = (1+1/(4*dim))*getCV(hom_fact);
+
+                % Spectral similarity value  (Eq.8 from [1])  +++ function way +++
+                delta_ij = mean_ij - mean_ji;
+                H = heavy(delta_ij);
+                spcm = H*spcm_val + (1-H)*spcm_val;
+                
+                % B-SPCM f(delta_ij,tau) =
+                % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
+                f_sim = exp(-(dim/2)*spcm);    
+
             
         end
 
