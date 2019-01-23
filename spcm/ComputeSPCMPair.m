@@ -10,9 +10,11 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
         [Vj, Dj] = sortem(Vj,Dj);
         
         %Structural of Spectral Polytope
-        Xi = Vi*Di^1/2;
-        Xj = Vj*Dj^1/2;
-                
+%         Xi = Vi*Di^1/2;
+%         Xj = Vj*Dj^1/2;
+        Xi = Vi*Di;
+        Xj = Vj*Dj;        
+        
         %Norms of Spectral Polytope Vectors
         for k=1:length(Dj)
             eig_i(k,1) = norm(Xi(:,k));
@@ -67,7 +69,7 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
                 
                 % B-SPCM f(delta_ij,tau) =
                 % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
-                f_sim = exp(-(dim/2)*spcm);    
+                f_sim = exp(-(1/2)*dim*spcm);    
 
             case 3
                 % Pure dis-similarity value, using the coeff of variation

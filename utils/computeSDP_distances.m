@@ -25,6 +25,10 @@ switch dist_type
         %%%%%%%%%%%% 'JBLD': Jensen-Bregman LogDet Divergence %%%%%%%%%%%%
         D = compute_cov_sim( sigmas, 'JBLD' );
         distance_name = 'Jensen-Bregman LogDet Divergence';
+    case 4
+        %%%%%%%%%%%% 'SROT': Minimum Scale-Rotation Curve Distance %%%%%%%%%%%%
+        D = compute_cov_sim( sigmas, 'SROT' );
+        distance_name = 'Minimum Scale Rotation Curve Distance';
 end
 
 end

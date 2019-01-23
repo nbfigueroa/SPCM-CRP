@@ -25,15 +25,15 @@ sigma_test = [];
 sigma_test(:,:,1) = diag([1.25 1.25 5]);
 for k=2:20
     ani_scale         = eye(3);
-    ani_scale(2,2)    = 0.5 + sqrt(k/20 * 4.5);
-%     ani_scale    = (0.5 + sqrt(k/20 * 4.5) )* ani_scale;
+%     ani_scale(2,2)    = 0.5 + sqrt(k/20 * 4.5);
+    ani_scale    = (0.5 + sqrt(k/20 * 4.5) )* ani_scale;
     sigma_test(:,:,k) = ani_scale*sigma_test(:,:,1)*ani_scale';
 end
 
 pitch = 0; yaw= 0;
 rolls = 0.1570:0.0785:pi/2+0.0785;
 for k=21:40
-    R_0 = eul2rotm([yaw,pitch,-rolls(k-20)]);
+    R_0 = eul2rotm([yaw,pitch,-rolls(k-20)/1.5]);
     sigma_test(:,:,k) = R_0*sigma_test(:,:,k-20)*R_0';
 end
 
@@ -315,15 +315,9 @@ for k=1:1:length(Mu_test)-1
         if dot_z < 0                         
             P(:,3) = -P(:,3);
         end        
-%         if (k == 21) || (k == 28)
-        if (k == 21) || (k == 30)
+        if (k == 21) || (k == 28)
             P(:,1) = -P(:,1);
-            if (k == 30)
-                P(:,1) = -P(:,1);
-%                 P(:,2) = -P(:,2);
-                P(:,3) = -P(:,3);
-            end
-        end
+        end        
         
         arrow3(Mu_test(:,k), P(:,1), 'k'); hold on;
         arrow3(Mu_test(:,k), P(:,2), 'k'); hold on;

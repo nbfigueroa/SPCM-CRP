@@ -51,7 +51,7 @@ sample_ratio = 1;       % sub-sample dataset [0.01 - 1]
 
 % %%%%%%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Tolerance for SPCM decay function 
-dis_type = 1; % Choose dis-similarity type 
+dis_type = 2; % Choose dis-similarity type 
               % 1:'var' use the variance of homothetic ratios
               % 2:'cv'  use the coefficient of variation of homo. ratios
 
@@ -62,7 +62,7 @@ S    = spcm(:,:,2);
 
 %%%%%%% Visualize Bounded Similarity Confusion Matrix %%%%%%%%%%%%%%
 % if exist('h0','var') && isvalid(h0), delete(h0); end
-title_str = 'Bounded Similarity (B-SPCM) Matrix';
+title_str = 'SPCM Similarity Matrix';
 h0 = plotSimilarityConfMatrix(S, title_str);
 
 % if exist('h1','var') && isvalid(h1), delete(h1); end
@@ -80,8 +80,8 @@ NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
    
 % Choose Embedding implementation
 show_plots = 0;          % Show plot of similarity matrices+eigenvalues   
-pow_eigen  = 2;          % (L^+)^(pow_eigen) for dimensionality selection 
-emb_type   = 0;          % 0: Graph-Subspace Projection
+pow_eigen  = 4;          % (L^+)^(pow_eigen) for dimensionality selection 
+emb_type   = 1;          % 0: Graph-Subspace Projection
                          % 1: Kernel-PCA on L^+
 switch emb_type
     case 0        
@@ -91,7 +91,7 @@ switch emb_type
     case 1        
         norm_K = 1; % Choose to normalize K, ends up being unneccesary for L^+
         [x_emb, Y] = graphKernelPCA_Embedding(S, show_plots, norm_K, pow_eigen);
-        emb_name = '(SPCM) SPCM Graph Kernel PCA Projection';
+        emb_name = '(SPCM) Graph Kernel PCA Projection';
 end
 
 M = size(Y,1);
@@ -127,13 +127,13 @@ est_options = [];
 est_options.type             = 0;   % Clustering Estimation Algorithm Type   
 
 % If algo 1 selected:
-est_options.maxK             = 9;   % Maximum Gaussians for Type 1
+est_options.maxK             = 15;   % Maximum Gaussians for Type 1
 est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
 est_options.samplerIter      = 100;   % Maximum Sampler Iterations
-                                      % For type 0: 50-200 iter are needed
-                                      % For type 2: 200-1000 iter are needed
+                                     % For type 0: 50-200 iter are needed
+                                     % For type 2: 200-1000 iter are needed
 
 % Plotting options
 est_options.do_plots         = 1;              % Plot Estimation Stats

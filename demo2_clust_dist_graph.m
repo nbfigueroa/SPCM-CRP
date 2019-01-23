@@ -49,7 +49,7 @@ sample_ratio = 1;      % sub-sample dataset [0.0 - 1]
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%% Choose SDP distance %%%%%%%%%%%%%%%%%%%%%%%%
-choosen_distance = 3;  % -2: Euclidean
+choosen_distance = 1;  % -2: Euclidean
                        % -1: Cholesky-Euclidean
                        %  0: Affine-Invariant Riemannian Distance (RIEM)
                        %  1: Log-Euclidean Riemannian Distance (LERM)
@@ -71,9 +71,9 @@ emb_options = [];
 emb_options.l_sensitivity = 1; % This changes the embedding/results ALOT!
 emb_options.distance_name = distance_name;
 emb_options.norm_K        = 1;   % Normalize the Kernel Matrix
-emb_options.pow_eigen     = 2;   % K^(pow_eigen) for dimensionality selection
+emb_options.pow_eigen     = 4;   % K^(pow_eigen) for dimensionality selection
 emb_options.show_plots    = 1;   % 0/1 display plots
-emb_options.emb_type      = 1;   % 0: Kernel-PCA from Distances 
+emb_options.emb_type      = 0;   % 0: Kernel-PCA from Distances 
                                  % 1: Diffusion Maps with Distances 
 switch emb_options.emb_type
     case 0
@@ -83,7 +83,7 @@ switch emb_options.emb_type
         
     case 1
         % Time-steps for diffusion process
-        emb_options.t              = 4;
+        emb_options.t              = 2;
         % Markov Chain Probability Matrix Construction Style (see function)
         emb_options.markov_constr  = 1;
         [x_emb, Y, K, l] = diffusionMap_Embedding(D, emb_options);
@@ -118,10 +118,10 @@ end
 tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
 
 %%%%%%%%%%%%%%%%%%% Compute SPCM Similarities %%%%%%%%%%%%%%%%%%
-spcm = ComputeSPCMfunctionMatrix(sigmas, tau);  
+spcm = ComputeSPCMfunctionMatrix(sigmas, tau, 2);  
 K    = spcm(:,:,2);
 if exist('h0','var') && isvalid(h0), delete(h0); end
-h0 = plotSimilarityConfMatrix(K, 'B-SCPM Similarity function');
+h0 = plotSimilarityConfMatrix(K, 'SCPM Similarity function');
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 4: Discover Clusters of Covariance Matrices          %%
@@ -207,6 +207,7 @@ if M < 4
     [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
     axis equal
 end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

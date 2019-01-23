@@ -19,11 +19,12 @@ end
 
 % Get Cholesky factor for inv(sigma) unless that's already done
 if nargin<3
-    %     [d,p] = chol(sigma,0);
-    %     if p~=0
-    %         error('stats:iwishrnd:BadCovariance',...
-    %             'Covariance matrix must be symmetric and positive definite.');
-    %     end
+    [d,p] = chol(sigma)
+    if p~=0
+        error('stats:iwishrnd:BadCovariance',...
+            'Covariance matrix must be symmetric and positive definite.');
+    end
+
     d = chol(sigma);
     di = d'\eye(size(d));  % either take inverse here and scale chol of
     %randwishart sample and then take inverse of sample, or take inverse of

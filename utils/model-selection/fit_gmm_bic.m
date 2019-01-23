@@ -43,11 +43,11 @@ bic_scores_diff  = [0 diff(bic_scores)];
 bic_scores_diff2 = [0 diff(bic_scores_diff)];
 
 % Find optimal value on RSS curve
-[~, opt_Ks_BIC_line] = ml_curve_opt(bic_scores,'line');
+[~, opt_Ks_BIC_line] = ml_curve_opt(bic_scores,'line')
 opt_BIC_vals_line    = bic_scores(opt_Ks_BIC_line);
 
 % Other options with the 'derivatives' approach
-[~, opt_Ks_BIC_der] = ml_curve_opt(bic_scores,'derivatives');
+[~, opt_Ks_BIC_der] = ml_curve_opt(bic_scores,'derivatives')
 opt_BIC_vals_der    = bic_scores(opt_Ks_BIC_der);
 
 if opt_Ks_BIC_line < opt_Ks_BIC_der(1)
@@ -56,9 +56,9 @@ else
     chosen_k = opt_Ks_BIC_line;
 end
 
+optimal_ks = sort([opt_Ks_BIC_line opt_Ks_BIC_der], 'ascend')
 
-% Select the point before this
-k = chosen_k;
+k = optimal_ks(1);
 best_BIC = bic_scores(k);
 
 % Plot Results

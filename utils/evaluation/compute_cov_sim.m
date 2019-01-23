@@ -59,6 +59,11 @@ for i=1:N
             case 'JBLD'
                 % Jensen-Bregman LogDet Divergence
                 D(i,j) = sqrt(logm(det((X+Y)/2)) - 1/2*logm(det(X*Y)));
+            
+            case 'SROT'
+               % Minimum Scale-Rotation Curve Distance
+               [dist, ~]=MSRcurve(X,Y);
+               D(i,j) = dist;
         end
        
     end

@@ -133,7 +133,7 @@ invsqrtL = diag(1 ./ diag(sqrtL));
 % Compute the new embedded points of K
 %y = 1/lambda * sum(alpha)'s * Kernel
 % y = sqrtL(1:p,1:p) * V(:,1:p)';
-x_emb_apprx = sqrtL * V_red';          % = invsqrtL * V'* K
+x_emb_apprx = real(sqrtL * V_red');          % = invsqrtL * V'* K
 % x_emb_apprx = invsqrtL * V_red'* K;
 
 % Plot eigenvalues of matrices
