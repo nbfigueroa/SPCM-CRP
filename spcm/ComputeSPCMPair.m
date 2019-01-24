@@ -10,15 +10,17 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
         [Vj, Dj] = sortem(Vj,Dj);
         
         %Structural of Spectral Polytope
-%         Xi = Vi*Di^1/2;
-%         Xj = Vj*Dj^1/2;
-        Xi = Vi*Di;
-        Xj = Vj*Dj;        
+        Pi = Vi*Di;
+        Pj = Vj*Dj;        
         
         %Norms of Spectral Polytope Vectors
         for k=1:length(Dj)
-            eig_i(k,1) = norm(Xi(:,k));
-            eig_j(k,1) = norm(Xj(:,k));
+%             eig_i(k,1) = norm(Pi(:,k));
+%             eig_j(k,1) = norm(Pj(:,k));
+            
+            eig_i(k,1) = Di(k,k);
+            eig_j(k,1) = Dj(k,k);
+            
         end   
 
         %Homothetic factors and means

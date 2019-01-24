@@ -37,6 +37,32 @@ for k=21:40
     sigma_test(:,:,k) = R_0*sigma_test(:,:,k-20)*R_0';
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%     Plotting the concept of homothetic ratios     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+figure('Color',[1 1 1])
+D = eye(3)
+lambda_1 = [1 1 2];
+lambda_2 = [2 2 2];
+origin = zeros(3,1);
+
+% Draw Eigenvectors/Principal Axes
+P = [lambda_1(1)*D(:,1) lambda_1(2)*D(:,2) lambda_1(3)*D(:,3)]
+arrow3(origin, P(:,1), 'k'); hold on;
+arrow3(origin, P(:,2), 'k'); hold on;
+arrow3(origin, P(:,3), 'k'); hold on;
+fill3(P(1,:),P(2,:),P(3,:),'k','FaceAlpha',0.25); hold on;
+
+P = [lambda_2(1)*D(:,1) lambda_2(2)*D(:,2) lambda_2(3)*D(:,3)]
+arrow3(origin, P(:,1), 'r'); hold on;
+arrow3(origin, P(:,2), 'r'); hold on;
+arrow3(origin, P(:,3), 'r'); hold on;
+fill3(P(1,:),P(2,:),P(3,:),'r','FaceAlpha',0.25); hold on;
+
+axis equal
+grid off
+axis off
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%     Test 2 (Metric): Spectral Polytope Representation     %%
@@ -382,11 +408,11 @@ spcm = ComputeSPCMfunctionMatrix(new_sigmas, 1, dis_type);
 D_cv    = spcm(:,:,1);
 S_cv    = spcm(:,:,2);
 
-if exist('h1a','var') && isvalid(h1a), delete(h1a); end
+% if exist('h1a','var') && isvalid(h1a), delete(h1a); end
 title_str = 'SPCM (var) Dis-similarity Matrix';
 h1a = plotSimilarityConfMatrix(D_var, title_str);
 
-if exist('h1b','var') && isvalid(h1b), delete(h1b); end
+% if exist('h1b','var') && isvalid(h1b), delete(h1b); end
 title_str = 'SPCM (cv) Dis-similarity Matrix';
 h1b = plotSimilarityConfMatrix(D_cv, title_str);
 
