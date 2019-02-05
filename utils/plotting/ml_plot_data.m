@@ -121,7 +121,7 @@ else
 
         elseif ~isempty(cmap)
            scatter(X(:,1), X(:,2), points_size, cmap,'filled','MarkerEdgeColor', [0 0 0]);
-           colormap(jet)
+           colormap(hsv)
            colorbar            
         else
             scatter(X(:,1),X(:,2),points_size,'filled','MarkerEdgeColor', [0 0 0]);
@@ -137,7 +137,7 @@ else
             end
         elseif ~isempty(cmap)
            scatter3(X(:,1), X(:,2), X(:,3), points_size, cmap,'filled','MarkerEdgeColor', [0 0 0]);
-           colormap(jet)
+           colormap(hsv)
            colorbar
         else
             scatter3(X(:,1),X(:,2),X(:,3),points_size,'filled');
@@ -194,13 +194,13 @@ elseif D <= 3
     
         if isempty(plot_labels)
             if D >= 1
-                xlabel({'$x_1$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+                xlabel({'$y_1$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
             if D >= 2
-                ylabel({'$x_2$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+                ylabel({'$y_2$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
             if D == 3
-                zlabel({'$x_3$'} ,'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+                zlabel({'$y_3$'} ,'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
         else
             if D >= 1

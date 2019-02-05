@@ -1,4 +1,4 @@
-function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, dis_type)
+function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j, gamma, dis_type)
        
         dim = size(Sigma_i,1);
         
@@ -15,19 +15,17 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
         
         %Norms of Spectral Polytope Vectors
         for k=1:length(Dj)
-%             eig_i(k,1) = norm(Pi(:,k));
-%             eig_j(k,1) = norm(Pj(:,k));
-            
+%             eig_i(k,1) = norm(Pi(:,k))
+%             eig_j(k,1) = norm(Pj(:,k));            
             eig_i(k,1) = Di(k,k);
-            eig_j(k,1) = Dj(k,k);
-            
+            eig_j(k,1) = Dj(k,k);            
         end   
 
         %Homothetic factors and means
-        hom_fact_ij = eig_i./eig_j;
+        hom_fact_ij = real(eig_i./eig_j);
         mean_ij = mean(hom_fact_ij);
         
-        hom_fact_ji = eig_j./eig_i;               
+        hom_fact_ji = real(eig_j./eig_i) ;              
         mean_ji = mean(hom_fact_ji);
         
         
@@ -38,8 +36,8 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
         else
             dir = -1;
             hom_fact = hom_fact_ij;
-        end          
-                        
+        end     
+        
         % Homothetic mean factor 
         mean_fact = mean(hom_fact);
         switch dis_type
@@ -52,11 +50,14 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
                 H = heavy(delta_ij);
                 spcm = H*spcm_val + (1-H)*spcm_val;
                 
+                
                 % Scaling function (Eq.9 from [1])
+                tau = 1;
                 upsilon = 10^(tau*exp(-dim));
                 
                 % B-SPCM f(delta_ij,tau) =
                 % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
+                spcm = var(hom_fact_ij);
                 f_sim = 1/(1+spcm*upsilon);
 
             
@@ -69,9 +70,8 @@ function [f_sim, spcm, mean_fact, dir] = ComputeSPCMPair(Sigma_i,Sigma_j,tau, di
                 H = heavy(delta_ij);
                 spcm = H*spcm_val + (1-H)*spcm_val;
                 
-                % B-SPCM f(delta_ij,tau) =
-                % 1/( 1 + s(Sigma_i,Sigma_j)*upsilon(tau,dim))
-                f_sim = exp(-(1/2)*dim*spcm);    
+                % B-SPCM f(delta_ij,tau) = exp(spcm)
+                f_sim = exp(-gamma*spcm);    
 
             case 3
                 % Pure dis-similarity value, using the coeff of variation

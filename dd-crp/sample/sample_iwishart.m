@@ -19,7 +19,7 @@ end
 
 % Get Cholesky factor for inv(sigma) unless that's already done
 if nargin<3
-    [d,p] = chol(sigma)
+    [d,p] = chol(sigma);
     if p~=0
         error('stats:iwishrnd:BadCovariance',...
             'Covariance matrix must be symmetric and positive definite.');

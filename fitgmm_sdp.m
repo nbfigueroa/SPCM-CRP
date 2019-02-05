@@ -73,7 +73,7 @@ switch est_type
         end
         if strcmp(options.type,'full')
             lambda.nu_0        = M ;                       % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-            lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M;  % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+%             lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M;  % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
             lambda.Lambda_0    = 1/M * diag(diag(cov(Y')));         % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 
         end
