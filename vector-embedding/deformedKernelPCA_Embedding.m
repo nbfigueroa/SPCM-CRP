@@ -35,6 +35,20 @@ if show_plots
     plotSimilarityConfMatrix(K, title_str);
 end
 
+% Store the number of training and test points
+ell = size(K, 1);
+    
+% Normalize kernel matrix K
+if norm_K == true
+    disp('Normalizing kernel (Gram) matrix...');
+    column_sums = sum(K) / ell;                  % column sums
+    total_sum   = sum(column_sums) / ell;        % total sum
+    J = ones(ell, 1) * column_sums;              % column sums (in matrix)
+    K = K - J - J';
+    K = K + total_sum;
+    S_SP = K;
+end
+
 % Manifold adaptive kernel
 if (deform_kernel == 1)
     % Construct Laplacian from SPCM similarity (kernel)
@@ -57,19 +71,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 tic;
 
-% Store the number of training and test points
-ell = size(K, 1);
-    
-% Normalize kernel matrix K
-if norm_K == true
-    disp('Normalizing kernel (Gram) matrix...');
-    column_sums = sum(K) / ell;                  % column sums
-    total_sum   = sum(column_sums) / ell;        % total sum
-    J = ones(ell, 1) * column_sums;              % column sums (in matrix)
-    K = K - J - J';
-    K = K + total_sum;
-    S_SP = K;
-end
+
 K(isnan(K)) = 0;
 K(isinf(K)) = 0;
 

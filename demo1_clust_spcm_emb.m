@@ -10,7 +10,7 @@
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% 23-May-2017; Last revision: 28-Dec-2018;
+% December 2018; Last revision: 10-Feb-2019
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -41,9 +41,22 @@ close all; clear all; clc
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
 display      = 0;       % display SDP matrices (if applicable)
 randomize    = 0;       % randomize idx
-dataset      = 4;       % choosen dataset from index above
-sample_ratio = 0.5;      % sub-sample dataset [0.01 - 1]
-[sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize, sample_ratio);
+dataset      = 1;       % choosen dataset from index above
+sample_ratio = 1;       % sub-sample dataset [0.01 - 1]
+[sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display);
+
+% Generate Random Labels for Baseline Clustering Comparison
+M = length(sigmas);
+if exist('true_labels', 'var')
+    K = length(unique(true_labels));
+end
+random_labels = zeros(1,length(true_labels));
+for i=1:M
+    random_labels(i) = randsample(K,1);
+end
+[Purity_random, NMI_random, F_random, ARI_random] = cluster_metrics(true_labels, random_labels);
+fprintf('------ Results for Random Clustering ------\n K: %d, Purity: %1.2f, NMI: %1.2f, ARI: %1.2f, F measure: %1.2f \n', ...
+      K, Purity_random, NMI_random, ARI_random, F_random);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 2: Compute Similarity Matrix from B-SPCM Function for dataset   %%
@@ -80,7 +93,7 @@ NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
    
 % Choose Embedding implementation
 show_plots = 0;          % Show plot of similarity matrices+eigenvalues   
-pow_eigen  = 2;          % (L^+)^(pow_eigen) for dimensionality selection 
+pow_eigen  = 3;          % (L^+)^(pow_eigen) for dimensionality selection 
 emb_type   = 0;          % 0: Graph-Subspace Projection
                          % 1: Kernel-PCA on L^+
                          % 2: Kernel-PCA on deformed Kernel with L
@@ -152,7 +165,7 @@ end
 % 2: CRP-GMM (Gibbs Sampler/Collapsed) on Preferred Embedding
 
 est_options = [];
-est_options.type             = 0;   % Clustering Estimation Algorithm Type   
+est_options.type             = 2;   % Clustering Estimation Algorithm Type   
 
 % If algo 1 selected:
 est_options.maxK             = 15;   % Maximum Gaussians for Type 1
@@ -175,25 +188,25 @@ clear Priors Mu Sigma
 toc;
 
 %%%%%%%%%% Compute Cluster Metrics %%%%%%%%%%%%%
-[Purity, NMI, F] = cluster_metrics(true_labels, est_labels');
+[Purity, NMI, F, ARI] = cluster_metrics(true_labels, est_labels');
 if exist('true_labels', 'var')
     K = length(unique(true_labels));
 end
 switch est_options.type
     case 0
-        fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-            'spcm-CRP-MM (Collapsed-Gibbs)', stats.Psi.Maxiter, stats.Psi.MaxLogProb, length(unique(est_labels)), K,  Purity, NMI, F);
+        fprintf('---%s Results---\n Iter:%d, LP: %d, Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, ARI: %1.2f, F measure: %1.2f \n', ...
+            'spcm-CRP-MM (Collapsed-Gibbs)', stats.Psi.Maxiter, stats.Psi.MaxLogProb, length(unique(est_labels)), K,  Purity, NMI, ARI, F);
     case 1
-        fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-            'Finite-GMM (MS-BIC)', length(unique(est_labels)), K,  Purity, NMI, F);
+        fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, ARI: %1.2f, F measure: %1.2f \n', ...
+            'Finite-GMM (MS-BIC)', length(unique(est_labels)), K,  Purity, NMI, ARI, F);
     case 2
         
         if isfield(stats,'collapsed')
-            fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-                'CRP-GMM (Collapsed-Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
+            fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, ARI: %1.2f, F measure: %1.2f \n', ...
+                'CRP-GMM (Collapsed-Gibbs)', length(unique(est_labels)), K,  Purity, NMI, ARI, F);
         else
-            fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n', ...
-                'CRP-GMM (Gibbs)', length(unique(est_labels)), K,  Purity, NMI, F);
+            fprintf('---%s Results---\n  Clusters: %d/%d with Purity: %1.2f, NMI Score: %1.2f, ARI: %1.2f, F measure: %1.2f \n', ...
+                'CRP-GMM (Gibbs)', length(unique(est_labels)), K,  Purity, NMI, ARI, F);
         end
 end
 
@@ -215,8 +228,8 @@ end
 [Priors0, Mu0, Sigma0] = gmmOracle(Y, true_labels);
 [~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
 est_K0                 = length(unique(est_labels0));
-[Purity NMI F]         = cluster_metrics(true_labels, est_labels0);
-fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, F);
+[Purity, NMI,  F, ARI]         = cluster_metrics(true_labels, est_labels0);
+fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, ARI: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, ARI,  F);
 if M < 4
     oracle_options = [];
     oracle_options.type = -1;        

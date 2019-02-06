@@ -4,7 +4,7 @@
 
 clear all; close all;
 % Load an SPD simulation (from Section 1 and 3)
-sim_type = 4; % 1: linear ellipsoid with isotropic scalings + rotations
+sim_type = 3; % 1: linear ellipsoid with isotropic scalings + rotations
               % 2: linear ellipsoid with anisotropic scalings + rotations
               % 3: simulation 1 + 2
               % 4: 3D wishart samples from linear, spherical and planar ellipsoids
@@ -71,7 +71,7 @@ dataset_name='Manipulability Ellipsoids';
 %%     Plot Sigmas  (with spectral polytopes)   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plot Sigma
-iter = 10;
+iter = 1;
 colors = jet(length(Mu_test));
 draw_polytopes = 0;
 

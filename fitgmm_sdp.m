@@ -72,9 +72,9 @@ switch est_type
             lambda.beta_0        = sum(diag(cov(Y')))/M; % G(sigma_k^-1|alpha_0,beta_0): (precision)
         end
         if strcmp(options.type,'full')
-            lambda.nu_0        = M ;                       % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
+            lambda.nu_0        = M;                       % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
 %             lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M;  % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
-            lambda.Lambda_0    = 1/M * diag(diag(cov(Y')));         % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+            lambda.Lambda_0    = 1/(M) * diag(diag(cov(Y')));         % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 
         end
         lambda.mu_0             = mean(Y,2);    % hyper for N(mu_k|mu_0,kappa_0)

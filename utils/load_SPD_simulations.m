@@ -66,9 +66,20 @@ switch sim_type
         Mu_test(2,41:80) = Mu_test_2(1,:);
         Mu_test(3,41:80) = Mu_test_2(3,:);
         sigma_test(:,:,1:40)  = sigma_test_1;
-        sigma_test(:,:,41:80) = 2*sigma_test_2;
-        true_labels = [ones(1,40) 2*ones(1,5) 3*ones(1,5) 4*ones(1,5) 5*ones(1,5) 2*ones(1,5) 3*ones(1,5) 4*ones(1,5) 5*ones(1,5)] ;
+        sigma_test(:,:,41:80) = sigma_test_2;
+        true_labels = [ones(1,40) 2*ones(1,4) 3*ones(1,3) 4*ones(1,4) 5*ones(1,3) 6*ones(1,6) ...
+                                  2*ones(1,4) 3*ones(1,3) 4*ones(1,4) 5*ones(1,3) 6*ones(1,6)] ;
+                              
+        % Scale isotropically with rando positive number
+        isos = 2*abs(randn(80,1)');
+        for i=1:80
+            sigma_test(:,:,i) = isos(i)*sigma_test(:,:,i);
+        end
+                              
+        true_labels(41) = 1;
+        true_labels(61) = 1;
         dataset_name = 'Mix Isotropic/Anisotropic Scalings on Linear Ellipsoid';
+        
     case 4
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %     Test 2: Sampled (Rotated) Covariance Matrices   %%

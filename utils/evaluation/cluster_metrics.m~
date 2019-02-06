@@ -72,14 +72,12 @@ else
     NMI=I/sqrt(H_pred*H_true);
 end
 
+
 %%%%%%% Computing F measure %%%%%%%
 % The harmonic mean between Precision and Recall
 % http://www.uni-weimar.de/medien/webis/teaching/lecturenotes/machine-learning/unit-en-cluster-analysis-evaluation.pdf
-% wth beta option for stronger penalization of false-negatives 
-beta = 2;
-F = my_Fmeasure(pred_labels, true_labels, beta);
-
-
+% wth beta 
+F = my_Fmeasure(pred_labels, true_labels);
 
 %%%%%%% Adjusted Random Index %%%%%%%
 ARI = RandIndex(true_labels, pred_labels);

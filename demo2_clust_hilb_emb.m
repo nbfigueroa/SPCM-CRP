@@ -10,9 +10,10 @@
 % Learning Algorithms and Systems Lab, EPFL (Switzerland)
 % Email address: nadia.figueroafernandez@epfl.ch  
 % Website: http://lasa.epfl.ch
-% November 2016; Last revision: 23-May-2017
+% December 2018; Last revision: 10-Feb-2019
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 1 (DATA LOADING): Load Datasets %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,11 +40,23 @@ close all; clear all; clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
-display      = 0;       % display SDP matrices (if applicable)
-randomize    = 0;       % randomize idx
-dataset      = 2;       % choosen dataset from index above
-sample_ratio = 1;       % sub-sample dataset [0.0 - 1]
+display      = 0;        % display SDP matrices (if applicable)
+randomize    = 0;        % randomize idx
+dataset      = 2;        % choosen dataset from index above
+sample_ratio = 1;        % sub-sample dataset [0.0 - 1]
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize, sample_ratio);
+
+% Generate Random Labels for Baseline Clustering Comparison
+M = length(sigmas);
+if exist('true_labels', 'var')
+    K = length(unique(true_labels));
+end
+random_labels = zeros(1,length(true_labels));
+for i=1:M
+    random_labels(i) = randsample(K,1);
+end
+[Purity_random, NMI_random, F_random, ARI_random] = cluster_metrics(true_labels, random_labels)
+
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 2: Compute Similarity Matrix from SPD-Distances for dataset   %%
@@ -115,12 +128,12 @@ end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
-% Tolerance for SPCM decay function 
-tau = 1; % [1, 100] Set higher for noisy data, Set 1 for ideal data 
+% Hyper-parameter for similarity function
+gamma = 2;
 
 %%%%%%%%%%%%%%%%%%% Compute SPCM Similarities %%%%%%%%%%%%%%%%%%
-spcm = ComputeSPCMfunctionMatrix(sigmas, tau, 2);  
-K    = spcm(:,:,2);
+spcm = ComputeSPCMfunctionMatrix(sigmas, gamma, 2);  
+S    = spcm(:,:,2);
 if exist('h0','var') && isvalid(h0), delete(h0); end
 h0 = plotSimilarityConfMatrix(K, 'SCPM Similarity function');
 
