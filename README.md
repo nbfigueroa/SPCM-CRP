@@ -20,7 +20,7 @@ To run your own experiments on the Diffusion Tensor Image Dataset you must downl
 - [fanDTasia](https://ch.mathworks.com/matlabcentral/fileexchange/26997-fandtasia-toolbox):A Matlab library for Diffusion Weighted MRI (DW-MRI) Processing, Diffusion Tensor (DTI) Estimation, Diffusion Kurtosis (DKI) Estimation, Higher-order Diffusion Tensor Analysis, Tensor ODF estimation, Visualization and more.
 
 ---
-### Illustrative Example
+### Illustrative Example [Redo this explanation...]
 To highlight the power of the proposed method, we consider a dataset of 5 Covariance Matrices of 3-dimensions, which can be illustrated as ellipsoids in 3D space:
 <p align="center">
 <img src="https://github.com/nbfigueroa/SPCM-CRP/blob/master/img/3d-ellipsoids.png" width="700">
