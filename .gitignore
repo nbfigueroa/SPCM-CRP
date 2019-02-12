@@ -1,6 +1,9 @@
 *#*
 *~*
-paper-figures/*
+paper-figures/intro/*
+paper-figures/metric/*
+paper-figures/embeddings/*
+paper-figures/clustering/*
 thirdparty/itml/*
 thirdparty/RobustPCA/*
 
