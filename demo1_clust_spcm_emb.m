@@ -18,19 +18,19 @@
 %%  Step 1 (DATA LOADING): Load Datasets %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clear all; clc
-%%%%%%%%%%%%%%%%%%%%%%%%% Select a Dataset %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%% Select a Dataset %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1:  Non-deformed+Deformed Ellips. (3D) / (80 Samples  c1:3,  c2:3,  c2:3  c4:)
 % 2:  SPD sampled from Wishart      (3D) / (120 Samples c1:40, c2:40, c2:40)
 % 3:  SPD sampled from Wishart      (6D) / (200 Samples c1:50, c2:50, c3:50 c4:50)
 % 4:  Real 6D Task-Ellipsoids       (6D) / (105 Samples c1:63, c2:21, c3:21)
-% 5:  Real Diffusion Tensors (Rat)  (3D) / (1024 Samples 5 classes)
-% 6:  Manipulability Ellipsoids 1   (3D) / (727 Samples X classes)
+% 5:  Manipulability Ellipsoids 1   (3D) / (727 Samples 5 classes)
+% 6:  Real Diffusion Tensors (Rat)  (3D) / (1024 Samples 5 classes)
 % ...
 % 9:  ETH-80 Object Dataset Feats. (18D)   ... TODO (Rotated Objects)
 % 10 : HMM Emission Models - Task1  (13D)  ... TODO (Polishing)
 % 11 : HMM Emission Models - Task2  (7D)   ... TODO (Grating)
 % 12 : HMM Emission Models - Task3  (13D)  ... TODO (Rolling)
-% 13:  HMM Emission Models - Task4  (26D)   ... TODO (Peeling)
+% 13:  HMM Emission Models - Task4  (26D)  ... TODO (Peeling)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%% Data Loading Parameter Description %%%%%%%%%%%%%%%%%%%%%%
 % display:   [0,1]  -- Display Covariance matrices in their own format
@@ -39,11 +39,11 @@ close all; clear all; clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
-display      = 0;       % display SDP matrices (if applicable)
+display      = 1;       % display SDP matrices (if applicable)
 randomize    = 0;       % randomize idx
-dataset      = 1;       % choosen dataset from index above
+dataset      = 2;       % choosen dataset from index above
 sample_ratio = 1;       % sub-sample dataset [0.01 - 1]
-[sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display);
+[sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize);
 
 % Generate Random Labels for Baseline Clustering Comparison
 M = length(sigmas);
@@ -93,8 +93,8 @@ NEF_S    = sum(abs(lambda_S(lambda_S < 0)))/sum(abs(lambda_S));
    
 % Choose Embedding implementation
 show_plots = 0;          % Show plot of similarity matrices+eigenvalues   
-pow_eigen  = 3;          % (L^+)^(pow_eigen) for dimensionality selection 
-emb_type   = 0;          % 0: Graph-Subspace Projection
+pow_eigen  = 4;          % (L^+)^(pow_eigen) for dimensionality selection 
+emb_type   = 2;          % 0: Graph-Subspace Projection
                          % 1: Kernel-PCA on L^+
                          % 2: Kernel-PCA on deformed Kernel with L
 switch emb_type
@@ -114,7 +114,7 @@ switch emb_type
         emb_options.norm_K        = 1;           % Normalize the Kernel Matrix
         emb_options.pow_eigen     = pow_eigen;   % K^(pow_eigen) for dimensionality selection
         emb_options.show_plots    = show_plots;  % 0/1 display plots
-        emb_options.deform        = 0;
+        emb_options.deform        = 1;
         
         %%%%%%%%%%%%%%%%%%%%%% Choose SDP distance %%%%%%%%%%%%%%%%%%%%%%%%
         choosen_distance = 1;  %  1: Log-Euclidean Riemannian Distance (LERM)
@@ -138,7 +138,7 @@ end
 M = size(Y,1);
 show_emb = 0;
 
-%%%%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
+%% %%%%%% Visualize Approximate Euclidean Embedding %%%%%%%%
 plot_options        = [];
 plot_options.labels = true_labels;
 plot_options.title  = emb_name; 
@@ -165,7 +165,7 @@ end
 % 2: CRP-GMM (Gibbs Sampler/Collapsed) on Preferred Embedding
 
 est_options = [];
-est_options.type             = 2;   % Clustering Estimation Algorithm Type   
+est_options.type             = 0;   % Clustering Estimation Algorithm Type   
 
 % If algo 1 selected:
 est_options.maxK             = 15;   % Maximum Gaussians for Type 1
@@ -213,13 +213,13 @@ end
 %% Visualize Estimated Parameters
 if M < 4     
     est_options.emb_name = emb_name;
-    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
+    [Priors0, Mu0, Sigma0] = gmmOracle(Y, est_labels);
+    tot_dilation_factor = 1; rel_dilation_fact = 0.2;        
+    Sigma0 = adjust_Covariances(Priors0, Sigma0, tot_dilation_factor, rel_dilation_fact);
+    [~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
     axis equal;
 end
-
-% TODO: Need to re-implement this function/has some problems when |k|>|c|
-% [accuracy, est_labels_arr, CM] = calculateAccuracy(est_labels', true_labels);
-% h = plotConfMat(CM);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  Compute/Show GMM-Oracle Results                      %%
@@ -238,10 +238,14 @@ if M < 4
     axis equal
 end
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%% For Dataset 6: Visualize cluster labels for DTI %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Visualize Estimated Cluster Labels as DTI
-% if exist('h3','var') && isvalid(h3), delete(h3);end
+% if exist('h3a','var') && isvalid(h3a), delete(h3a);end
 title = 'Estimated Cluster Labels of Diffusion Tensors';
-h3 = plotlabelsDTI(est_labels, title);
+h3a = plotlabelsDTI(est_labels, title);
+
+% if exist('h3b','var') && isvalid(h3b), delete(h3b);end
+title = 'Ground Truth Cluster Labels of Diffusion Tensors';
+h3b = plotlabelsDTI(true_labels, title);

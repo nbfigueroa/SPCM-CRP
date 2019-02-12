@@ -18,12 +18,13 @@ for k=1:length(Mu_test)
     sigmas{k} = sigma_test(:,:,k);
 end
 
-
-%% Commands for manipulability ellipsoids
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%   Commands to generate manipulability ellipsoid Dataset 1  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all; clc;
 dataset = [];
-rot = 0
-load(strcat(data_path,'6D-Grasps.mat'))
+rot = 0;
+
 if rot
     dataset{1} = load('pouring_obst_Rot');
     dataset{2} = load('foot_motion_Rot');
@@ -67,17 +68,41 @@ for i=1:length(dataset)
 end
 dataset_name='Manipulability Ellipsoids';
 
+%% Creating labels for ME-JTDS dataset
+me_index = zeros(1,length(sigmas));
+for i=1:length(sigmas)
+    me_index(1,i) = sqrt(det(sigmas{i}));
+end
+% Creating labels base on Manipulability Index
+[N,edges] = histcounts(me_index,5);
+true_labels = discretize(me_index,edges);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%   Commands to Visualize Task-Wrench Ellispoids  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Mu_test = zeros(3,length(sigmas));
+Mu_test(2,sum(true_labels==1)+1:sum(true_labels==1)+sum(true_labels==2)) = 20*ones(1,sum(true_labels==2));
+Mu_test(2,sum(true_labels==2)+1:sum(true_labels==2)+sum(true_labels==3)) = 40*ones(1,sum(true_labels==2));
+
+sigma_test = zeros(3,3,length(sigmas));
+for i=1:length(sigmas)
+    sigma_test(:,:,i) = sigmas{i}(1:3,1:3);
+end
+
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%     Plot Sigmas  (with spectral polytopes)   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plot Sigma
-iter = 1;
-colors = jet(length(Mu_test));
+iter = 20;
+% colors = jet(length(Mu_test));
+colors = jet(length(unique(true_labels)));
+
 draw_polytopes = 0;
 
 figure('Color',[1 1 1])
 for k=1:iter:length(Mu_test)
-    [V,D]=eig(sigma_test(1:3,1:3,k)); scale = 0.25; 
+    [V,D]=eig(sigma_test(1:3,1:3,k)); scale = 0.5; 
     [x,y,z] = created3DgaussianEllipsoid(Mu_test(:,k),V,D, scale); hold on;
     [V, D] = sortem(V,D);
     
@@ -130,7 +155,7 @@ for k=1:iter:length(Mu_test)
     
     
     % This makes the ellipsoids beautiful
-    surf(x, y, z,'FaceColor',colors(k,:),'FaceAlpha', 0.15, 'FaceLighting','phong','EdgeColor','none'); hold on;
+    surf(x, y, z,'FaceColor',colors(true_labels(k),:),'FaceAlpha', 0.15, 'FaceLighting','phong','EdgeColor','none'); hold on;
 end
 camlight;
 xlabel('$x_1$', 'Interpreter', 'LaTex', 'FontSize',15);

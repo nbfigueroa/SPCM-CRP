@@ -23,8 +23,8 @@ close all; clear all; clc
 % 2:  SPD sampled from Wishart      (3D) / (120 Samples c1:40, c2:40, c2:40)
 % 3:  SPD sampled from Wishart      (6D) / (200 Samples c1:50, c2:50, c3:50 c4:50)
 % 4:  Real 6D Task-Ellipsoids       (6D) / (105 Samples c1:63, c2:21, c3:21)
-% 5:  Real Diffusion Tensors (Rat)  (3D) / (1024 Samples 5 classes)
-% 6:  Manipulability Ellipsoids 1   (3D) / (727 Samples X classes)
+% 5:  Manipulability Ellipsoids 1   (3D) / (727 Samples 5 classes)
+% 6:  Real Diffusion Tensors (Rat)  (3D) / (1024 Samples 5 classes)
 % ...
 % 9:  ETH-80 Object Dataset Feats. (18D)   ... TODO (Rotated Objects)
 % 10 : HMM Emission Models - Task1  (13D)  ... TODO (Polishing)
@@ -42,7 +42,7 @@ close all; clear all; clc
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
 display      = 0;        % display SDP matrices (if applicable)
 randomize    = 0;        % randomize idx
-dataset      = 2;        % choosen dataset from index above
+dataset      = 5;        % choosen dataset from index above
 sample_ratio = 1;        % sub-sample dataset [0.0 - 1]
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize, sample_ratio);
 
@@ -55,8 +55,9 @@ random_labels = zeros(1,length(true_labels));
 for i=1:M
     random_labels(i) = randsample(K,1);
 end
-[Purity_random, NMI_random, F_random, ARI_random] = cluster_metrics(true_labels, random_labels)
-
+[Purity_random, NMI_random, F_random, ARI_random] = cluster_metrics(true_labels, random_labels);
+fprintf('------ Results for Random Clustering ------\n K: %d, Purity: %1.2f, NMI: %1.2f, ARI: %1.2f, F measure: %1.2f \n', ...
+      K, Purity_random, NMI_random, ARI_random, F_random);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Step 2: Compute Similarity Matrix from SPD-Distances for dataset   %%
@@ -85,7 +86,7 @@ emb_options = [];
 emb_options.l_sensitivity = 2; % This changes the embedding/results ALOT!
 emb_options.distance_name = distance_name;
 emb_options.norm_K        = 1;   % Normalize the Kernel Matrix
-emb_options.pow_eigen     = 3;   % K^(pow_eigen) for dimensionality selection
+emb_options.pow_eigen     = 4;   % K^(pow_eigen) for dimensionality selection
 emb_options.show_plots    = 0;   % 0/1 display plots
 emb_options.emb_type      = 1;   % 0: Kernel-PCA from Distances 
                                  % 1: Diffusion Maps with Distances 
@@ -97,11 +98,11 @@ switch emb_options.emb_type
         
     case 1
         % Time-steps for diffusion process
-        emb_options.t              = 2;
+        emb_options.t              = 3;
         % Markov Chain Probability Matrix Construction Style (see function)
         emb_options.markov_constr  = 2;
         [x_emb, Y, K, l] = diffusionMap_Embedding(D, emb_options);
-        eps = 1/l
+        l
         emb_name = strcat('Diffusion Maps on ',{' '}, distance_name);
 end
 
@@ -129,13 +130,13 @@ end
 
 % %%%%%%%%%%%%%%%%%%%%% Set Hyper-parameter %%%%%%%%%%%%%%%%%%%%%%%%
 % Hyper-parameter for similarity function
-gamma = 2;
+gamma = 3;
 
 %%%%%%%%%%%%%%%%%%% Compute SPCM Similarities %%%%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, gamma, 2);  
 S    = spcm(:,:,2);
 if exist('h0','var') && isvalid(h0), delete(h0); end
-h0 = plotSimilarityConfMatrix(K, 'SCPM Similarity function');
+h0 = plotSimilarityConfMatrix(S, 'SCPM Similarity function');
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%             Step 4: Discover Clusters of Covariance Matrices          %%
@@ -193,15 +194,16 @@ switch est_options.type
 end
 
 %% Visualize Estimated Parameters
-if M < 4      
-    est_options.emb_name = emb_name{1};
-    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
-    axis equal
+if M < 4     
+    est_options.emb_name = emb_name;
+    [Priors0, Mu0, Sigma0] = gmmOracle(Y, est_labels);
+    tot_dilation_factor = 1; rel_dilation_fact = 0.15;        
+    Sigma0 = adjust_Covariances(Priors0, Sigma0, tot_dilation_factor, rel_dilation_fact);
+    [~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
+    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
+    axis equal;
 end
 
-% TODO: Need to re-implement this function/has some problems when |k|>|c|
-% [accuracy, est_labels_arr, CM] = calculateAccuracy(est_labels', true_labels);
-% h = plotConfMat(CM);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  Compute/Show GMM-Oracle Results                      %%
@@ -222,10 +224,13 @@ if M < 4
     axis equal
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%% For Datasets 4a/b: Visualize cluster labels for DTI %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%% For Dataset 6: Visualize cluster labels for DTI %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Visualize Estimated Cluster Labels as DTI
-% if exist('h3','var') && isvalid(h3), delete(h3);end
+if exist('h3a','var') && isvalid(h3a), delete(h3a);end
 title = 'Estimated Cluster Labels of Diffusion Tensors';
-h3 = plotlabelsDTI(est_labels, title);
+h3a = plotlabelsDTI(est_labels, title);
+if exist('h3b','var') && isvalid(h3b), delete(h3b);end
+title = 'Ground Truth Cluster Labels of Diffusion Tensors';
+h3b = plotlabelsDTI(true_labels, title);
