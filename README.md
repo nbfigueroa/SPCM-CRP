@@ -9,7 +9,7 @@ Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
 This repo provides code for running the Non-parametric Spectral Clustering algorithm on Covariance Matrix Datasets (SPCM-CRP-MM) introduced in [1]. In a nutshell, **SPCM-CRP-MM** is a similarity-dependent Chinese Restaurant Process Mixture Model. Where the similarity matrix comes from the Spectral Polytope Covariance Matrix Similarity function and the non-parametric clustering is applied on the spectral manifold induced from the similarity function.
 
 #### Reference
-[1] [Nadia Figueroa](http://lasa.epfl.ch/people/member.php?SCIPER=238387) and Aude Billard, "Transform-Invariant Non-Parametric Clustering of Covariance Matrices and its Application to Unsupervised Joint Segmentation and Action Discovery." *Journal of Machine Learning Research* [Under Review](https://arxiv.org/abs/1710.10060). 
+[1] [Nadia Figueroa](http://lasa.epfl.ch/people/member.php?SCIPER=238387) and Aude Billard, "Geometric Transform Invariant Non-Parametric Clustering of Covariance Matrices and its Application to Unsupervised Joint Segmentation and Action Discovery." *Journal of Machine Learning Research* [Under Review](https://arxiv.org/abs/1710.10060). 
 
 ---
 
