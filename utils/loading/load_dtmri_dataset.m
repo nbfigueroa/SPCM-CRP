@@ -116,7 +116,7 @@ maxFA = max(frac_anisotropy(:));
 cl_ranges = [minFA:cl_step:maxFA];
 
 % Create Tensor Dataset to Cluster
-k = 1; true_labels = zeros(1,size(DTI,3)*size(DTI,4));
+k = 1; FA_labels = zeros(1,size(DTI,3)*size(DTI,4));
 for i=1:size(DTI,3) % row
     for j=1:size(DTI,4) % column
         
@@ -126,15 +126,17 @@ for i=1:size(DTI,3) % row
         % Compute FA values
         [eigenvectors,l] = eig(DTI(:,:,i,j));
         m=(l(1,1)+l(2,2)+l(3,3))/3;
-        FA=sqrt(3/2)*sqrt((l(1,1)-m)^2+(l(2,2)-m)^2+(l(3,3)-m)^2)/sqrt(l(1,1)^2+l(2,2)^2+l(3,3)^2);
+        FA_labels(k) = sqrt(3/2)*sqrt((l(1,1)-m)^2+(l(2,2)-m)^2+(l(3,3)-m)^2)/sqrt(l(1,1)^2+l(2,2)^2+l(3,3)^2);
                 
         % Create fake clusters from FA
-        true_labels(k) = sum((FA < cl_ranges) == 0);
+        true_labels(k) = sum((FA_labels(k) < cl_ranges) == 0);
         k = k + 1;
     end
 end
 
-
+% Creating labels base on Manipulability Index
+% [~,edges] = histcounts(FA_labels,4);
+% true_labels = discretize(FA_labels,edges);
 
 if display==1
 

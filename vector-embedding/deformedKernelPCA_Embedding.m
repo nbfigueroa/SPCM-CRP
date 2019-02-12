@@ -17,7 +17,6 @@ function [x_emb, x_emb_apprx, S, S_SP, gamma] = deformedKernelPCA_Embedding(D, S
 % Website: http://lasa.epfl.ch
 % December 2018;
 
-
 l_sensitivity = emb_options.l_sensitivity;
 norm_K        = emb_options.norm_K;
 pow_eigen     = emb_options.pow_eigen;
@@ -113,9 +112,14 @@ d_L_pow = diag(D_sort_pow);
 [~, opt_ids_der]  = ml_curve_opt(d_L_pow','derivatives');
 [~, opt_ids_line] = ml_curve_opt(d_L_pow','line');
 k_options = sort([opt_ids_der opt_ids_line],'ascend');
-k_dim = k_options(1)
+k_dim = k_options(1);
 
 no_dims = k_dim;
+eig_diff = L_full(no_dims-1) - L_full(no_dims);
+if eig_diff < 0.01
+    no_dims = k_dim -1
+end
+    
 L_red = L(1:no_dims);
 V_red = V(:,ind(1:no_dims));
 

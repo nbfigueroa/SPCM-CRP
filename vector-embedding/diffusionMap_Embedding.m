@@ -83,6 +83,8 @@ end
 % Perform economy-size SVD
 disp('Perform eigendecomposition...');
 [U, L, V] = svd(M_t, 0);
+d_Mt    = diag(real(L));
+
 % Eigen-vector Normalization step
 U = bsxfun(@rdivide, U, U(:,1));
 ell = size(M_t, 1);
@@ -94,10 +96,11 @@ x_emb = U(:,2:no_dims + 1)';
 % Vectorize eigenvalues
 d_Mt    = diag(real(L));
 
+
 % Check that there is only 1 eigenvalue == 1
-if sum(d_Mt > 0.95) > 1
-    error('More than 1 eigenvalue ~ 1, epsilon might be too small (i.e. l_sensitivity too large)!!')
-end
+% if sum(d_Mt > 0.95) > 1
+%     error('More than 1 eigenvalue ~ 1, epsilon might be too small (i.e. l_sensitivity too large)!!')
+% end
 
 % switch markov_constr
 %     case 1
@@ -119,8 +122,9 @@ end
         k_dim_ = k_options(1)
 %         d_Mt_pow = d_Mt;
 % end
-
-x_emb_apprx = U(:,2:k_dim + 1)';
+eig_one = sum(d_Mt > 0.95)
+x_emb_apprx = U(:,eig_one+1:k_dim+1)';
+% x_emb_apprx = U(:,2:k_dim + 1)';
 
 
 % Plot eigenvalues of matrices

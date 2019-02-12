@@ -102,7 +102,7 @@ d_L_pow = diag(D_sort_pow);
 [~, opt_ids_der]  = ml_curve_opt(d_L_pow','derivatives');
 [~, opt_ids_line] = ml_curve_opt(d_L_pow','line');
 k_options = sort([opt_ids_der opt_ids_line],'ascend');
-k_dim = k_options(1)
+k_dim = k_options(1);
 
 x_emb_apprx = zeros(k_dim,n);
 D_apprx     = zeros(n,n); V_apprx   = zeros(n,n);

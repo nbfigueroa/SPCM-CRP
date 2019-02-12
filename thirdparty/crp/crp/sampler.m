@@ -65,7 +65,7 @@ if(nargin < 7)
 end
 if(nargin < 8)
 %     lambda_0 = eye(size(training_data(:,1),1))*.3;
-    lambda_0 = diag(diag(cov(training_data')));
+    lambda_0 = 1/M * diag(diag(cov(training_data')));
 end
 
 % set alpha gamma prior parameters

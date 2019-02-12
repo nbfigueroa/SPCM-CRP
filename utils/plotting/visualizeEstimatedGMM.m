@@ -3,13 +3,17 @@ M = size(Xi_ref,1);
 emb_name = est_options.emb_name; 
 switch est_options.type
     case -1
-        title_string = strcat('GMM-Oracle on ',{' '},emb_name);
+%         title_string = strcat('GMM-Oracle on ',{' '},emb_name);
+        title_string = strcat('GMM-Oracle');
     case 0
-        title_string = strcat('SPCM-CRP-MM on ',{' '},emb_name);
+%         title_string = strcat('SPCM-CRP-GMM on ',{' '},emb_name);
+        title_string = strcat('SPCM-CRP-GMM');
     case 1
-        title_string = strcat('Finite GMM w/BIC Model Selection on ',{' '},emb_name);
+%         title_string = strcat('Finite GMM w/BIC Model Selection on ',{' '},emb_name);
+        title_string = strcat('Finite GMM w/BIC Model Selection');
     case 2
-        title_string = strcat('CRP-GMM on ',  {' '},emb_name);
+%         title_string = strcat('CRP-GMM on ',  {' '},emb_name);
+        title_string = strcat('CRP-GMM');
 end
 
 
@@ -28,10 +32,9 @@ elseif M == 3
     GMM.Priors = Priors; GMM.Mu = Mu; GMM.Sigma = Sigma;
     [h_gmm] = plot3DGMMParameters(Xi_ref, GMM, est_labels);
     title(title_string,'Interpreter','LaTex', 'FontSize',15); 
-    view(-120, 30);
+    view(-100, 0);
     axis equal
     h_pdf = [];
 end
-
 
 end

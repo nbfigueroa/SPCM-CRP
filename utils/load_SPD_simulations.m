@@ -61,7 +61,7 @@ switch sim_type
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         [Mu_test_1, sigma_test_1] = load_SPD_simulations(1);
         [Mu_test_2, sigma_test_2] = load_SPD_simulations(2);
-        Mu_test(:,1:40) = Mu_test_1;
+        Mu_test(:,1:40)  = Mu_test_1;
         Mu_test(1,41:80) = Mu_test_2(2,:);
         Mu_test(2,41:80) = Mu_test_2(1,:);
         Mu_test(3,41:80) = Mu_test_2(3,:);

@@ -31,13 +31,12 @@ nc = sum(M,1);
 mc = max(M,[],1);
 Purity = sum(mc(nc>0))/sum(nc);
 
-
 %%%%%%% Computing Normalized Mutual Information (NMI) Criteria %%%%%%%
 % The NMI is a measures that allows us to make this tradeoff between 
 % the quality of the clustering against the number of clusters
 
-% NMI = I / (H_true + H_pred)/2
-% I is the mutual information Criteria
+% NMI = MI / (H_true + H_pred)/2
+% MI is the mutual information Criteria
 % H_x is the Entropy
 
 % Computing the entropy of the true labels
@@ -56,21 +55,25 @@ for j = unique(pred_labels)
     H_pred = H_pred - pred_prob(j) * log(pred_prob(j));
 end
 
-I = 0;
+MI = 0;
 for i = unique(true_labels)
     for j = unique(pred_labels)
         joint_p = sum(true_labels == i & pred_labels == j) / N;
         if (joint_p > 0)
-            I = I + joint_p * log(joint_p / (true_prob(i)*pred_prob(j)));
+            MI = MI + joint_p * log(joint_p / (true_prob(i)*pred_prob(j)));
         end
     end
 end
 
-if (I == 0)
+if (MI == 0)
     NMI = 0;
 else
-    NMI=I/sqrt(H_pred*H_true);
+    NMI=MI/sqrt(H_pred*H_true);
 end
+
+%%%%%% Adjusted Mutual Information %%%%%%
+AMI = AdjustedMI(true_labels,pred_labels);
+% NMI = AMI;
 
 %%%%%%% Computing F measure %%%%%%%
 % The harmonic mean between Precision and Recall
@@ -78,8 +81,6 @@ end
 % wth beta option for stronger penalization of false-negatives 
 beta = 2;
 F = my_Fmeasure(pred_labels, true_labels, beta);
-
-
 
 %%%%%%% Adjusted Random Index %%%%%%%
 ARI = RandIndex(true_labels, pred_labels);
