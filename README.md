@@ -1,6 +1,6 @@
 # SPCM-CRP
 
-[TODO: UPDATE README.. paper and code have drastically changed!]
+[TODO: UPDATE README.. paper and code have drastically changed!]  
 SPCM-CRP-MM : Transform Invariant Chinese Restaurant Process Mixture Model for Covariance Matrices  
 Website: https://github.com/nbfigueroa/SPCM-CRP  
 Author: Nadia Figueroa (nadia.figueroafernandez AT epfl.ch)
