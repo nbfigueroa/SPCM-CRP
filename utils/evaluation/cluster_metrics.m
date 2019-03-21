@@ -72,7 +72,7 @@ else
 end
 
 %%%%%% Adjusted Mutual Information %%%%%%
-AMI = AdjustedMI(true_labels,pred_labels);
+% AMI = AdjustedMI(true_labels,pred_labels);
 % NMI = AMI;
 
 %%%%%%% Computing F measure %%%%%%%

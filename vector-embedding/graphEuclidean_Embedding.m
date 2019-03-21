@@ -1,4 +1,4 @@
-function [x_emb, x_emb_apprx] = graphEuclidean_Embedding(S, show_plots, pow_eigen)
+function [x_emb, x_emb_apprx, d_L_pow] = graphEuclidean_Embedding(S, show_plots, pow_eigen)
 % This algorithm maps the data into M-dimensional spectral space from
 % similarity matrix S using the method from (On Spectral Clustering: Analysis and an algorithm. Andrew Ng.)
 % Implementation of Algorithm 1. from Socher11a paper (Spectral Chinese Restaurant Processes)
@@ -98,8 +98,11 @@ pow = pow_eigen;
 D_sort_pow    = real(diag(sort(diag(D_pow),'descend'))); % make diagonal matrix out of sorted diagonal values of input D
 d_L_pow = diag(D_sort_pow);
 
-
-[~, opt_ids_der]  = ml_curve_opt(d_L_pow','derivatives');
+if size(d_L_pow,1) < 5
+    [~, opt_ids_der]  = ml_curve_opt(d_L_pow','line');
+else
+    [~, opt_ids_der]  = ml_curve_opt(d_L_pow','derivatives');
+end
 [~, opt_ids_line] = ml_curve_opt(d_L_pow','line');
 k_options = sort([opt_ids_der opt_ids_line],'ascend');
 k_dim = k_options(1);

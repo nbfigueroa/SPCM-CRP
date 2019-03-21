@@ -24,9 +24,9 @@ if M == 2
     title(title_string,'Interpreter','LaTex', 'FontSize',15); 
     
     % Visualize PDF of fitted GMM
-    ml_plot_gmm_pdf(Xi_ref, Priors, Mu, Sigma, limits);
+    [h_pdf] = ml_plot_gmm_pdf(Xi_ref, Priors, Mu, Sigma, limits);
     title(title_string,'Interpreter','LaTex', 'FontSize',15); 
-    
+    axis equal
 elseif M == 3
     GMM = [];
     GMM.Priors = Priors; GMM.Mu = Mu; GMM.Sigma = Sigma;

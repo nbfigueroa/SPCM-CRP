@@ -1,4 +1,4 @@
-function [ ] = ml_plot_gmm_pdf(X, Priors, Mu, Sigma, varargin )
+function [ h_pdf] = ml_plot_gmm_pdf(X, Priors, Mu, Sigma, varargin )
 %ML_PLOT_GMM_PDF Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -27,7 +27,7 @@ for i = 1:length(xplot)
 end
 
 % Plot the GMM PDF Contours
-figure('Color',[1 1 1]);
+h_pdf = figure('Color',[1 1 1]);
 % contour(X_,Y_, vals, 50, 'LineStyle', 'none');hold on;
 contour(X_,Y_, vals, 100);hold on;
 colormap jet
@@ -41,8 +41,8 @@ options.colors      = [0 1 0.5];
 options.plot_figure = true;
 ml_plot_data(X',options);
 title ('GMM-PDF Contours','Interpreter','LaTex','FontSize',20);
-xlabel('$y_1$','Interpreter','LaTex','FontSize',20)
-ylabel('$y_2$','Interpreter','LaTex','FontSize',20)
+xlabel('$\xi_1$','Interpreter','LaTex','FontSize',20)
+ylabel('$\xi_2$','Interpreter','LaTex','FontSize',20)
 
 end
 

@@ -28,8 +28,8 @@ if (M == 2) || (M == 3)
         end 
         box on
         grid on
-        xlabel('$y_1$','Interpreter','LaTex','FontSize',20);
-        ylabel('$y_2$','Interpreter','LaTex','FontSize',20);
+        xlabel('$\xi_1$','Interpreter','LaTex','FontSize',20);
+        ylabel('$\xi_2$','Interpreter','LaTex','FontSize',20);
         colormap(hot)
         grid on
     end

@@ -53,7 +53,7 @@ switch init
        
             minDistances = min(minDistances,my_distX2Mu(X,Mu(:,ii-1), 'L2'));           
             denominator = sum(minDistances);
-            Probs = minDistances/denominator;            
+            Probs = minDistances/denominator            
             Mu(:,ii) = datasample(X,1,2,'Weights',Probs);                    
        end    
        

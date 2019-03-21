@@ -89,20 +89,84 @@ for i=1:length(sigmas)
     sigma_test(:,:,i) = sigmas{i}(1:3,1:3);
 end
 
+ellipsoids = [5 15 25];
+Mu_test = zeros(3,3);
+Mu_test(1,:) = [0 1 2];
+
+sigmas = [];
+for i=1:length(ellipsoids)
+    sigmas{i} = sigma_test(:,:,ellipsoids(i));
+end
+
+% Plot Sigma with Spectral Polytopes
+colors = hsv(length(Mu_test));
+% colors = jet(length(Mu_test));
+% colors = vivid(length(Mu_test));
+
+figure('Color',[1 1 1])
+for k=1:1:length(Mu_test)
+    [V,D]=eig(sigma_test(:,:,ellipsoids(k))); scale = 1; 
+    [x,y,z] = created3DgaussianEllipsoid(Mu_test(:,k),V,D, scale); hold on;
+    
+    subplot(1,3,k);
+    % Draw frame
+    H = eye(4);
+    H(1:3,1:3) = eye(3);
+    H(1:3,4)   = Mu_test(:,k);
+    
+    % Draw World Reference Frame
+    drawframe(H,0.5); hold on;
+    
+    % Draw Eigenvectors/Principal Axes  
+    P = [V(:,1)*D(1,1) V(:,2)*D(2,2) V(:,3)*D(3,3)];
+    arrow3(Mu_test(:,k), P(:,1), 'k'); hold on;
+    arrow3(Mu_test(:,k), P(:,2), 'k'); hold on;
+    arrow3(Mu_test(:,k), P(:,3), 'k'); hold on;
+    P = P +Mu_test(:,k);
+%     fill3(P(1,:),P(2,:),P(3,:),'k','FaceAlpha',0.5); hold on;   
+    
+    % This makes the ellipsoids beautiful
+    surf(x, y, z,'FaceColor',colors(k,:),'FaceAlpha', 0.45, 'FaceLighting','phong','EdgeColor','none'); hold on;
+    camlight;
+    xlabel('$f_x$', 'Interpreter', 'LaTex', 'FontSize',22);
+    ylabel('$f_y$', 'Interpreter', 'LaTex','FontSize',22);
+    zlabel('$f_z$', 'Interpreter', 'LaTex','FontSize',22);
+    set(gca,'FontSize',22,'FontName','Times');
+    grid on;
+    axis equal;
+%     axis([104 6])
+    
+    % axis tight;
+    switch k
+        case 1
+            title('Circle Drawing - Grasp 1','Interpreter', 'LaTex', 'FontSize',15);
+        case 2
+            title('Circle Drawing - Grasp 2','Interpreter', 'LaTex', 'FontSize',15);
+        case 3
+            title('Circle Drawing - Grasp 3','Interpreter', 'LaTex', 'FontSize',15);
+    end
+    
+end
+
+
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%     Plot Sigmas  (with spectral polytopes)   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plot Sigma
-iter = 20;
-% colors = jet(length(Mu_test));
-colors = jet(length(unique(true_labels)));
+iter = 1;
 
-draw_polytopes = 0;
+colors = hsv(length(Mu_test));
+% colors = jet(length(unique(true_labels)));
+% colors = hsv(length(unique(true_labels)));
+
+draw_polytopes = 1;
+colors = vivid(length(ellipsoids));
 
 figure('Color',[1 1 1])
-for k=1:iter:length(Mu_test)
-    [V,D]=eig(sigma_test(1:3,1:3,k)); scale = 0.5; 
+% for k=1:iter:length(Mu_test)
+for k=1:length(ellipsoids)
+    [V,D]=eig(sigma_test(1:3,1:3,ellipsoids(k))); scale = 1; 
     [x,y,z] = created3DgaussianEllipsoid(Mu_test(:,k),V,D, scale); hold on;
     [V, D] = sortem(V,D);
     
@@ -113,7 +177,7 @@ for k=1:iter:length(Mu_test)
         H(1:3,4)   = Mu_test(:,k) + randn(3,1)/50;
         
         % Draw World Reference Frame
-        drawframe(H,1); hold on;
+        drawframe(H,0.5); hold on;
         
         % Draw Eigenvectors/Principal Axes
         P = [V(:,1)*D(1,1) V(:,2)*D(2,2) V(:,3)*D(3,3)];
@@ -141,7 +205,7 @@ for k=1:iter:length(Mu_test)
         arrow3(Mu_test(:,k), P(:,2), 'k'); hold on;
         arrow3(Mu_test(:,k), P(:,3), 'k'); hold on;
         P = P +Mu_test(:,k);
-        fill3(P(1,:),P(2,:),P(3,:),'k','FaceAlpha',0.5); hold on;
+%         fill3(P(1,:),P(2,:),P(3,:),'k','FaceAlpha',0.5); hold on;
     else
         % Draw frame
         H = eye(4);
@@ -155,9 +219,10 @@ for k=1:iter:length(Mu_test)
     
     
     % This makes the ellipsoids beautiful
-    surf(x, y, z,'FaceColor',colors(true_labels(k),:),'FaceAlpha', 0.15, 'FaceLighting','phong','EdgeColor','none'); hold on;
+    surf(x, y, z,'FaceColor',colors(k,:),'FaceAlpha', 0.55, 'FaceLighting','phong','EdgeColor','none'); hold on;
+    camlight;
 end
-camlight;
+% camlight;
 xlabel('$x_1$', 'Interpreter', 'LaTex', 'FontSize',15);
 ylabel('$x_2$', 'Interpreter', 'LaTex','FontSize',15);
 zlabel('$x_3$', 'Interpreter', 'LaTex','FontSize',15);

@@ -23,16 +23,18 @@ true_labels = [ones(1,samples*3) , ones(1,samples)*2, ones(1,samples)*3];
 
 
 % Add a slight rotation to the ellipsoids
-a = -pi/2;
-b =  pi/2;
-pitches = (b-a).*rand(length(sigmas),1) + a;
-for i=1:length(sigmas)
-    R_0 = eul2rotm([0,pitches(i),0]);
-    R_6D = eye(6);
-    R_6D(1:3,1:3) = R_0;
-    R_6D(4:6,4:6) = R_0;
-    sigmas{i} = R_6D*sigmas{i}*R_6D';
-end
+% a = -pi/2;
+% b =  pi/2;
+% a = -pi/10;
+% b =  pi/10;
+% pitches = (b-a).*rand(length(sigmas),1) + a;
+% for i=1:length(sigmas)
+%     R_0 = eul2rotm([0,pitches(i),0]);
+%     R_6D = eye(6);
+%     R_6D(1:3,1:3) = R_0;
+%     R_6D(4:6,4:6) = R_0;
+%     sigmas{i} = R_6D*sigmas{i}*R_6D';
+% end
 
 if (randomize == 1) 
     fprintf('Randomize Indices: 1 \n');

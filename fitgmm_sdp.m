@@ -73,7 +73,7 @@ switch est_type
         end
         if strcmp(options.type,'full')
             lambda.nu_0        = M;                              % IW(Sigma_k|Lambda_0,nu_0): (degrees of freedom)
-%             lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M;  % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
+            lambda.Lambda_0    = eye(M)*sum(diag(cov(Y')))/M;  % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
             lambda.Lambda_0    = 1/(M) * diag(diag(cov(Y')));    % IW(Sigma_k|Lambda_0,nu_0): (Scale matrix)
 
         end
@@ -133,7 +133,7 @@ switch est_type
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
     case 1        
         
-        em_type = 'nadia';
+        em_type = 'matlab';
         if fixed_K == 0
             repetitions = 10;
             [bic_scores, k] = fit_gmm_bic(Y, max_gaussians, repetitions, em_type, do_plots);

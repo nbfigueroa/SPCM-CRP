@@ -87,7 +87,7 @@ emb_options.l_sensitivity = 2; % This changes the embedding/results ALOT!
 emb_options.distance_name = distance_name;
 emb_options.norm_K        = 1;   % Normalize the Kernel Matrix
 emb_options.pow_eigen     = 4;   % K^(pow_eigen) for dimensionality selection
-emb_options.show_plots    = 0;   % 0/1 display plots
+emb_options.show_plots    = 1;   % 0/1 display plots
 emb_options.emb_type      = 1;   % 0: Kernel-PCA from Distances 
                                  % 1: Diffusion Maps with Distances 
 switch emb_options.emb_type
@@ -100,7 +100,7 @@ switch emb_options.emb_type
         % Time-steps for diffusion process
         emb_options.t              = 3;
         % Markov Chain Probability Matrix Construction Style (see function)
-        emb_options.markov_constr  = 2;
+        emb_options.markov_constr  = 1;
         [x_emb, Y, K, l] = diffusionMap_Embedding(D, emb_options);
         l
         emb_name = strcat('Diffusion Maps on ',{' '}, distance_name);

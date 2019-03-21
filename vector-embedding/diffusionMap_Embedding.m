@@ -75,7 +75,13 @@ switch markov_constr
         M_t  = M_alpha^t;        
 end
 
+rank_L = rank(L_alpha)
+rank_P = rank(M_t)
+
 if show_plots
+    title_str = strcat('Laplacian Matrix of ',{' '}, distance_name);
+    plotSimilarityConfMatrix(L_alpha, title_str);
+    
     title_str = strcat('t-Transition Matrix of ',{' '}, distance_name);
     plotSimilarityConfMatrix(M_t, title_str);
 end

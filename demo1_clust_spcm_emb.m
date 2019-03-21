@@ -41,7 +41,7 @@ close all; clear all; clc
 pkg_dir = '/home/nbfigueroa/Dropbox/PhD_papers/journal-draft/new-code/SPCM-CRP';
 display      = 1;       % display SDP matrices (if applicable)
 randomize    = 0;       % randomize idx
-dataset      = 2;       % choosen dataset from index above
+dataset      = 4;       % choosen dataset from index above
 sample_ratio = 1;       % sub-sample dataset [0.01 - 1]
 [sigmas, true_labels, dataset_name] = load_SPD_dataset(dataset, pkg_dir, display, randomize);
 
@@ -67,7 +67,7 @@ fprintf('------ Results for Random Clustering ------\n K: %d, Purity: %1.2f, NMI
 dis_type = 2; % Choose dis-similarity type 
               % 1:'var' use the variance of homothetic ratios
               % 2:'cv'  use the coefficient of variation of homo. ratios
-gamma    = 2;
+gamma    = 4;
 % %%%%%%%%%%%%%%% Compute Confusion Matrix of Similarities %%%%%%%%%%%%%%%%
 spcm = ComputeSPCMfunctionMatrix(sigmas, gamma, dis_type);  
 D    = spcm(:,:,1);
@@ -99,7 +99,7 @@ emb_type   = 2;          % 0: Graph-Subspace Projection
                          % 2: Kernel-PCA on deformed Kernel with L
 switch emb_type
     case 0        
-        [x_emb, Y] = graphEuclidean_Embedding(S, show_plots, pow_eigen);
+        [x_emb, Y, d_L_pow] = graphEuclidean_Embedding(S, show_plots, pow_eigen);
         emb_name = '(SPCM) Graph-Subspace Projection';
         
     case 1        
@@ -169,12 +169,12 @@ est_options.type             = 0;   % Clustering Estimation Algorithm Type
 
 % If algo 1 selected:
 est_options.maxK             = 15;   % Maximum Gaussians for Type 1
-est_options.fixed_K          = [];  % Fix K and estimate with EM for Type 1
+est_options.fixed_K          = 2;  % Fix K and estimate with EM for Type 1
 
 % If algo 0 or 2 selected:
-est_options.samplerIter      = 100;   % Maximum Sampler Iterations
-                                     % For type 0: 50-200 iter are needed
-                                     % For type 2: 200-1000 iter are needed
+est_options.samplerIter      = 150;   % Maximum Sampler Iterations
+                                      % For type 0: 50-200 iter are needed
+                                      % For type 2: 200-1000 iter are needed
 
 % Plotting options
 est_options.do_plots         = 1;              % Plot Estimation Stats
@@ -211,14 +211,19 @@ switch est_options.type
 end
 
 %% Visualize Estimated Parameters
+re_estimate = 1;
 if M < 4     
     est_options.emb_name = emb_name;
-    [Priors0, Mu0, Sigma0] = gmmOracle(Y, est_labels);
-    tot_dilation_factor = 1; rel_dilation_fact = 0.2;        
-    Sigma0 = adjust_Covariances(Priors0, Sigma0, tot_dilation_factor, rel_dilation_fact);
-    [~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
-    [h_gmm]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
-    axis equal;
+    if re_estimate
+        [Priors0, Mu0, Sigma0] = gmmOracle(Y, est_labels);
+        tot_dilation_factor = 1; rel_dilation_fact = 0.2;
+        Sigma0 = adjust_Covariances(Priors0, Sigma0, tot_dilation_factor, rel_dilation_fact);
+        [~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
+        [h_gmm, h_pdf]  = visualizeEstimatedGMM(Y,  Priors0, Mu0, Sigma0, est_labels0, est_options);
+    else
+        
+        [h_gmm, h_pdf]  = visualizeEstimatedGMM(Y,  Priors, Mu, Sigma, est_labels, est_options);
+    end
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -228,7 +233,7 @@ end
 [Priors0, Mu0, Sigma0] = gmmOracle(Y, true_labels);
 [~, est_labels0]       = my_gmm_cluster(Y, Priors0, Mu0, Sigma0, 'hard', []);
 est_K0                 = length(unique(est_labels0));
-[Purity, NMI,  F, ARI]         = cluster_metrics(true_labels, est_labels0);
+[Purity, NMI,  F, ARI] = cluster_metrics(true_labels, est_labels0);
 fprintf('(GMM-Oracle) Number of estimated clusters: %d/%d, Purity: %1.2f, NMI Score: %1.2f, ARI: %1.2f, F measure: %1.2f \n',est_K0,K, Purity, NMI, ARI,  F);
 if M < 4
     oracle_options = [];

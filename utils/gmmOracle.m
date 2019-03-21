@@ -12,7 +12,7 @@ Mu0     = zeros(N,K);
 Sigma0  = zeros(N,N,K);
 for k=1:K 
     
-        Priors0(1,k)  = sum(true_labels == labels(k))/N;
+        Priors0(1,k)  = sum(true_labels == labels(k))/M;        
         Mu0(:,k)      = mean(X(:,true_labels == labels(k)),2);                 
         Sigma0(:,:,k) = my_covariance( X(:,true_labels==labels(k)), Mu0(:, k), 'full' );
         

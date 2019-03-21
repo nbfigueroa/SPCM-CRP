@@ -33,7 +33,7 @@ class_names         = [];
 colors              = [];
 title_name          = 'My pretty data';
 is_eig              = false;
-label_font_size     = 14;
+label_font_size     = 20;
 points_size         = 50;
 weights             = [];
 plot_labels         = [];
@@ -66,7 +66,7 @@ if ~isempty(weights)
 end
 
 
-%% Plot the data
+% Plot the data
 
 if plot_figure == true
     handle = [];
@@ -121,7 +121,7 @@ else
 
         elseif ~isempty(cmap)
            scatter(X(:,1), X(:,2), points_size, cmap,'filled','MarkerEdgeColor', [0 0 0]);
-           colormap(hsv)
+           colormap(jet)
            colorbar            
         else
             scatter(X(:,1),X(:,2),points_size,'filled','MarkerEdgeColor', [0 0 0]);
@@ -137,7 +137,8 @@ else
             end
         elseif ~isempty(cmap)
            scatter3(X(:,1), X(:,2), X(:,3), points_size, cmap,'filled','MarkerEdgeColor', [0 0 0]);
-           colormap(hsv)
+           colormap(jet)
+%            colormap(hsv)
            colorbar
         else
             scatter3(X(:,1),X(:,2),X(:,3),points_size,'filled');
@@ -175,7 +176,7 @@ box on; grid on;
 %% Set title 
 
 if plot_figure==false 
-    title({title_name}, 'Interpreter','Latex','FontName','Times', 'FontWeight','Light'); 
+    title({title_name}, 'Interpreter','Latex','FontName','Times', 'FontWeight','Light','FontSize',20); 
 end
 
 %% Set the labels
@@ -194,13 +195,13 @@ elseif D <= 3
     
         if isempty(plot_labels)
             if D >= 1
-                xlabel({'$y_1$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+                xlabel({'$x_1$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
             if D >= 2
-                ylabel({'$y_2$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+                ylabel({'$x_2$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
             if D == 3
-                zlabel({'$y_3$'} ,'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+                zlabel({'$x_3$'} ,'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
         else
             if D >= 1
@@ -217,6 +218,8 @@ end
 
 if D ==3
     view(3)
+    set(legend,...
+    'Position',[0.0633333362603468 0.702777782035254 0.1892857113587 0.15476190050443]);
 end
 end
 

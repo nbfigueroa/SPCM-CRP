@@ -28,18 +28,33 @@ switch(method)
         % Find maximum values
         [dd_vals, idx] = findpeaks(dd_curve);
 
-        % Peak values
+        % Max Peak values
         [~, ids] = sort(dd_vals,'descend');
 
         % Return first 2 values with significant change
         if length(ids) > 1
-            opt_vals = curve(ids(1:2));  % Maximum values of the second derivative
-            opt_ids  = idx(ids(1:2));    % Indices of those maximum values
+            opt_vals_max = curve(ids(1:2));  % Maximum values of the second derivative
+            opt_ids_max  = idx(ids(1:2));    % Indices of those maximum values
         else                        
-            opt_vals = curve(ids(1));
-            opt_ids  = idx(ids(1));     
+            opt_vals_max = curve(ids(1));
+            opt_ids_max  = idx(ids(1));     
         end
 
+        opt_vals = opt_vals_max
+        opt_ids  = opt_ids_max
+        
+        % Min Peak values
+%         [dd_vals_min, idx_min] = findpeaks(-dd_curve);
+%         [~, ids_min] = sort(dd_vals_min,'descend');
+%         if length(ids_min) > 1
+%             opt_vals_min = curve(ids_min(1:2));  % Maximum values of the second derivative
+%             opt_ids_min  = idx_min(ids_min(1:2));    % Indices of those maximum values
+%         else                        
+%             opt_vals_min = curve(ids_min(1));
+%             opt_ids_min  = idx_min(ids_min(1));     
+%         end
+
+        
    % %%%% Using distance to line
     case 'line'
 

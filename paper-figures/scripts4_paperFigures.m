@@ -13,21 +13,18 @@ rolls = 0.1570:0.0785:pi/2+0.0785;
 R_0 = eul2rotm([yaw,pitch,rolls(1)]);
 
 sigma_test(:,:,1) = diag([1 1 5]);
-
-R_0 = eul2rotm([yaw,pitch,rolls(5)]);
-sigma_test(:,:,2) = diag([2.5 2.5 2.5]);
-
-yaw= 0;pitch = 0;
-R_0 = eul2rotm([yaw,pitch,rolls(1)]);
-sigma_test(:,:,3) =diag([1 5 5]);
+% sigma_test(:,:,2) = diag([2.5 2.5 2.5]);
+sigma_test(:,:,2) = R_0*2*diag([1 1 5])*R_0';
+sigma_test(:,:,3) = diag([1 5 5]);
  
-
 % Plot Sigma with Spectral Polytopes
 colors = hsv(length(Mu_test));
 % colors = jet(length(Mu_test));
 
 figure('Color',[1 1 1])
+sigmas = [];
 for k=1:1:length(Mu_test)
+    sigmas{k} = sigma_test(:,:,k);    
     [V,D]=eig(sigma_test(:,:,k)); scale = 1; 
     [x,y,z] = created3DgaussianEllipsoid(Mu_test(:,k),V,D, scale); hold on;
     
@@ -46,10 +43,10 @@ for k=1:1:length(Mu_test)
     arrow3(Mu_test(:,k), P(:,2), 'k'); hold on;
     arrow3(Mu_test(:,k), P(:,3), 'k'); hold on;
     P = P +Mu_test(:,k);
-    fill3(P(1,:),P(2,:),P(3,:),'k','FaceAlpha',0.5); hold on;   
+%     fill3(P(1,:),P(2,:),P(3,:),'k','FaceAlpha',0.5); hold on;   
     
     % This makes the ellipsoids beautiful
-    surf(x, y, z,'FaceColor',colors(k,:),'FaceAlpha', 0.25, 'FaceLighting','phong','EdgeColor','none'); hold on;
+    surf(x, y, z,'FaceColor',colors(k,:),'FaceAlpha', 0.35, 'FaceLighting','phong','EdgeColor','none'); hold on;
     camlight;
     xlabel('$x_1$', 'Interpreter', 'LaTex', 'FontSize',15);
     ylabel('$x_2$', 'Interpreter', 'LaTex','FontSize',15);
@@ -57,17 +54,52 @@ for k=1:1:length(Mu_test)
     set(gca,'FontSize',16);
     grid on;
     axis equal;
+    
     % axis tight;
     switch k
         case 1
             title('Linear 3D Ellipsoid','Interpreter', 'LaTex', 'FontSize',15);
         case 2
-            title('Spherical 3D Ellipsoid','Interpreter', 'LaTex', 'FontSize',15);
+%             title('Spherical 3D Ellipsoid','Interpreter', 'LaTex', 'FontSize',15);
+            title('Scaled/Rotated Linear 3D Ellipsoid','Interpreter', 'LaTex', 'FontSize',15);
         case 3
             title('Planar 3D Ellipsoid','Interpreter', 'LaTex', 'FontSize',15);
     end
     
 end
+
+dis_type = 2;
+gamma    = 2;
+spcm = ComputeSPCMfunctionMatrix(sigmas, gamma, dis_type);  
+D_SP    = spcm(:,:,1);
+
+if exist('h1a','var') && isvalid(h1a), delete(h1a); end
+title_str = 'SPCM  Distance $d_{SP}(\cdot,\cdot)$';
+h1a = plotSimilarityConfMatrix(D_SP, title_str);
+
+%%%%%%%%%%%%%%%%%%%%%% Choose SDP distance %%%%%%%%%%%%%%%%%%%%%%%%
+% -2: Euclidean
+% -1: Cholesky-Euclideandef:affine
+%  0: Affine-Invariant Riemannian Distance (RIEM)
+%  1: Log-Euclidean Riemannian Distance (LERM)
+%  2: KL-Divergence (KLDM)
+%  3: LogDet-Divergence (JBLD)
+%  4: Minimum Scale Rotation Curve Distance (SROT)                    
+%%%%%%% Visualize Bounded Distance (dis-similarity) Matrix %%%%%%%%%%%%%%
+choosen_distance = 1;
+[D_LE, distance_name] = computeSDP_distances(sigmas, choosen_distance);
+if exist('h2a','var') && isvalid(h2a), delete(h2a); end
+h2a = plotSimilarityConfMatrix(D_LE, distance_name);
+
+choosen_distance = 0;
+[D_LE, distance_name] = computeSDP_distances(sigmas, choosen_distance);
+if exist('h3a','var') && isvalid(h3a), delete(h3a); end
+h3a = plotSimilarityConfMatrix(D_LE, distance_name);
+
+choosen_distance = 3;
+[D_LE, distance_name] = computeSDP_distances(sigmas, choosen_distance);
+if exist('h4a','var') && isvalid(h4a), delete(h4a); end
+h4a = plotSimilarityConfMatrix(D_LE, distance_name);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
